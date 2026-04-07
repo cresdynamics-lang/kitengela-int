@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styles from './AdminLogin.module.css'
 import { adminApi } from '@/lib/api'
+import { setAdminSession } from '@/lib/adminSession'
 
 export default function AdminLogin() {
   const navigate = useNavigate()
@@ -17,8 +18,7 @@ export default function AdminLogin() {
       const response = await adminApi.login(formData.username, formData.password)
       if (response.success && response.data) {
         const token = response.data.token
-        localStorage.setItem('adminToken', token)
-        localStorage.setItem('admin', JSON.stringify(response.data.admin))
+        setAdminSession(token, response.data.admin)
 
         // Warm commonly opened admin tabs while navigating.
         void Promise.allSettled([

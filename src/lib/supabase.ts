@@ -35,6 +35,11 @@ export async function uploadFile(bucket: string, file: File, path: string) {
     console.error('Upload error:', error);
     const message =
       error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
+    if (message.includes('aborted') || message.includes('signal is aborted')) {
+      throw new Error(
+        'Upload request timed out before Supabase responded. Please retry with a smaller image or check network stability.',
+      );
+    }
     if (message.includes('failed to fetch') || message.includes('network')) {
       throw new Error(
         `Unable to reach Supabase Storage at ${supabaseHost}. Check VITE_SUPABASE_URL and your DNS/network connection.`,

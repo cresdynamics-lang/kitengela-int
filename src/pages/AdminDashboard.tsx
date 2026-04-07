@@ -1,6 +1,13 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { adminApi } from '@/lib/api'
+import {
+  clearAdminSession,
+  getAdminActiveTab,
+  getAdminToken,
+  getAdminUser,
+  setAdminActiveTab,
+} from '@/lib/adminSession'
 import styles from './AdminDashboard.module.css'
 
 const Programs = lazy(() => import('@/components/admin/Programs'))
@@ -14,21 +21,12 @@ type TabKey = 'programs' | 'events' | 'live' | 'sermons' | 'links' | 'admins'
 export default function AdminDashboard() {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<TabKey>(() => {
-    const saved = localStorage.getItem('adminActiveTab') as TabKey | null
-    return saved || 'live'
+    return getAdminActiveTab<TabKey>('live')
   })
-  const [admin, setAdmin] = useState<any>(() => {
-    const raw = localStorage.getItem('admin')
-    if (!raw) return null
-    try {
-      return JSON.parse(raw)
-    } catch {
-      return null
-    }
-  })
+  const [admin] = useState<any>(() => getAdminUser())
 
   useEffect(() => {
-    const token = localStorage.getItem('adminToken')
+    const token = getAdminToken()
     if (!token || !admin) {
       navigate('/admin/login')
       return
@@ -53,13 +51,11 @@ export default function AdminDashboard() {
   }, [navigate, admin])
 
   useEffect(() => {
-    localStorage.setItem('adminActiveTab', activeTab)
+    setAdminActiveTab(activeTab)
   }, [activeTab])
 
   const handleLogout = () => {
-    localStorage.removeItem('adminToken')
-    localStorage.removeItem('admin')
-    localStorage.removeItem('adminActiveTab')
+    clearAdminSession()
     navigate('/')
   }
 

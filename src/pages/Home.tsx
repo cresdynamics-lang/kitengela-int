@@ -55,7 +55,7 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
-    Promise.all([
+    Promise.allSettled([
       publicApi.getSermons().then((r) => r.success && Array.isArray(r.data) && r.data.length > 0 ? r.data[0] : null),
       publicApi.getWeeklyPrograms().then((r) => {
         if (!r.success || !Array.isArray(r.data)) return []
@@ -67,7 +67,9 @@ export default function Home() {
           description: p.description || ''
         }))
       })
-    ]).then(([sermon, prog]) => {
+    ]).then(([sermonResult, programsResult]) => {
+      const sermon = sermonResult.status === 'fulfilled' ? sermonResult.value : null
+      const prog = programsResult.status === 'fulfilled' ? programsResult.value : []
       setSundaySermon(sermon)
       setServices(prog)
     }).finally(() => setLoading(false))

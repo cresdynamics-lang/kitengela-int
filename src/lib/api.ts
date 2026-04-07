@@ -1,7 +1,52 @@
-const API_URL = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL) || ''
+function isLocalHostname(hostname: string) {
+  return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1'
+}
+
+function resolveApiUrl() {
+  const raw = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL) || ''
+  const trimmed = raw.trim()
+  if (!trimmed) return ''
+
+  try {
+    const parsed = new URL(trimmed)
+    if (typeof window !== 'undefined') {
+      const appIsLocal = isLocalHostname(window.location.hostname)
+      const apiIsLocal = isLocalHostname(parsed.hostname)
+      if (!appIsLocal && apiIsLocal) return ''
+    }
+    return trimmed.replace(/\/+$/, '')
+  } catch {
+    return trimmed.replace(/\/+$/, '')
+  }
+}
+
+const API_URL = resolveApiUrl()
 const PUBLIC_CACHE_TTL_MS = 30_000
 const ADMIN_CACHE_TTL_MS = 5 * 60_000
-const REQUEST_TIMEOUT_MS = 10_000
+const REQUEST_TIMEOUT_MS = 25_000
+
+function normalizeRequestError(error: unknown, endpoint: string): Error {
+  const rawMessage =
+    error instanceof Error
+      ? error.message
+      : typeof error === 'string'
+      ? error
+      : 'Request failed'
+  const message = rawMessage.toLowerCase()
+  const isAbort =
+    (error instanceof Error && error.name === 'AbortError') ||
+    message.includes('aborted') ||
+    message.includes('signal is aborted') ||
+    message.startsWith('timeout:')
+
+  if (isAbort) {
+    return new Error(
+      `Request to ${endpoint} timed out after ${REQUEST_TIMEOUT_MS / 1000}s. Please try again.`,
+    )
+  }
+
+  return error instanceof Error ? error : new Error(rawMessage)
+}
 
 function readCache<T>(key: string, ttlMs: number): { success: boolean; data: T } | null {
   try {
@@ -56,9 +101,14 @@ function clearCacheByPrefix(prefix: string) {
 
 async function fetchWithTimeout(url: string, options: RequestInit = {}) {
   const controller = new AbortController()
-  const timer = globalThis.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
+  const timer = globalThis.setTimeout(
+    () => controller.abort(`timeout:${REQUEST_TIMEOUT_MS}`),
+    REQUEST_TIMEOUT_MS,
+  )
   try {
     return await fetch(url, { ...options, signal: controller.signal })
+  } catch (error) {
+    throw normalizeRequestError(error, url)
   } finally {
     globalThis.clearTimeout(timer)
   }
@@ -88,8 +138,9 @@ async function fetchApi<T>(endpoint: string): Promise<{ success: boolean; data: 
   } catch (error) {
     const stale = readCacheAnyAge<T>(cacheKey)
     if (stale) return stale
-    console.error(`Error fetching ${endpoint}:`, error)
-    throw error
+    const normalized = normalizeRequestError(error, endpoint)
+    console.error(`Error fetching ${endpoint}:`, normalized)
+    throw normalized
   }
 }
 
@@ -181,8 +232,9 @@ async function fetchApiWithAuth<T>(endpoint: string, token: string, options: Req
       const stale = readCacheAnyAge<T>(cacheKey)
       if (stale) return stale
     }
-    console.error(`Error fetching ${endpoint}:`, error)
-    throw error
+    const normalized = normalizeRequestError(error, endpoint)
+    console.error(`Error fetching ${endpoint}:`, normalized)
+    throw normalized
   }
 }
 
@@ -197,7 +249,8 @@ export const adminApi = {
     try {
       data = await response.json()
     } catch {
-      data = { success: false, error: response.ok ? 'Invalid response' : 'Server error. Is the API running on ' + (API_URL || 'localhost:3001') + '?' }
+      const apiHost = API_URL || 'this site (/api)'
+      data = { success: false, error: response.ok ? 'Invalid response' : `Server error. Is the API running on ${apiHost}?` }
     }
     if (!response.ok && data && !data.error) {
       data.error = response.status === 500 ? 'Server error. Check API is running and database is set up.' : 'Login failed.'

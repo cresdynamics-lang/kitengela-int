@@ -1,10 +1,6 @@
-import path from 'path'
-import { fileURLToPath } from 'url'
 import dotenv from 'dotenv'
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-dotenv.config({ path: path.join(__dirname, '..', '.env') })
-dotenv.config({ path: path.join(__dirname, '..', '.env.local') })
+dotenv.config()
+dotenv.config({ path: '.env.local' })
 
 import express from 'express'
 import cors from 'cors'
@@ -18,6 +14,45 @@ app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ limit: '10mb', extended: true }))
 
 const PORT = Number(process.env.PORT) || 3001
+const ENV_ADMIN_TOKEN = 'env-admin-token'
+const DB_QUERY_TIMEOUT_MS = Number(process.env.DB_QUERY_TIMEOUT_MS || 8000)
+
+const withDbTimeout = async <T>(operation: Promise<T>): Promise<T> =>
+  Promise.race([
+    operation,
+    new Promise<T>((_, reject) => {
+      globalThis.setTimeout(() => reject(new Error(`db timeout:${DB_QUERY_TIMEOUT_MS}`)), DB_QUERY_TIMEOUT_MS)
+    }),
+  ])
+
+const isDatabaseUnavailableError = (error: unknown) => {
+  const message = String((error as { message?: string })?.message || '').toLowerCase()
+  const name = String((error as { name?: string })?.name || '')
+  return (
+    name === 'PrismaClientInitializationError' ||
+    message.includes("can't reach database server") ||
+    message.includes('error validating datasource') ||
+    message.includes('failed to connect') ||
+    message.includes('db timeout:')
+  )
+}
+
+const normalizeIdentifier = (value: string | undefined) => (value || '').trim().toLowerCase()
+
+const getEnvAdmin = () => {
+  const username = normalizeIdentifier(process.env.ADMIN_USERNAME)
+  const email = normalizeIdentifier(process.env.ADMIN_EMAIL)
+  const password = process.env.ADMIN_PASSWORD || ''
+  if (!username || !password) return null
+  return {
+    id: ENV_ADMIN_TOKEN,
+    username,
+    email: email || `${username}@local.admin`,
+    role: 'admin',
+    isSuperAdmin: true,
+    password,
+  }
+}
 
 // ---------- Public API ----------
 app.get('/api/public/site', async (_req, res) => {
@@ -32,24 +67,36 @@ app.get('/api/public/site', async (_req, res) => {
 
 app.get('/api/public/live', async (_req, res) => {
   try {
-    const live = await prisma.liveStream.findFirst({ orderBy: { updatedAt: 'desc' } })
+    const live = await withDbTimeout(prisma.liveStream.findFirst({ orderBy: { updatedAt: 'desc' } }))
     res.json({ success: true, data: live })
   } catch (e) {
     console.error(e)
-    res.status(500).json({ success: false, error: 'Failed to fetch live stream' })
+    const isUnavailable = isDatabaseUnavailableError(e)
+    res.status(isUnavailable ? 503 : 500).json({
+      success: false,
+      error: isUnavailable
+        ? 'Database is unavailable. Check DATABASE_URL and Supabase project status.'
+        : 'Failed to fetch live stream',
+    })
   }
 })
 
 app.get('/api/public/programs/weekly', async (_req, res) => {
   try {
-    const programs = await prisma.program.findMany({
+    const programs = await withDbTimeout(prisma.program.findMany({
       where: { isActive: true },
       orderBy: [{ day: 'asc' }, { orderIndex: 'asc' }],
-    })
+    }))
     res.json({ success: true, data: programs })
   } catch (e) {
     console.error(e)
-    res.status(500).json({ success: false, error: 'Failed to fetch programs' })
+    const isUnavailable = isDatabaseUnavailableError(e)
+    res.status(isUnavailable ? 503 : 500).json({
+      success: false,
+      error: isUnavailable
+        ? 'Database is unavailable. Check DATABASE_URL and Supabase project status.'
+        : 'Failed to fetch programs',
+    })
   }
 })
 
@@ -69,13 +116,19 @@ app.get('/api/public/programs', async (req, res) => {
 
 app.get('/api/public/sermons', async (_req, res) => {
   try {
-    const sermons = await prisma.sermon.findMany({
+    const sermons = await withDbTimeout(prisma.sermon.findMany({
       orderBy: { date: 'desc' },
-    })
+    }))
     res.json({ success: true, data: sermons })
   } catch (e) {
     console.error(e)
-    res.status(500).json({ success: false, error: 'Failed to fetch sermons' })
+    const isUnavailable = isDatabaseUnavailableError(e)
+    res.status(isUnavailable ? 503 : 500).json({
+      success: false,
+      error: isUnavailable
+        ? 'Database is unavailable. Check DATABASE_URL and Supabase project status.'
+        : 'Failed to fetch sermons',
+    })
   }
 })
 
@@ -151,32 +204,72 @@ app.post('/api/public/contact', async (req, res) => {
 app.post('/api/admin/login', async (req, res) => {
   try {
     const body = loginSchema.parse(req.body || {})
-    const admin = await prisma.admin.findFirst({
-      where: { OR: [{ username: body.username }, { email: body.username }] },
-    })
-    if (!admin) {
-      return res.status(401).json({ success: false, error: 'Invalid credentials' })
-    }
-    const isValid = await verify(admin.passwordHash, body.password)
-    if (!isValid) {
-      return res.status(401).json({ success: false, error: 'Invalid credentials' })
-    }
-    res.json({
-      success: true,
-      data: {
-        token: admin.id,
-        admin: {
-          id: admin.id,
-          username: admin.username,
-          email: admin.email,
-          role: admin.role,
-          isSuperAdmin: admin.isSuperAdmin,
+    const normalizedLogin = normalizeIdentifier(body.username)
+
+    try {
+      const admin = await withDbTimeout(prisma.admin.findFirst({
+        where: { OR: [{ username: body.username }, { email: body.username }] },
+      }))
+      if (!admin) {
+        return res.status(401).json({ success: false, error: 'Invalid credentials' })
+      }
+      const isValid = await verify(admin.passwordHash, body.password)
+      if (!isValid) {
+        return res.status(401).json({ success: false, error: 'Invalid credentials' })
+      }
+      return res.json({
+        success: true,
+        data: {
+          token: admin.id,
+          admin: {
+            id: admin.id,
+            username: admin.username,
+            email: admin.email,
+            role: admin.role,
+            isSuperAdmin: admin.isSuperAdmin,
+          },
         },
-      },
-    })
+      })
+    } catch (dbError) {
+      if (!isDatabaseUnavailableError(dbError)) {
+        throw dbError
+      }
+
+      const envAdmin = getEnvAdmin()
+      if (
+        envAdmin &&
+        body.password === envAdmin.password &&
+        (normalizedLogin === envAdmin.username || normalizedLogin === envAdmin.email)
+      ) {
+        return res.json({
+          success: true,
+          data: {
+            token: ENV_ADMIN_TOKEN,
+            admin: {
+              id: envAdmin.id,
+              username: envAdmin.username,
+              email: envAdmin.email,
+              role: envAdmin.role,
+              isSuperAdmin: envAdmin.isSuperAdmin,
+            },
+          },
+        })
+      }
+
+      return res.status(503).json({
+        success: false,
+        error: 'Database is unavailable. Check DATABASE_URL and Supabase project status.',
+      })
+    }
   } catch (err: any) {
     if (err?.name === 'ZodError') {
       return res.status(400).json({ success: false, error: 'Username and password are required.' })
+    }
+    if (isDatabaseUnavailableError(err)) {
+      return res.status(503).json({
+        success: false,
+        error: 'Database is unavailable. Check DATABASE_URL and Supabase project status.',
+      })
     }
     console.error(err)
     res.status(500).json({ success: false, error: 'Login failed. Please try again.' })
@@ -187,26 +280,47 @@ app.post('/api/admin/login', async (req, res) => {
 const getAdminFromToken = async (authHeader: string | undefined) => {
   if (!authHeader?.startsWith('Bearer ')) return null
   const token = authHeader.slice(7)
-  const admin = await prisma.admin.findFirst({ where: { id: token } })
-  return admin
+  const envAdmin = getEnvAdmin()
+  if (token === ENV_ADMIN_TOKEN && envAdmin) {
+    return {
+      id: envAdmin.id,
+      username: envAdmin.username,
+      email: envAdmin.email,
+      role: envAdmin.role,
+      isSuperAdmin: envAdmin.isSuperAdmin,
+      passwordHash: '',
+      fullName: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
+  }
+  try {
+    const admin = await withDbTimeout(prisma.admin.findFirst({ where: { id: token } }))
+    return admin
+  } catch (error) {
+    if (isDatabaseUnavailableError(error)) {
+      return null
+    }
+    throw error
+  }
 }
 
-const parseContacts = (value: unknown): string => {
+const parseContacts = (value: unknown): string[] => {
   if (Array.isArray(value)) {
-    return JSON.stringify(value.map((v) => String(v)).filter(Boolean))
+    return value.map((v) => String(v).trim()).filter(Boolean)
   }
   if (typeof value === 'string') {
     const trimmed = value.trim()
-    if (!trimmed) return '[]'
+    if (!trimmed) return []
     try {
       const parsed = JSON.parse(trimmed)
-      if (Array.isArray(parsed)) return JSON.stringify(parsed.map((v) => String(v)).filter(Boolean))
+      if (Array.isArray(parsed)) return parsed.map((v) => String(v).trim()).filter(Boolean)
     } catch {
       // Fall back to comma-separated parsing
     }
-    return JSON.stringify(trimmed.split(',').map((v) => v.trim()).filter(Boolean))
+    return trimmed.split(',').map((v) => v.trim()).filter(Boolean)
   }
-  return '[]'
+  return []
 }
 
 const mapUpdateLinkInput = (body: any) => ({
@@ -476,6 +590,12 @@ app.get('/api/admin/site', async (req, res) => {
   }
 })
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`API server running at http://localhost:${PORT}`)
-})
+const isVercelRuntime = Boolean(process.env.VERCEL) || Boolean(process.env.VERCEL_REGION)
+
+if (!isVercelRuntime) {
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`API server running at http://localhost:${PORT}`)
+  })
+}
+
+export default app
