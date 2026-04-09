@@ -4,6 +4,7 @@ import About from './pages/About'
 import Services from './pages/Services'
 import Leadership from './pages/Leadership'
 import LeaderDetail from './pages/LeaderDetail'
+import Outreach from './pages/Outreach'
 import Give from './pages/Give'
 import Contact from './pages/Contact'
 import AdminLogin from './pages/AdminLogin'
@@ -11,12 +12,13 @@ import AdminDashboard from './pages/AdminDashboard'
 
 export default function App() {
   return (
-    <Routes>
+    <Routes future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <Route path="/" element={<Home />} />
       <Route path="/about" element={<About />} />
       <Route path="/services" element={<Services />} />
       <Route path="/leadership" element={<Leadership />} />
       <Route path="/leadership/:id" element={<LeaderDetail />} />
+      <Route path="/outreach" element={<Outreach />} />
       <Route path="/give" element={<Give />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/admin" element={<AdminLogin />} />

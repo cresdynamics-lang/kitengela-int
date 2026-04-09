@@ -20,7 +20,7 @@ function resolveApiUrl() {
   }
 }
 
-const API_URL = resolveApiUrl()
+const API_URL = resolveApiUrl() || 'http://localhost:3001'
 const PUBLIC_CACHE_TTL_MS = 30_000
 const ADMIN_CACHE_TTL_MS = 5 * 60_000
 const REQUEST_TIMEOUT_MS = 25_000
@@ -348,6 +348,28 @@ export const adminApi = {
 
   async deleteUpdateLink(token: string, id: string) {
     return fetchApiWithAuth(`/api/admin/update-links/${id}`, token, {
+      method: 'DELETE',
+    })
+  },
+
+  // Photo management functions
+  async getPhotos(token: string) {
+    return fetchApiWithAuth('/api/admin/photos', token)
+  },
+
+  async uploadPhoto(token: string, file: File) {
+    const formData = new FormData()
+    formData.append('photo', file)
+    
+    return fetchApiWithAuth('/api/admin/photos', token, {
+      method: 'POST',
+      body: formData,
+      // Don't set Content-Type header for FormData
+    })
+  },
+
+  async deletePhoto(token: string, filename: string) {
+    return fetchApiWithAuth(`/api/admin/photos/${filename}`, token, {
       method: 'DELETE',
     })
   },

@@ -1,41 +1,54 @@
 import dotenv from 'dotenv'
 dotenv.config()
-dotenv.config({ path: '.env.local' })
 
 import express from 'express'
 import cors from 'cors'
-import { prisma } from './db.js'
+import multer from 'multer'
+import path from 'path'
+import fs from 'fs'
 import { verify } from 'argon2'
-import { loginSchema } from '../src/lib/schemas'
+import { z } from 'zod'
+import { getSupabaseAdmin, isSupabaseConfigured } from './supabase'
+
+// Define login schema inline to avoid import issues
+const loginSchema = z.object({
+  username: z.string().min(1),
+  password: z.string().min(6),
+})
 
 const app = express()
 app.use(cors({ origin: true }))
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ limit: '10mb', extended: true }))
 
+// Configure multer for file uploads
+const uploadsDir = path.join(process.cwd(), 'public', 'uploads')
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true })
+}
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadsDir)
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname))
+  }
+})
+
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|gif|webp/
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase())
+    cb(null, extname)
+  }
+})
+
 const PORT = Number(process.env.PORT) || 3001
 const ENV_ADMIN_TOKEN = 'env-admin-token'
-const DB_QUERY_TIMEOUT_MS = Number(process.env.DB_QUERY_TIMEOUT_MS || 8000)
-
-const withDbTimeout = async <T>(operation: Promise<T>): Promise<T> =>
-  Promise.race([
-    operation,
-    new Promise<T>((_, reject) => {
-      globalThis.setTimeout(() => reject(new Error(`db timeout:${DB_QUERY_TIMEOUT_MS}`)), DB_QUERY_TIMEOUT_MS)
-    }),
-  ])
-
-const isDatabaseUnavailableError = (error: unknown) => {
-  const message = String((error as { message?: string })?.message || '').toLowerCase()
-  const name = String((error as { name?: string })?.name || '')
-  return (
-    name === 'PrismaClientInitializationError' ||
-    message.includes("can't reach database server") ||
-    message.includes('error validating datasource') ||
-    message.includes('failed to connect') ||
-    message.includes('db timeout:')
-  )
-}
 
 const normalizeIdentifier = (value: string | undefined) => (value || '').trim().toLowerCase()
 
@@ -54,297 +67,288 @@ const getEnvAdmin = () => {
   }
 }
 
-// ---------- Public API ----------
-app.get('/api/public/site', async (_req, res) => {
-  try {
-    const settings = await prisma.siteSettings.findFirst({ orderBy: { updatedAt: 'desc' } })
-    res.json({ success: true, data: settings })
-  } catch (e) {
-    console.error(e)
-    res.status(500).json({ success: false, error: 'Failed to fetch site settings' })
-  }
-})
+// ===================== SUPABASE DB HELPERS =====================
 
-app.get('/api/public/live', async (_req, res) => {
-  try {
-    const live = await withDbTimeout(prisma.liveStream.findFirst({ orderBy: { updatedAt: 'desc' } }))
-    res.json({ success: true, data: live })
-  } catch (e) {
-    console.error(e)
-    const isUnavailable = isDatabaseUnavailableError(e)
-    res.status(isUnavailable ? 503 : 500).json({
-      success: false,
-      error: isUnavailable
-        ? 'Database is unavailable. Check DATABASE_URL and Supabase project status.'
-        : 'Failed to fetch live stream',
-    })
-  }
-})
-
-app.get('/api/public/programs/weekly', async (_req, res) => {
-  try {
-    const programs = await withDbTimeout(prisma.program.findMany({
-      where: { isActive: true },
-      orderBy: [{ day: 'asc' }, { orderIndex: 'asc' }],
-    }))
-    res.json({ success: true, data: programs })
-  } catch (e) {
-    console.error(e)
-    const isUnavailable = isDatabaseUnavailableError(e)
-    res.status(isUnavailable ? 503 : 500).json({
-      success: false,
-      error: isUnavailable
-        ? 'Database is unavailable. Check DATABASE_URL and Supabase project status.'
-        : 'Failed to fetch programs',
-    })
-  }
-})
-
-app.get('/api/public/programs', async (req, res) => {
-  try {
-    const day = req.query.day as string | undefined
-    const programs = await prisma.program.findMany({
-      where: day ? { day, isActive: true } : { isActive: true },
-      orderBy: [{ day: 'asc' }, { orderIndex: 'asc' }],
-    })
-    res.json({ success: true, data: programs })
-  } catch (e) {
-    console.error(e)
-    res.status(500).json({ success: false, error: 'Failed to fetch programs' })
-  }
-})
-
-app.get('/api/public/sermons', async (_req, res) => {
-  try {
-    const sermons = await withDbTimeout(prisma.sermon.findMany({
-      orderBy: { date: 'desc' },
-    }))
-    res.json({ success: true, data: sermons })
-  } catch (e) {
-    console.error(e)
-    const isUnavailable = isDatabaseUnavailableError(e)
-    res.status(isUnavailable ? 503 : 500).json({
-      success: false,
-      error: isUnavailable
-        ? 'Database is unavailable. Check DATABASE_URL and Supabase project status.'
-        : 'Failed to fetch sermons',
-    })
-  }
-})
-
-app.get('/api/public/sermons/source', async (_req, res) => {
-  try {
-    const source = await prisma.sermonSource.findFirst({ orderBy: { updatedAt: 'desc' } })
-    res.json({ success: true, data: source })
-  } catch (e) {
-    console.error(e)
-    res.status(500).json({ success: false, error: 'Failed to fetch sermon source' })
-  }
-})
-
-app.get('/api/public/leaders', async (_req, res) => {
-  try {
-    const leaders = await prisma.leader.findMany({ orderBy: { orderIndex: 'asc' } })
-    res.json({ success: true, data: leaders })
-  } catch (e) {
-    console.error(e)
-    res.status(500).json({ success: false, error: 'Failed to fetch leaders' })
-  }
-})
-
-app.get('/api/public/links', async (_req, res) => {
-  try {
-    const links = await prisma.updateLink.findMany({
-      where: { isActive: true },
-      orderBy: { orderIndex: 'asc' },
-    })
-    res.json({ success: true, data: links })
-  } catch (e) {
-    console.error(e)
-    res.status(500).json({ success: false, error: 'Failed to fetch links' })
-  }
-})
-
-app.get('/api/public/events', async (_req, res) => {
-  try {
-    const events = await prisma.event.findMany({
-      orderBy: { date: 'asc' },
-    })
-    res.json({ success: true, data: events })
-  } catch (e) {
-    console.error(e)
-    res.status(500).json({ success: false, error: 'Failed to fetch events' })
-  }
-})
-
-app.get('/api/public/events/upcoming', async (_req, res) => {
-  try {
-    const events = await prisma.event.findMany({
-      where: { isUpcoming: true },
-      orderBy: { date: 'asc' },
-    })
-    res.json({ success: true, data: events })
-  } catch (e) {
-    console.error(e)
-    res.status(500).json({ success: false, error: 'Failed to fetch upcoming events' })
-  }
-})
-
-app.post('/api/public/contact', async (req, res) => {
-  try {
-    // Optional: send email via Resend; for now just acknowledge
-    res.json({ success: true, data: { message: 'Thank you for your message.' } })
-  } catch (e) {
-    console.error(e)
-    res.status(500).json({ success: false, error: 'Failed to send message' })
-  }
-})
-
-// ---------- Admin API ----------
-app.post('/api/admin/login', async (req, res) => {
-  try {
-    const body = loginSchema.parse(req.body || {})
-    const normalizedLogin = normalizeIdentifier(body.username)
-
-    try {
-      const admin = await withDbTimeout(prisma.admin.findFirst({
-        where: { OR: [{ username: body.username }, { email: body.username }] },
-      }))
-      if (!admin) {
-        return res.status(401).json({ success: false, error: 'Invalid credentials' })
-      }
-      const isValid = await verify(admin.passwordHash, body.password)
-      if (!isValid) {
-        return res.status(401).json({ success: false, error: 'Invalid credentials' })
-      }
-      return res.json({
-        success: true,
-        data: {
-          token: admin.id,
-          admin: {
-            id: admin.id,
-            username: admin.username,
-            email: admin.email,
-            role: admin.role,
-            isSuperAdmin: admin.isSuperAdmin,
-          },
-        },
-      })
-    } catch (dbError) {
-      if (!isDatabaseUnavailableError(dbError)) {
-        throw dbError
-      }
-
-      const envAdmin = getEnvAdmin()
-      if (
-        envAdmin &&
-        body.password === envAdmin.password &&
-        (normalizedLogin === envAdmin.username || normalizedLogin === envAdmin.email)
-      ) {
-        return res.json({
-          success: true,
-          data: {
-            token: ENV_ADMIN_TOKEN,
-            admin: {
-              id: envAdmin.id,
-              username: envAdmin.username,
-              email: envAdmin.email,
-              role: envAdmin.role,
-              isSuperAdmin: envAdmin.isSuperAdmin,
-            },
-          },
-        })
-      }
-
-      return res.status(503).json({
-        success: false,
-        error: 'Database is unavailable. Check DATABASE_URL and Supabase project status.',
-      })
+async function dbQuery<T>(table: string, options: {
+  select?: string
+  match?: Record<string, any>
+  order?: { column: string; ascending?: boolean }[]
+  limit?: number
+  eq?: [string, any][]
+  filter?: (q: any) => any
+} = {}): Promise<T[]> {
+  const sb = getSupabaseAdmin()
+  let q = sb.from(table).select(options.select || '*')
+  
+  if (options.eq) {
+    for (const [col, val] of options.eq) {
+      q = q.eq(col, val)
     }
-  } catch (err: any) {
-    if (err?.name === 'ZodError') {
-      return res.status(400).json({ success: false, error: 'Username and password are required.' })
-    }
-    if (isDatabaseUnavailableError(err)) {
-      return res.status(503).json({
-        success: false,
-        error: 'Database is unavailable. Check DATABASE_URL and Supabase project status.',
-      })
-    }
-    console.error(err)
-    res.status(500).json({ success: false, error: 'Login failed. Please try again.' })
   }
-})
+  if (options.match) {
+    q = q.match(options.match)
+  }
+  if (options.filter) {
+    q = options.filter(q)
+  }
+  if (options.order) {
+    for (const o of options.order) {
+      q = q.order(o.column, { ascending: o.ascending ?? true })
+    }
+  }
+  if (options.limit) {
+    q = q.limit(options.limit)
+  }
 
-// Admin routes that need auth - stub or implement as needed
+  const { data, error } = await q
+  if (error) throw new Error(error.message)
+  return (data || []) as T[]
+}
+
+async function dbInsert<T>(table: string, record: Record<string, any>): Promise<T> {
+  const { data, error } = await getSupabaseAdmin()
+    .from(table)
+    .insert(record)
+    .select()
+    .single()
+  if (error) throw new Error(error.message)
+  return data as T
+}
+
+async function dbUpdate<T>(table: string, id: string, record: Record<string, any>): Promise<T> {
+  const { data, error } = await getSupabaseAdmin()
+    .from(table)
+    .update(record)
+    .eq('id', id)
+    .select()
+    .single()
+  if (error) throw new Error(error.message)
+  return data as T
+}
+
+async function dbDelete(table: string, id: string): Promise<void> {
+  const { error } = await getSupabaseAdmin()
+    .from(table)
+    .delete()
+    .eq('id', id)
+  if (error) throw new Error(error.message)
+}
+
+async function dbUpsert<T>(table: string, record: Record<string, any>, matchCol = 'id'): Promise<T> {
+  const { data, error } = await getSupabaseAdmin()
+    .from(table)
+    .upsert(record, { onConflict: matchCol })
+    .select()
+    .single()
+  if (error) throw new Error(error.message)
+  return data as T
+}
+
+// ===================== AUTH =====================
+
 const getAdminFromToken = async (authHeader: string | undefined) => {
   if (!authHeader?.startsWith('Bearer ')) return null
   const token = authHeader.slice(7)
   const envAdmin = getEnvAdmin()
   if (token === ENV_ADMIN_TOKEN && envAdmin) {
-    return {
-      id: envAdmin.id,
-      username: envAdmin.username,
-      email: envAdmin.email,
-      role: envAdmin.role,
-      isSuperAdmin: envAdmin.isSuperAdmin,
-      passwordHash: '',
-      fullName: null,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }
+    return { id: envAdmin.id, username: envAdmin.username, email: envAdmin.email, role: envAdmin.role, isSuperAdmin: envAdmin.isSuperAdmin }
   }
+  // Try DB lookup for non-env admins
   try {
-    const admin = await withDbTimeout(prisma.admin.findFirst({ where: { id: token } }))
-    return admin
-  } catch (error) {
-    if (isDatabaseUnavailableError(error)) {
-      return null
-    }
-    throw error
+    const admins = await dbQuery<any>('admins', { eq: [['id', token]], limit: 1 })
+    return admins[0] || null
+  } catch {
+    return null
   }
 }
 
 const parseContacts = (value: unknown): string[] => {
-  if (Array.isArray(value)) {
-    return value.map((v) => String(v).trim()).filter(Boolean)
-  }
+  if (Array.isArray(value)) return value.map((v) => String(v).trim()).filter(Boolean)
   if (typeof value === 'string') {
     const trimmed = value.trim()
     if (!trimmed) return []
     try {
       const parsed = JSON.parse(trimmed)
       if (Array.isArray(parsed)) return parsed.map((v) => String(v).trim()).filter(Boolean)
-    } catch {
-      // Fall back to comma-separated parsing
-    }
+    } catch { /* */ }
     return trimmed.split(',').map((v) => v.trim()).filter(Boolean)
   }
   return []
 }
 
-const mapUpdateLinkInput = (body: any) => ({
-  title: body?.title,
-  url: body?.url,
-  description: body?.description ?? '',
-  category: body?.category ?? 'General',
-  isActive: typeof body?.is_active === 'boolean' ? body.is_active : body?.isActive ?? true,
-  orderIndex:
-    typeof body?.display_order === 'number'
-      ? body.display_order
-      : typeof body?.orderIndex === 'number'
-      ? body.orderIndex
-      : 0,
+// ===================== PUBLIC API =====================
+
+app.get('/api/public/site', async (_req, res) => {
+  try {
+    const rows = await dbQuery<any>('site_settings', { order: [{ column: 'updated_at', ascending: false }], limit: 1 })
+    res.json({ success: true, data: rows[0] || null })
+  } catch (e: any) {
+    console.error('GET site_settings:', e.message)
+    res.status(500).json({ success: false, error: 'Failed to fetch site settings' })
+  }
 })
+
+app.get('/api/public/live', async (_req, res) => {
+  try {
+    const rows = await dbQuery<any>('live_streams', { order: [{ column: 'updated_at', ascending: false }], limit: 1 })
+    res.json({ success: true, data: rows[0] || null })
+  } catch (e: any) {
+    console.error('GET live_streams:', e.message)
+    res.status(503).json({ success: false, error: 'Database unavailable. Check Supabase credentials.' })
+  }
+})
+
+app.get('/api/public/programs/weekly', async (_req, res) => {
+  try {
+    const rows = await dbQuery<any>('programs', {
+      eq: [['is_active', true]],
+      order: [{ column: 'day' }, { column: 'order_index' }]
+    })
+    res.json({ success: true, data: rows })
+  } catch (e: any) {
+    console.error('GET programs:', e.message)
+    res.status(503).json({ success: false, error: 'Database unavailable.' })
+  }
+})
+
+app.get('/api/public/programs', async (req, res) => {
+  try {
+    const day = req.query.day as string | undefined
+    const rows = await dbQuery<any>('programs', {
+      eq: day ? [['day', day], ['is_active', true]] : [['is_active', true]],
+      order: [{ column: 'day' }, { column: 'order_index' }]
+    })
+    res.json({ success: true, data: rows })
+  } catch (e: any) {
+    console.error('GET programs by day:', e.message)
+    res.status(500).json({ success: false, error: 'Failed to fetch programs' })
+  }
+})
+
+app.get('/api/public/sermons', async (_req, res) => {
+  try {
+    const rows = await dbQuery<any>('sermons', { order: [{ column: 'date', ascending: false }] })
+    res.json({ success: true, data: rows })
+  } catch (e: any) {
+    console.error('GET sermons:', e.message)
+    res.status(503).json({ success: false, error: 'Database unavailable.' })
+  }
+})
+
+app.get('/api/public/sermons/source', async (_req, res) => {
+  try {
+    const rows = await dbQuery<any>('sermon_sources', { order: [{ column: 'updated_at', ascending: false }], limit: 1 })
+    res.json({ success: true, data: rows[0] || null })
+  } catch (e: any) {
+    console.error('GET sermon_sources:', e.message)
+    res.status(500).json({ success: false, error: 'Failed to fetch sermon source' })
+  }
+})
+
+app.get('/api/public/leaders', async (_req, res) => {
+  try {
+    const rows = await dbQuery<any>('leaders', { order: [{ column: 'order_index' }] })
+    res.json({ success: true, data: rows })
+  } catch (e: any) {
+    console.error('GET leaders:', e.message)
+    res.status(500).json({ success: false, error: 'Failed to fetch leaders' })
+  }
+})
+
+app.get('/api/public/links', async (_req, res) => {
+  try {
+    const rows = await dbQuery<any>('update_links', { eq: [['is_active', true]], order: [{ column: 'order_index' }] })
+    res.json({ success: true, data: rows })
+  } catch (e: any) {
+    console.error('GET update_links:', e.message)
+    res.status(500).json({ success: false, error: 'Failed to fetch links' })
+  }
+})
+
+app.get('/api/public/events', async (_req, res) => {
+  try {
+    const rows = await dbQuery<any>('events', { order: [{ column: 'date' }] })
+    res.json({ success: true, data: rows })
+  } catch (e: any) {
+    console.error('GET events:', e.message)
+    res.status(500).json({ success: false, error: 'Failed to fetch events' })
+  }
+})
+
+app.get('/api/public/events/upcoming', async (_req, res) => {
+  try {
+    const rows = await dbQuery<any>('events', { eq: [['is_upcoming', true]], order: [{ column: 'date' }] })
+    res.json({ success: true, data: rows })
+  } catch (e: any) {
+    console.error('GET upcoming events:', e.message)
+    res.status(500).json({ success: false, error: 'Failed to fetch upcoming events' })
+  }
+})
+
+app.post('/api/public/contact', async (_req, res) => {
+  res.json({ success: true, data: { message: 'Thank you for your message.' } })
+})
+
+// ===================== ADMIN LOGIN =====================
+
+app.post('/api/admin/login', async (req, res) => {
+  try {
+    const body = loginSchema.parse(req.body || {})
+    const normalizedLogin = normalizeIdentifier(body.username)
+
+    const envAdmin = getEnvAdmin()
+    if (
+      envAdmin &&
+      body.password === envAdmin.password &&
+      (normalizedLogin === envAdmin.username || normalizedLogin === envAdmin.email)
+    ) {
+      return res.json({
+        success: true,
+        data: {
+          token: ENV_ADMIN_TOKEN,
+          admin: { id: envAdmin.id, username: envAdmin.username, email: envAdmin.email, role: envAdmin.role, isSuperAdmin: envAdmin.isSuperAdmin },
+        },
+      })
+    }
+
+    // Try DB admin lookup
+    try {
+      const admins = await dbQuery<any>('admins', {
+        filter: (q: any) => q.or(`username.eq.${body.username},email.eq.${body.username}`),
+        limit: 1
+      })
+      const admin = admins[0]
+      if (!admin) return res.status(401).json({ success: false, error: 'Invalid credentials' })
+      const isValid = await verify(admin.password_hash, body.password)
+      if (!isValid) return res.status(401).json({ success: false, error: 'Invalid credentials' })
+      return res.json({
+        success: true,
+        data: {
+          token: admin.id,
+          admin: { id: admin.id, username: admin.username, email: admin.email, role: admin.role, isSuperAdmin: admin.is_super_admin },
+        },
+      })
+    } catch (dbErr: any) {
+      console.error('DB login lookup failed:', dbErr.message)
+      return res.status(401).json({ success: false, error: 'Invalid credentials' })
+    }
+  } catch (err: any) {
+    if (err?.name === 'ZodError') return res.status(400).json({ success: false, error: 'Username and password are required.' })
+    console.error('Login error:', err)
+    res.status(500).json({ success: false, error: 'Login failed. Please try again.' })
+  }
+})
+
+// ===================== ADMIN PROGRAMS =====================
 
 app.get('/api/admin/programs', async (req, res) => {
   const admin = await getAdminFromToken(req.headers.authorization)
   if (!admin) return res.status(401).json({ error: 'Unauthorized' })
   try {
-    const programs = await prisma.program.findMany({ orderBy: [{ day: 'asc' }, { orderIndex: 'asc' }] })
-    res.json({ success: true, data: programs })
-  } catch (e) {
-    console.error(e)
+    const rows = await dbQuery<any>('programs', { order: [{ column: 'day' }, { column: 'order_index' }] })
+    res.json({ success: true, data: rows })
+  } catch (e: any) {
+    console.error('GET admin/programs:', e.message)
     res.status(500).json({ success: false, error: 'Failed to fetch programs' })
   }
 })
@@ -354,24 +358,17 @@ app.post('/api/admin/programs', async (req, res) => {
   if (!admin) return res.status(401).json({ error: 'Unauthorized' })
   try {
     const body = req.body || {}
-    const program = await prisma.program.create({
-      data: {
-        title: body.title,
-        day: body.day,
-        startTime: body.startTime,
-        endTime: body.endTime,
-        venue: body.venue,
-        contacts: parseContacts(body.contacts),
-        description: body.description ?? null,
-        posterImageUrl: body.posterImageUrl ?? null,
-        isActive: typeof body.isActive === 'boolean' ? body.isActive : true,
-        orderIndex: typeof body.orderIndex === 'number' ? body.orderIndex : 0,
-        updatedBy: admin.id,
-      },
+    const row = await dbInsert<any>('programs', {
+      title: body.title, day: body.day, start_time: body.startTime, end_time: body.endTime,
+      venue: body.venue, contacts: parseContacts(body.contacts),
+      description: body.description ?? null, poster_image_url: body.posterImageUrl ?? null,
+      is_active: typeof body.isActive === 'boolean' ? body.isActive : true,
+      order_index: typeof body.orderIndex === 'number' ? body.orderIndex : 0,
+      updated_by: admin.id,
     })
-    res.json({ success: true, data: program })
-  } catch (e) {
-    console.error(e)
+    res.json({ success: true, data: row })
+  } catch (e: any) {
+    console.error('POST admin/programs:', e.message)
     res.status(500).json({ success: false, error: 'Failed to create program' })
   }
 })
@@ -381,25 +378,17 @@ app.put('/api/admin/programs/:id', async (req, res) => {
   if (!admin) return res.status(401).json({ error: 'Unauthorized' })
   try {
     const body = req.body || {}
-    const program = await prisma.program.update({
-      where: { id: req.params.id },
-      data: {
-        title: body.title,
-        day: body.day,
-        startTime: body.startTime,
-        endTime: body.endTime,
-        venue: body.venue,
-        contacts: parseContacts(body.contacts),
-        description: body.description ?? null,
-        posterImageUrl: body.posterImageUrl ?? null,
-        isActive: typeof body.isActive === 'boolean' ? body.isActive : undefined,
-        orderIndex: typeof body.orderIndex === 'number' ? body.orderIndex : undefined,
-        updatedBy: admin.id,
-      },
+    const row = await dbUpdate<any>('programs', req.params.id, {
+      title: body.title, day: body.day, start_time: body.startTime, end_time: body.endTime,
+      venue: body.venue, contacts: parseContacts(body.contacts),
+      description: body.description ?? null, poster_image_url: body.posterImageUrl ?? null,
+      is_active: typeof body.isActive === 'boolean' ? body.isActive : undefined,
+      order_index: typeof body.orderIndex === 'number' ? body.orderIndex : undefined,
+      updated_by: admin.id,
     })
-    res.json({ success: true, data: program })
-  } catch (e) {
-    console.error(e)
+    res.json({ success: true, data: row })
+  } catch (e: any) {
+    console.error('PUT admin/programs:', e.message)
     res.status(500).json({ success: false, error: 'Failed to update program' })
   }
 })
@@ -408,22 +397,24 @@ app.delete('/api/admin/programs/:id', async (req, res) => {
   const admin = await getAdminFromToken(req.headers.authorization)
   if (!admin) return res.status(401).json({ error: 'Unauthorized' })
   try {
-    await prisma.program.delete({ where: { id: req.params.id } })
+    await dbDelete('programs', req.params.id)
     res.json({ success: true })
-  } catch (e) {
-    console.error(e)
+  } catch (e: any) {
+    console.error('DELETE admin/programs:', e.message)
     res.status(500).json({ success: false, error: 'Failed to delete program' })
   }
 })
+
+// ===================== ADMIN LIVE STREAM =====================
 
 app.get('/api/admin/live', async (req, res) => {
   const admin = await getAdminFromToken(req.headers.authorization)
   if (!admin) return res.status(401).json({ error: 'Unauthorized' })
   try {
-    const live = await prisma.liveStream.findFirst({ orderBy: { updatedAt: 'desc' } })
-    res.json({ success: true, data: live })
-  } catch (e) {
-    console.error(e)
+    const rows = await dbQuery<any>('live_streams', { order: [{ column: 'updated_at', ascending: false }], limit: 1 })
+    res.json({ success: true, data: rows[0] || null })
+  } catch (e: any) {
+    console.error('GET admin/live:', e.message)
     res.status(500).json({ success: false, error: 'Failed to fetch live' })
   }
 })
@@ -433,34 +424,41 @@ app.put('/api/admin/live', async (req, res) => {
   if (!admin) return res.status(401).json({ error: 'Unauthorized' })
   try {
     const body = req.body || {}
-    const existing = await prisma.liveStream.findFirst({ orderBy: { updatedAt: 'desc' } })
+    const existingRows = await dbQuery<any>('live_streams', { order: [{ column: 'updated_at', ascending: false }], limit: 1 })
+    const existing = existingRows[0]
     const data = {
-      isLive: typeof body.isLive === 'boolean' ? body.isLive : false,
+      is_live: typeof body.isLive === 'boolean' ? body.isLive : false,
       platform: body.platform ?? null,
-      youtubeLiveUrl: body.youtubeLiveUrl ?? null,
-      facebookLiveUrl: body.facebookLiveUrl ?? null,
-      googleMeetUrl: body.googleMeetUrl ?? null,
+      youtube_live_url: body.youtubeLiveUrl ?? null,
+      facebook_live_url: body.facebookLiveUrl ?? null,
+      google_meet_url: body.googleMeetUrl ?? null,
       title: body.title ?? null,
-      scheduleTime: body.scheduleTime ? new Date(body.scheduleTime) : null,
-      updatedBy: admin.id,
+      schedule_time: body.scheduleTime ? new Date(body.scheduleTime).toISOString() : null,
+      updated_by: admin.id,
     }
-    const live = existing
-      ? await prisma.liveStream.update({ where: { id: existing.id }, data })
-      : await prisma.liveStream.create({ data })
-    res.json({ success: true, data: live })
-  } catch (e) {
-    console.error(e)
+    let row
+    if (existing) {
+      row = await dbUpdate<any>('live_streams', existing.id, data)
+    } else {
+      row = await dbInsert<any>('live_streams', data)
+    }
+    res.json({ success: true, data: row })
+  } catch (e: any) {
+    console.error('PUT admin/live:', e.message)
     res.status(500).json({ success: false, error: 'Failed to update live stream' })
   }
 })
+
+// ===================== ADMIN SERMONS =====================
 
 app.get('/api/admin/sermons', async (req, res) => {
   const admin = await getAdminFromToken(req.headers.authorization)
   if (!admin) return res.status(401).json({ error: 'Unauthorized' })
   try {
-    const sermons = await prisma.sermon.findMany({ orderBy: { date: 'desc' } })
-    res.json({ success: true, data: sermons })
-  } catch (e) {
+    const rows = await dbQuery<any>('sermons', { order: [{ column: 'date', ascending: false }] })
+    res.json({ success: true, data: rows })
+  } catch (e: any) {
+    console.error('GET admin/sermons:', e.message)
     res.status(500).json({ success: false, error: 'Failed to fetch sermons' })
   }
 })
@@ -469,10 +467,19 @@ app.post('/api/admin/sermons', async (req, res) => {
   const admin = await getAdminFromToken(req.headers.authorization)
   if (!admin) return res.status(401).json({ error: 'Unauthorized' })
   try {
-    const sermon = await prisma.sermon.create({ data: req.body })
-    res.json({ success: true, data: sermon })
-  } catch (e) {
-    console.error(e)
+    const body = req.body || {}
+    const row = await dbInsert<any>('sermons', {
+      title: body.title, description: body.description ?? null,
+      speaker: body.speaker ?? null,
+      date: body.date ? new Date(body.date).toISOString() : new Date().toISOString(),
+      video_url: body.videoUrl ?? body.video_url ?? null,
+      audio_url: body.audioUrl ?? body.audio_url ?? null,
+      thumbnail_url: body.thumbnailUrl ?? body.thumbnail_url ?? null,
+      duration: body.duration ?? null, views: 0, updated_by: admin.id,
+    })
+    res.json({ success: true, data: row })
+  } catch (e: any) {
+    console.error('POST admin/sermons:', e.message)
     res.status(500).json({ success: false, error: 'Failed to create sermon' })
   }
 })
@@ -481,13 +488,19 @@ app.put('/api/admin/sermons/:id', async (req, res) => {
   const admin = await getAdminFromToken(req.headers.authorization)
   if (!admin) return res.status(401).json({ error: 'Unauthorized' })
   try {
-    const sermon = await prisma.sermon.update({
-      where: { id: req.params.id },
-      data: req.body
+    const body = req.body || {}
+    const row = await dbUpdate<any>('sermons', req.params.id, {
+      title: body.title, description: body.description ?? null,
+      speaker: body.speaker ?? null,
+      date: body.date ? new Date(body.date).toISOString() : undefined,
+      video_url: body.videoUrl ?? body.video_url ?? null,
+      audio_url: body.audioUrl ?? body.audio_url ?? null,
+      thumbnail_url: body.thumbnailUrl ?? body.thumbnail_url ?? null,
+      duration: body.duration ?? null, updated_by: admin.id,
     })
-    res.json({ success: true, data: sermon })
-  } catch (e) {
-    console.error(e)
+    res.json({ success: true, data: row })
+  } catch (e: any) {
+    console.error('PUT admin/sermons:', e.message)
     res.status(500).json({ success: false, error: 'Failed to update sermon' })
   }
 })
@@ -496,22 +509,32 @@ app.delete('/api/admin/sermons/:id', async (req, res) => {
   const admin = await getAdminFromToken(req.headers.authorization)
   if (!admin) return res.status(401).json({ error: 'Unauthorized' })
   try {
-    await prisma.sermon.delete({ where: { id: req.params.id } })
+    await dbDelete('sermons', req.params.id)
     res.json({ success: true })
-  } catch (e) {
-    console.error(e)
+  } catch (e: any) {
+    console.error('DELETE admin/sermons:', e.message)
     res.status(500).json({ success: false, error: 'Failed to delete sermon' })
   }
+})
+
+// ===================== ADMIN UPDATE LINKS =====================
+
+const mapUpdateLinkInput = (body: any) => ({
+  title: body?.title, url: body?.url,
+  description: body?.description ?? '',
+  category: body?.category ?? 'General',
+  is_active: typeof body?.is_active === 'boolean' ? body.is_active : body?.isActive ?? true,
+  order_index: typeof body?.display_order === 'number' ? body.display_order : typeof body?.orderIndex === 'number' ? body.orderIndex : 0,
 })
 
 app.get('/api/admin/update-links', async (req, res) => {
   const admin = await getAdminFromToken(req.headers.authorization)
   if (!admin) return res.status(401).json({ error: 'Unauthorized' })
   try {
-    const links = await prisma.updateLink.findMany({ orderBy: { orderIndex: 'asc' } })
-    res.json({ success: true, data: links })
-  } catch (e) {
-    console.error(e)
+    const rows = await dbQuery<any>('update_links', { order: [{ column: 'order_index' }] })
+    res.json({ success: true, data: rows })
+  } catch (e: any) {
+    console.error('GET admin/update-links:', e.message)
     res.status(500).json({ success: false, error: 'Failed to fetch links' })
   }
 })
@@ -520,16 +543,10 @@ app.post('/api/admin/update-links', async (req, res) => {
   const admin = await getAdminFromToken(req.headers.authorization)
   if (!admin) return res.status(401).json({ error: 'Unauthorized' })
   try {
-    const payload = mapUpdateLinkInput(req.body)
-    const link = await prisma.updateLink.create({
-      data: {
-        ...payload,
-        updatedBy: admin.id,
-      },
-    })
-    res.json({ success: true, data: link })
-  } catch (e) {
-    console.error(e)
+    const row = await dbInsert<any>('update_links', { ...mapUpdateLinkInput(req.body), updated_by: admin.id })
+    res.json({ success: true, data: row })
+  } catch (e: any) {
+    console.error('POST admin/update-links:', e.message)
     res.status(500).json({ success: false, error: 'Failed to create link' })
   }
 })
@@ -538,17 +555,10 @@ app.put('/api/admin/update-links/:id', async (req, res) => {
   const admin = await getAdminFromToken(req.headers.authorization)
   if (!admin) return res.status(401).json({ error: 'Unauthorized' })
   try {
-    const payload = mapUpdateLinkInput(req.body)
-    const link = await prisma.updateLink.update({
-      where: { id: req.params.id },
-      data: {
-        ...payload,
-        updatedBy: admin.id,
-      },
-    })
-    res.json({ success: true, data: link })
-  } catch (e) {
-    console.error(e)
+    const row = await dbUpdate<any>('update_links', req.params.id, { ...mapUpdateLinkInput(req.body), updated_by: admin.id })
+    res.json({ success: true, data: row })
+  } catch (e: any) {
+    console.error('PUT admin/update-links:', e.message)
     res.status(500).json({ success: false, error: 'Failed to update link' })
   }
 })
@@ -557,44 +567,109 @@ app.delete('/api/admin/update-links/:id', async (req, res) => {
   const admin = await getAdminFromToken(req.headers.authorization)
   if (!admin) return res.status(401).json({ error: 'Unauthorized' })
   try {
-    await prisma.updateLink.delete({ where: { id: req.params.id } })
+    await dbDelete('update_links', req.params.id)
     res.json({ success: true })
-  } catch (e) {
-    console.error(e)
+  } catch (e: any) {
+    console.error('DELETE admin/update-links:', e.message)
     res.status(500).json({ success: false, error: 'Failed to delete link' })
   }
 })
+
+// ===================== ADMIN PHOTOS (local file storage) =====================
+
+app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads')))
+
+app.get('/api/admin/photos', async (req, res) => {
+  const admin = await getAdminFromToken(req.headers.authorization)
+  if (!admin) return res.status(401).json({ error: 'Unauthorized' })
+  try {
+    const dir = path.join(process.cwd(), 'public', 'uploads')
+    if (!fs.existsSync(dir)) return res.json({ success: true, data: [] })
+    const files = fs.readdirSync(dir)
+      .filter(f => /\.(jpg|jpeg|png|gif|webp)$/i.test(f))
+      .map(f => {
+        const stats = fs.statSync(path.join(dir, f))
+        return { id: f, filename: f, originalName: f, url: `/uploads/${f}`, size: stats.size, uploadDate: stats.mtime.toISOString() }
+      })
+      .sort((a, b) => new Date(b.uploadDate).getTime() - new Date(a.uploadDate).getTime())
+    res.json({ success: true, data: files })
+  } catch (e: any) {
+    console.error('GET admin/photos:', e.message)
+    res.status(500).json({ success: false, error: 'Failed to fetch photos' })
+  }
+})
+
+app.post('/api/admin/photos', upload.single('photo'), async (req, res) => {
+  const admin = await getAdminFromToken(req.headers.authorization)
+  if (!admin) return res.status(401).json({ error: 'Unauthorized' })
+  if (!req.file) return res.status(400).json({ success: false, error: 'No photo file provided' })
+  try {
+    res.json({
+      success: true,
+      data: {
+        id: req.file.filename, filename: req.file.filename,
+        originalName: req.file.originalname,
+        url: `/uploads/${req.file.filename}`,
+        size: req.file.size, uploadDate: new Date().toISOString(),
+      }
+    })
+  } catch (e: any) {
+    console.error('POST admin/photos:', e.message)
+    res.status(500).json({ success: false, error: 'Failed to upload photo' })
+  }
+})
+
+app.delete('/api/admin/photos/:filename', async (req, res) => {
+  const admin = await getAdminFromToken(req.headers.authorization)
+  if (!admin) return res.status(401).json({ error: 'Unauthorized' })
+  try {
+    const filePath = path.join(process.cwd(), 'public', 'uploads', req.params.filename)
+    if (!fs.existsSync(filePath)) return res.status(404).json({ success: false, error: 'Photo not found' })
+    fs.unlinkSync(filePath)
+    res.json({ success: true, message: 'Photo deleted successfully' })
+  } catch (e: any) {
+    console.error('DELETE admin/photos:', e.message)
+    res.status(500).json({ success: false, error: 'Failed to delete photo' })
+  }
+})
+
+// ===================== ADMIN ADMINS =====================
 
 app.get('/api/admin/admins', async (req, res) => {
   const admin = await getAdminFromToken(req.headers.authorization)
   if (!admin) return res.status(401).json({ error: 'Unauthorized' })
   if (!admin.isSuperAdmin) return res.status(403).json({ error: 'Forbidden' })
   try {
-    const admins = await prisma.admin.findMany({ select: { id: true, username: true, email: true, role: true, isSuperAdmin: true } })
-    res.json({ success: true, data: admins })
-  } catch (e) {
-    console.error(e)
+    const rows = await dbQuery<any>('admins', {})
+    res.json({ success: true, data: rows.map(a => ({ id: a.id, username: a.username, email: a.email, role: a.role, isSuperAdmin: a.is_super_admin })) })
+  } catch (e: any) {
+    console.error('GET admin/admins:', e.message)
     res.status(500).json({ success: false, error: 'Failed to fetch admins' })
   }
 })
+
+// ===================== ADMIN SITE SETTINGS =====================
 
 app.get('/api/admin/site', async (req, res) => {
   const admin = await getAdminFromToken(req.headers.authorization)
   if (!admin) return res.status(401).json({ error: 'Unauthorized' })
   try {
-    const settings = await prisma.siteSettings.findFirst({ orderBy: { updatedAt: 'desc' } })
-    res.json({ success: true, data: settings })
-  } catch (e) {
-    console.error(e)
+    const rows = await dbQuery<any>('site_settings', { order: [{ column: 'updated_at', ascending: false }], limit: 1 })
+    res.json({ success: true, data: rows[0] || null })
+  } catch (e: any) {
+    console.error('GET admin/site:', e.message)
     res.status(500).json({ success: false, error: 'Failed to fetch site' })
   }
 })
+
+// ===================== SERVER =====================
 
 const isVercelRuntime = Boolean(process.env.VERCEL) || Boolean(process.env.VERCEL_REGION)
 
 if (!isVercelRuntime) {
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`API server running at http://localhost:${PORT}`)
+    console.log(`Supabase configured: ${isSupabaseConfigured}`)
   })
 }
 

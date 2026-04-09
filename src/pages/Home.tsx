@@ -13,9 +13,12 @@ const defaultCarouselImages = [
   { id: 0, title: "Welcome to VOSH Church International — Kitengela Branch", image: "/Carousel1.jpg", description: "We are committed to teaching the Word, building strong faith, and transforming lives through Christ." },
   { id: 1, title: "Voice Of Salvation And Healing Church Int'l – Kitengela", image: "/Carousel2.jpg", description: "A House of Solutions — Manifesting Christ in Our Community" },
   { id: 2, title: "Join Us for Worship and Fellowship!", image: "/Carousell3.jpeg", description: "Experience the power of God's Word and fellowship with believers", location: "Along Baraka Road / Treewa Road, Next to Balozi Junior Academy, Kitengela" },
-  { id: 3, title: "We're Here for You!", image: "/Carousel4.jpg", description: "A community committed to prayer, stewardship, holiness, advocacy, and unity", phoneNumbers: ["+254 722 566 399", "+254 720 276 162", "+254 720 977 189"] },
-  { id: 4, title: "Join Us This Sunday!", image: "/midweekservicefriday.jpeg", description: "Experience powerful worship and teaching", services: ["Bible Study: Sunday 8:00 AM - 9:00 AM", "SB1 Service: Sunday 9:00 AM - 10:30 AM", "Word Manifest: Sunday 10:30 AM - 1:00 PM", "Discipleship: Sunday 2:30 PM - 4:00 PM"] },
-  { id: 5, title: "Connect With Us Today!", image: "/onlineconnectthurday.jpeg", description: "Join us for worship, prayer, and fellowship", services: ["Bible Study: Sunday 8:00 AM - 9:00 AM", "SB1 Service: Sunday 9:00 AM - 10:30 AM", "Word Manifest: Sunday 10:30 AM - 1:00 PM", "Discipleship: Sunday 2:30 PM - 4:00 PM"] }
+  { id: 3, title: "Community Fellowship", image: "/WhatsApp Image 2026-04-08 at 13.57.45.jpeg", description: "Building community through fellowship and shared faith", phoneNumbers: ["+254 722 566 399", "+254 720 276 162", "+254 720 977 189"] },
+  { id: 4, title: "Youth Empowerment", image: "/WhatsApp Image 2026-04-08 at 13.57.46.jpeg", description: "Empowering the next generation in faith and purpose", services: ["Bible Study: Sunday 8:00 AM - 9:00 AM", "SB1 Service: Sunday 9:00 AM - 10:30 AM", "Word Manifest: Sunday 10:30 AM - 1:00 PM", "Discipleship: Sunday 2:30 PM - 4:00 PM"] },
+  { id: 5, title: "Family Ministry", image: "/WhatsApp Image 2026-04-08 at 13.57.53.jpeg", description: "Strengthening families through faith and fellowship", services: ["Bible Study: Sunday 8:00 AM - 9:00 AM", "SB1 Service: Sunday 9:00 AM - 10:30 AM", "Word Manifest: Sunday 10:30 AM - 1:00 PM", "Discipleship: Sunday 2:30 PM - 4:00 PM"] },
+  { id: 6, title: "Community Outreach", image: "/WhatsApp Image 2026-04-08 at 13.57.54 (1).jpeg", description: "Reaching out to our community with love and service" },
+  { id: 7, title: "Prayer & Intercession", image: "/WhatsApp Image 2026-04-08 at 13.57.56 (2).jpeg", description: "Standing in the gap through prayer and intercession" },
+  { id: 8, title: "Worship Experience", image: "/WhatsApp Image 2026-04-08 at 13.57.57.jpeg", description: "Experiencing God's presence through worship" }
 ]
 
 const beforeServicesCarouselImages = [
@@ -23,7 +26,10 @@ const beforeServicesCarouselImages = [
   { id: 11, title: "Church in Prayer", image: "/churchpraying.jpg", description: "Corporate prayer and intercession—together we seek His face." },
   { id: 12, title: "Praise & Worship", image: "/praiseandworshipdancing.jpg", description: "Celebrate the Lord with joy. Experience praise and worship that lifts the spirit." },
   { id: 13, title: "Preaching the Word", image: "/preachinghour.jpg", description: "Sound teaching that transforms lives. Tune in to the preaching hour." },
-  { id: 14, title: "Sermon & Note-Taking", image: "/sermontimenoteteking.jpg", description: "Grow in the Word. Take notes and apply the message to your life." }
+  { id: 14, title: "Sermon & Note-Taking", image: "/sermontimenoteteking.jpg", description: "Grow in the Word. Take notes and apply the message to your life." },
+  { id: 15, title: "Community Fellowship", image: "/WhatsApp Image 2026-04-08 at 13.57.45.jpeg", description: "Building community through fellowship and shared faith" },
+  { id: 16, title: "Youth Ministry", image: "/WhatsApp Image 2026-04-08 at 13.57.46.jpeg", description: "Empowering the next generation in faith" },
+  { id: 17, title: "Family Ministry", image: "/WhatsApp Image 2026-04-08 at 13.57.53.jpeg", description: "Strengthening families through faith" }
 ]
 
 // Replace with your YouTube video ID or full embed URL for Wednesday Online Prayers (e.g. 'dQw4w9WgXcQ' or 'https://www.youtube.com/embed/dQw4w9WgXcQ')

@@ -41,13 +41,14 @@ export default defineConfig(({ mode }) => {
     define: {
       'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(supabaseUrl),
       'import.meta.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(supabaseAnonKey),
+      'import.meta.env.VITE_API_URL': JSON.stringify(env.VITE_API_URL || 'http://localhost:3001'),
     },
     server: {
       port: 3000,
       host: true,
       strictPort: false,
       proxy: {
-        '/api': { target: 'http://localhost:3001', changeOrigin: true },
+        '/api': { target: env.VITE_API_URL || 'http://localhost:3001', changeOrigin: true },
       },
     },
   }

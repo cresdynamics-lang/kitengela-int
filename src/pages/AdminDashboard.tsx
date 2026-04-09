@@ -15,8 +15,10 @@ const MassSermons = lazy(() => import('@/components/admin/MassSermons'))
 const UpdateLinks = lazy(() => import('@/components/admin/UpdateLinks'))
 const AdminRights = lazy(() => import('@/components/admin/AdminRights'))
 const LiveStreamAdmin = lazy(() => import('@/components/admin/LiveStream'))
+const PhotoManager = lazy(() => import('@/components/admin/PhotoManager')) as React.LazyExoticComponent<any>
+const PhotoCarouselManager = lazy(() => import('@/components/admin/PhotoCarouselManager')) as React.LazyExoticComponent<any>
 
-type TabKey = 'programs' | 'events' | 'live' | 'sermons' | 'links' | 'admins'
+type TabKey = 'programs' | 'events' | 'live' | 'sermons' | 'links' | 'admins' | 'photos' | 'carousel-manager'
 
 export default function AdminDashboard() {
   const navigate = useNavigate()
@@ -79,6 +81,8 @@ export default function AdminDashboard() {
         <button className={`${styles.tab} ${activeTab === 'sermons' ? styles.active : ''}`} onClick={() => setActiveTab('sermons')}>Sermons</button>
         <button className={`${styles.tab} ${activeTab === 'links' ? styles.active : ''}`} onClick={() => setActiveTab('links')}>Links</button>
         <button className={`${styles.tab} ${activeTab === 'admins' ? styles.active : ''}`} onClick={() => setActiveTab('admins')}>Admin Rights</button>
+        <button className={`${styles.tab} ${activeTab === 'photos' ? styles.active : ''}`} onClick={() => setActiveTab('photos')}>Photos</button>
+        <button className={`${styles.tab} ${activeTab === 'carousel-manager' ? styles.active : ''}`} onClick={() => setActiveTab('carousel-manager')}>Carousels</button>
       </nav>
       <main className={styles.content}>
         <Suspense fallback={<div className={styles.tabLoading}>Loading section...</div>}>
@@ -88,6 +92,8 @@ export default function AdminDashboard() {
           {activeTab === 'sermons' && <MassSermons />}
           {activeTab === 'links' && <UpdateLinks />}
           {activeTab === 'admins' && <AdminRights />}
+          {activeTab === 'photos' && <PhotoManager />}
+          {activeTab === 'carousel-manager' && <PhotoCarouselManager />}
         </Suspense>
       </main>
     </div>

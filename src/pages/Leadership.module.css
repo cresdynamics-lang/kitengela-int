@@ -26,6 +26,24 @@
   opacity: 0.9;
 }
 
+.carouselSection {
+  margin-bottom: 3rem;
+  padding: 2rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.carouselTitle {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 2rem;
+  text-align: center;
+  border-bottom: 3px solid #FFD700;
+  padding-bottom: 0.5rem;
+}
+
 .leadersGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

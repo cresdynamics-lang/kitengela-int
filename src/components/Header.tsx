@@ -96,6 +96,7 @@ export default function Header() {
             <Link to="/about" className={styles.navLink} onClick={closeMenu}>About</Link>
             <Link to="/services" className={styles.navLink} onClick={closeMenu}>Services</Link>
             <Link to="/leadership" className={styles.navLink} onClick={closeMenu}>Leadership</Link>
+            <Link to="/outreach" className={styles.navLink} onClick={closeMenu}>Outreach</Link>
             <Link to="/give" className={styles.navLink} onClick={closeMenu}>Give</Link>
             <Link to="/contact" className={styles.navLink} onClick={closeMenu}>Contact</Link>
             {liveStreamUrl && (
