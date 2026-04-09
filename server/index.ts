@@ -18,19 +18,20 @@ const loginSchema = z.object({
 
 const app = express()
 app.set('trust proxy', true)
-app.use(cors({ origin: true }))
+app.use(cors({ origin: true, credentials: true }))
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ limit: '10mb', extended: true }))
 
 // Request logging and path normalization
 app.use((req, res, next) => {
   const originalUrl = req.url
+  
   // Normalization: Ensure req.url starts with /api if it's missing (Vercel mapping)
   if (!req.url.startsWith('/api') && !req.url.startsWith('/uploads')) {
     req.url = '/api' + (req.url.startsWith('/') ? '' : '/') + req.url
   }
 
-  // Robustness: Handle double /api/api (can happen if both client and server add it)
+  // Robustness: Handle double /api/api
   if (req.url.startsWith('/api/api/')) {
     req.url = req.url.slice(4)
   }
@@ -39,6 +40,14 @@ app.use((req, res, next) => {
     console.log(`${req.method} ${originalUrl} -> ${req.url}`)
   }
   next()
+})
+
+// Explicit OPTIONS handler for CORS preflight
+app.options('*', (req, res) => {
+  res.header('Access-Control-Allow-Origin', '*')
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+  res.sendStatus(200)
 })
 
 // Configure multer for file uploads
