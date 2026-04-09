@@ -6,7 +6,7 @@ import cors from 'cors'
 import multer from 'multer'
 import path from 'path'
 import fs from 'fs'
-import { verify } from 'argon2'
+import bcrypt from 'bcryptjs'
 import { z } from 'zod'
 import { getSupabaseAdmin, isSupabaseConfigured } from './supabase'
 
@@ -20,6 +20,25 @@ const app = express()
 app.use(cors({ origin: true }))
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ limit: '10mb', extended: true }))
+
+// Request logging and path normalization
+app.use((req, res, next) => {
+  const originalUrl = req.url
+  // Normalization: Ensure req.url starts with /api if it's missing (Vercel mapping)
+  if (!req.url.startsWith('/api') && !req.url.startsWith('/uploads')) {
+    req.url = '/api' + (req.url.startsWith('/') ? '' : '/') + req.url
+  }
+
+  // Robustness: Handle double /api/api (can happen if both client and server add it)
+  if (req.url.startsWith('/api/api/')) {
+    req.url = req.url.slice(4)
+  }
+  
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(`${req.method} ${originalUrl} -> ${req.url}`)
+  }
+  next()
+})
 
 // Configure multer for file uploads
 const uploadsDir = path.join(process.cwd(), 'public', 'uploads')
@@ -319,7 +338,7 @@ app.post('/api/admin/login', async (req, res) => {
       })
       const admin = admins[0]
       if (!admin) return res.status(401).json({ success: false, error: 'Invalid credentials' })
-      const isValid = await verify(admin.password_hash, body.password)
+      const isValid = await bcrypt.compare(body.password, admin.password_hash)
       if (!isValid) return res.status(401).json({ success: false, error: 'Invalid credentials' })
       return res.json({
         success: true,
@@ -672,5 +691,23 @@ if (!isVercelRuntime) {
     console.log(`Supabase configured: ${isSupabaseConfigured}`)
   })
 }
+
+// Global 404 handler for API routes
+app.use((req, res) => {
+  console.warn(`404 Not Found: ${req.method} ${req.url}`)
+  res.status(404).json({
+    success: false,
+    error: `Route not found: ${req.method} ${req.url}. Ensure you have the correct API prefix.`
+  })
+})
+
+// Global Error handler
+app.use((err: any, req: any, res: any, next: any) => {
+  console.error('Unhandled Server Error:', err)
+  res.status(500).json({
+    success: false,
+    error: 'Internal server error. Please check server logs.'
+  })
+})
 
 export default app

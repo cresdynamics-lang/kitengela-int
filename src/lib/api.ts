@@ -2,7 +2,9 @@ function isLocalHostname(hostname: string) {
   return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1'
 }
 
-const API_URL = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL) || '/api'
+const VITE_API_URL = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL) || ''
+// If the URL ends with /api, remove it because endpoints already start with /api
+const API_URL = VITE_API_URL.replace(/\/api\/?$/, '')
 const PUBLIC_CACHE_TTL_MS = 30_000
 const ADMIN_CACHE_TTL_MS = 5 * 60_000
 const REQUEST_TIMEOUT_MS = 25_000
