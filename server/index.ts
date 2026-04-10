@@ -137,7 +137,7 @@ async function dbQuery<T>(table: string, options: {
 async function dbInsert<T>(table: string, record: Record<string, any>): Promise<T> {
   const { data, error } = await getSupabaseAdmin()
     .from(table)
-    .insert(record)
+    .insert(record as any)
     .select()
     .single()
   if (error) throw new Error(error.message)
@@ -147,7 +147,7 @@ async function dbInsert<T>(table: string, record: Record<string, any>): Promise<
 async function dbUpdate<T>(table: string, id: string, record: Record<string, any>): Promise<T> {
   const { data, error } = await getSupabaseAdmin()
     .from(table)
-    .update(record)
+    .update(record as any)
     .eq('id', id)
     .select()
     .single()
@@ -161,16 +161,6 @@ async function dbDelete(table: string, id: string): Promise<void> {
     .delete()
     .eq('id', id)
   if (error) throw new Error(error.message)
-}
-
-async function dbUpsert<T>(table: string, record: Record<string, any>, matchCol = 'id'): Promise<T> {
-  const { data, error } = await getSupabaseAdmin()
-    .from(table)
-    .upsert(record, { onConflict: matchCol })
-    .select()
-    .single()
-  if (error) throw new Error(error.message)
-  return data as T
 }
 
 // ===================== AUTH =====================
@@ -712,7 +702,7 @@ app.use((req, res) => {
 })
 
 // Global Error handler
-app.use((err: any, req: any, res: any, next: any) => {
+app.use((err: any, _req: any, res: any, _next: any) => {
   console.error('Unhandled Server Error:', err)
   res.status(500).json({
     success: false,
