@@ -245,7 +245,7 @@ export default function Home() {
                       alt={section.title}
                       loading={sectionIdx === 0 && idx === imageIndex ? 'eager' : 'lazy'}
                       decoding="async"
-                      fetchPriority={sectionIdx === 0 && idx === imageIndex ? 'high' : 'low'}
+                      fetchpriority={sectionIdx === 0 && idx === imageIndex ? 'high' : 'low'}
                       className={`${styles.storyBackgroundImage} ${idx === imageIndex ? styles.storyBackgroundImageActive : ''}`}
                     />
                   ))}

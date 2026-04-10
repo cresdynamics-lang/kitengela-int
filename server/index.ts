@@ -197,6 +197,27 @@ const parseContacts = (value: unknown): string[] => {
 
 // ===================== PUBLIC API =====================
 
+// Debug endpoint to check environment variables
+app.get('/api/debug', async (_req, res) => {
+  const envStatus = {
+    SUPABASE_URL: !!process.env.SUPABASE_URL,
+    SUPABASE_SERVICE_ROLE_KEY: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+    SUPABASE_ANON_KEY: !!process.env.SUPABASE_ANON_KEY,
+    DATABASE_URL: !!process.env.DATABASE_URL,
+    isSupabaseConfigured: isSupabaseConfigured(),
+    nodeEnv: process.env.NODE_ENV,
+    timestamp: new Date().toISOString()
+  }
+  
+  console.log('Environment check:', envStatus)
+  
+  res.json({ 
+    success: true, 
+    env: envStatus,
+    message: 'Check server logs for full environment details'
+  })
+})
+
 app.get('/api/public/site', async (_req, res) => {
   try {
     const rows = await dbQuery<any>('site_settings', { order: [{ column: 'updated_at', ascending: false }], limit: 1 })
@@ -209,10 +230,13 @@ app.get('/api/public/site', async (_req, res) => {
 
 app.get('/api/public/live', async (_req, res) => {
   try {
+    console.log('Fetching live streams...')
     const rows = await dbQuery<any>('live_streams', { order: [{ column: 'updated_at', ascending: false }], limit: 1 })
+    console.log('Live streams result:', rows)
     res.json({ success: true, data: rows[0] || null })
   } catch (e: any) {
-    console.error('GET live_streams:', e.message)
+    console.error('GET live_streams error:', e.message)
+    console.error('Full error:', e)
     res.status(503).json({ success: false, error: 'Database unavailable. Check Supabase credentials.' })
   }
 })
