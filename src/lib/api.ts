@@ -173,6 +173,10 @@ export const publicApi = {
   async getLinks() {
     return fetchApi('/api/public/links')
   },
+
+  async getPhotos() {
+    return fetchApi('/api/public/photos')
+  },
 }
 
 async function fetchApiWithAuth<T>(endpoint: string, token: string, options: RequestInit = {}): Promise<{ success: boolean; data: T }> {
@@ -361,6 +365,13 @@ export const adminApi = {
   async deletePhoto(token: string, filename: string) {
     return fetchApiWithAuth(`/api/admin/photos/${filename}`, token, {
       method: 'DELETE',
+    })
+  },
+  
+  async updatePhotoCategory(token: string, id: string, category: string) {
+    return fetchApiWithAuth(`/api/admin/photos/${id}/category`, token, {
+      method: 'PATCH',
+      body: JSON.stringify({ category }),
     })
   },
 }

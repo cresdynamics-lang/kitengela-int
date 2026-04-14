@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import styles from './admin.module.css'
 import { adminApi } from '@/lib/api'
+import { getAdminToken } from '@/lib/adminSession'
 
 interface LiveStream {
   id: string
@@ -21,7 +22,11 @@ function detectPlatformFromUrl(url: string): 'youtube' | 'facebook' | 'googlemee
 export default function LiveStreamAdmin() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [liveStreamLink, setLiveStreamLink] = useState('')
+  const [links, setLinks] = useState({
+    youtube: '',
+    facebook: '',
+    googlemeet: ''
+  })
 
   useEffect(() => {
     fetchLiveStream()
@@ -29,14 +34,17 @@ export default function LiveStreamAdmin() {
 
   const fetchLiveStream = async () => {
     try {
-      const token = localStorage.getItem('adminToken')
+      const token = getAdminToken()
       if (!token) return
 
       const response = await adminApi.getLive(token)
       if (response.success && response.data) {
         const data = response.data as LiveStream
-        const link = data.youtubeLiveUrl || data.facebookLiveUrl || data.googleMeetUrl || ''
-        setLiveStreamLink(link)
+        setLinks({
+          youtube: data.youtubeLiveUrl || '',
+          facebook: data.facebookLiveUrl || '',
+          googlemeet: data.googleMeetUrl || ''
+        })
       }
     } catch (error) {
       console.error('Error fetching live stream:', error)
@@ -47,28 +55,25 @@ export default function LiveStreamAdmin() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    const token = localStorage.getItem('adminToken')
+    const token = getAdminToken()
     if (!token) return
 
     setSaving(true)
     try {
-      const link = liveStreamLink.trim()
-      const platform = link ? detectPlatformFromUrl(link) : ''
       const submitData = {
-        isLive: !!link,
-        platform: platform || null,
-        youtubeLiveUrl: platform === 'youtube' && link ? link : null,
-        facebookLiveUrl: platform === 'facebook' && link ? link : null,
-        googleMeetUrl: platform === 'googlemeet' && link ? link : null,
+        isLive: !!(links.youtube || links.facebook || links.googlemeet),
+        youtubeLiveUrl: links.youtube || null,
+        facebookLiveUrl: links.facebook || null,
+        googleMeetUrl: links.googlemeet || null,
         title: null,
         scheduleTime: null,
       }
 
       await adminApi.updateLive(token, submitData)
-      alert('Live stream link saved.')
+      alert('Live stream links successfully updated.')
       fetchLiveStream()
     } catch (error: any) {
-      alert(error.response?.data?.error || 'Error saving live stream link')
+      alert(error.message || 'Error saving live stream link')
     } finally {
       setSaving(false)
     }
@@ -79,26 +84,43 @@ export default function LiveStreamAdmin() {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h2>Live Stream</h2>
+        <h2>Live Stream Control</h2>
         <p className={styles.subtitle}>
-          Set the link used by all &quot;Join Us Live&quot; buttons. Leave empty to send visitors to the Sermons page.
+          Updating this link will automatically update all &quot;Join Us Live&quot; buttons on the website.
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.formGroup}>
-          <label>Live stream link</label>
+          <label>YouTube Live URL</label>
           <input
             type="url"
-            value={liveStreamLink}
-            onChange={(e) => setLiveStreamLink(e.target.value)}
-            placeholder="Paste YouTube, Facebook, or Google Meet link"
-            className={styles.liveStreamLinkInput}
+            value={links.youtube}
+            onChange={(e) => setLinks({ ...links, youtube: e.target.value })}
+            placeholder="https://www.youtube.com/watch?v=..."
+          />
+        </div>
+        <div className={styles.formGroup}>
+          <label>Facebook Live URL</label>
+          <input
+            type="url"
+            value={links.facebook}
+            onChange={(e) => setLinks({ ...links, facebook: e.target.value })}
+            placeholder="https://www.facebook.com/..."
+          />
+        </div>
+        <div className={styles.formGroup}>
+          <label>Google Meet / Prayer Link</label>
+          <input
+            type="url"
+            value={links.googlemeet}
+            onChange={(e) => setLinks({ ...links, googlemeet: e.target.value })}
+            placeholder="https://meet.google.com/..."
           />
         </div>
         <div className={styles.formActions}>
           <button type="submit" className={styles.saveButton} disabled={saving}>
-            {saving ? 'Saving...' : 'Save'}
+            {saving ? 'Saving...' : 'Update Live Stream'}
           </button>
         </div>
       </form>

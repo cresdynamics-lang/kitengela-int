@@ -1,371 +1,122 @@
-/* Sunday Sermon section */
-.sundaySermonSection {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  padding: clamp(2rem, 5vw, 3.5rem) 20px;
-  color: white;
-}
-.sundaySermonInner {
-  max-width: 1100px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 2.5rem;
-  align-items: center;
-}
-.sundaySermonContent { min-width: 0; }
-.sundaySermonHeading {
-  font-size: clamp(1.5rem, 4vw + 0.5rem, 2.5rem);
-  font-weight: 700;
-  color: #FFD700;
-  margin: 0 0 1rem 0;
-  line-height: 1.2;
-}
-.sundaySermonParagraph {
-  font-size: clamp(0.95rem, 1.5vw + 0.5rem, 1.1rem);
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.9);
-  margin: 0 0 1rem 0;
-}
-.sundaySermonSpeakers {
-  font-size: clamp(0.9rem, 1.2vw + 0.5rem, 1rem);
-  color: #FFD700;
-  font-weight: 600;
-  margin: 0 0 1.25rem 0;
-}
-.sundaySermonActions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
-.sundaySermonBtn {
-  display: inline-block;
-  padding: 0.5rem 1.25rem;
-  background: #DC143C;
-  color: white;
-  text-decoration: none;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 0.95rem;
-  transition: background 0.3s ease;
-}
-.sundaySermonBtn:hover { background: #B8122E; }
-.sundaySermonBtnOutline {
-  display: inline-block;
-  padding: 0.5rem 1.25rem;
-  border: 2px solid #FFD700;
-  color: #FFD700;
-  text-decoration: none;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 0.95rem;
-  transition: all 0.3s ease;
-}
-.sundaySermonBtnOutline:hover { background: #FFD700; color: #1a1a2e; }
-.sundaySermonPoster {
-  width: 100%;
-  max-width: 380px;
-  aspect-ratio: 16/10;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-}
-.sundaySermonPoster img { width: 100%; height: 100%; object-fit: cover; }
-@media (max-width: 768px) {
-  .sundaySermonInner { grid-template-columns: 1fr; gap: 1.5rem; }
-  .sundaySermonPoster { max-width: 100%; order: -1; }
-}
-@media (max-width: 480px) {
-  .sundaySermonSection { padding: 1.5rem 14px; }
-  .sundaySermonHeading { font-size: 1.35rem; }
-  .sundaySermonParagraph { font-size: 0.9rem; }
-}
-.joinSection {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  padding: clamp(1.5rem, 5vw, 3rem) 20px;
-  text-align: center;
-}
-.joinInner { max-width: 800px; margin: 0 auto; }
-.joinTitle {
-  font-size: clamp(1.35rem, 4vw + 0.5rem, 2.5rem);
-  font-weight: 700;
-  color: #FFD700;
-  margin-bottom: 1rem;
-}
-.joinSubtitle {
-  font-size: clamp(0.9rem, 2vw + 0.5rem, 1.2rem);
-  color: rgba(255, 255, 255, 0.9);
-  margin-bottom: 2rem;
-}
-.joinButtons { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; }
-.joinButton {
-  padding: clamp(0.75rem, 2vw, 1rem) clamp(1.25rem, 4vw, 2.5rem);
-  border-radius: 6px;
-  text-decoration: none;
-  font-weight: 700;
-  font-size: clamp(0.85rem, 1.8vw + 0.4rem, 1.1rem);
-  transition: all 0.3s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-.joinButtonRed { background: #DC143C; color: white; box-shadow: 0 4px 10px rgba(220, 20, 60, 0.3); }
-.joinButtonRed:hover { background: #B8122E; transform: translateY(-2px); }
-.joinButtonGold { background: #FFD700; color: #1a1a2e; box-shadow: 0 4px 10px rgba(255, 215, 0, 0.3); }
-.joinButtonGold:hover { background: #FFA500; transform: translateY(-2px); }
-.planVisitLink {
-  display: inline-block;
-  margin-top: 2rem;
-  color: white;
-  text-decoration: none;
-  font-size: clamp(0.85rem, 1.8vw + 0.4rem, 1.1rem);
-  font-weight: 600;
-  border-bottom: 2px solid #FFD700;
-  padding-bottom: 0.25rem;
-  transition: color 0.3s ease;
-}
-.planVisitLink:hover { color: #FFD700; }
-
-/* Second carousel (before Services) */
-.secondCarouselWrap {
-  padding: clamp(1.5rem, 4vw, 2.5rem) 20px;
-  background: linear-gradient(180deg, #f8f9fa 0%, #fff 100%);
-}
-.secondCarouselTitle {
-  text-align: center;
-  font-size: clamp(1.35rem, 3vw + 0.5rem, 2rem);
-  font-weight: 700;
-  color: #1a1a2e;
-  margin: 0 0 1.25rem 0;
+.main {
+  min-height: 100vh;
 }
 
-/* Scroll banner sections */
-.bannerSection {
-  min-height: 380px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: center;
-  gap: 0;
-  overflow: hidden;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-}
-.bannerSection.reverse { grid-template-columns: 1fr 1fr; }
-.bannerSection.reverse .bannerImage { order: 2; }
-.bannerSection.reverse .bannerContent { order: 1; }
-.bannerImage {
+.section {
+  padding: 8rem 0;
   position: relative;
-  min-height: 320px;
-  width: 100%;
+  overflow: hidden;
 }
-.bannerImage img {
-  position: absolute;
-  inset: 0;
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* Next Steps Section - Adjusted for new flow */
+.nextSteps {
+  background: var(--muted);
+  position: relative;
+  z-index: 20;
+  padding: 8rem 0;
+}
+
+.stepsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+}
+
+.stepCard {
+  background: white;
+  padding: 3rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-xl);
+  text-align: center;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(15, 23, 42, 0.05);
+}
+
+.stepCard:hover {
+  transform: translateY(-10px);
+  border-color: var(--accent);
+}
+
+.stepIcon {
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+  display: block;
+}
+
+.stepTitle {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: var(--primary);
+}
+
+.stepText {
+  color: var(--muted-foreground);
+  margin-bottom: 2rem;
+  font-size: 0.9375rem;
+}
+
+.stepLink {
+  color: var(--accent);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.8rem;
+}
+
+/* Media Grid for unused images */
+.mediaSection {
+  background: var(--primary);
+  color: white;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+.gridItem {
+  border-radius: 1rem;
+  overflow: hidden;
+  position: relative;
+  aspect-ratio: 1;
+}
+
+.gridImg {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.bannerVideo {
-  position: relative;
-  min-height: 280px;
-  width: 100%;
-  aspect-ratio: 16/9;
+
+.gridItem:hover .gridImg {
+  transform: scale(1.1);
 }
-.bannerVideo iframe {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  border: none;
-  border-radius: 8px;
-}
-@media (max-width: 768px) {
-  .bannerSection .bannerVideo { min-height: 220px; }
-}
-.bannerContent {
-  padding: clamp(1.5rem, 4vw, 2.5rem);
-  color: #fff;
-}
-.bannerBadge {
-  display: inline-block;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: #FFD700;
-  margin-bottom: 0.5rem;
-  text-transform: uppercase;
-}
-.bannerTitle {
-  font-size: clamp(1.35rem, 3vw + 0.5rem, 2rem);
-  font-weight: 700;
-  color: #fff;
-  margin: 0 0 0.75rem 0;
-  line-height: 1.2;
-}
-.bannerText {
-  font-size: clamp(0.9rem, 1.2vw + 0.4rem, 1.05rem);
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.9);
-  margin: 0 0 1.25rem 0;
-}
-.bannerCta {
-  display: inline-block;
-  padding: 0.6rem 1.25rem;
-  background: #DC143C;
-  color: #fff;
-  text-decoration: none;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 0.95rem;
-  transition: background 0.2s ease, transform 0.2s ease;
-}
-.bannerCta:hover { background: #B8122E; transform: translateY(-1px); }
-.bannerCta.outline {
-  background: transparent;
-  border: 2px solid #FFD700;
-  color: #FFD700;
-}
-.bannerCta.outline:hover { background: #FFD700; color: #1a1a2e; }
-@media (max-width: 768px) {
-  .bannerSection,
-  .bannerSection.reverse {
+
+@media (max-width: 1024px) {
+  .stepsGrid {
     grid-template-columns: 1fr;
   }
-  .bannerSection .bannerImage,
-  .bannerSection.reverse .bannerImage { order: 0; min-height: 220px; }
-  .bannerSection .bannerContent,
-  .bannerSection.reverse .bannerContent { order: 1; }
-}
-@media (max-width: 480px) {
-  .bannerSection { min-height: auto; }
-  .bannerImage { min-height: 200px; }
-}
-
-.loadingText {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 2rem;
-  font-size: clamp(0.9rem, 2vw + 0.5rem, 1.125rem);
-  color: #666;
-}
-@media (max-width: 480px) {
-  .joinSection { padding: 1.5rem 14px; }
-  .joinTitle { font-size: 1.2rem; }
-  .joinSubtitle { font-size: 0.9rem; margin-bottom: 1.5rem; }
-  .joinButtons { gap: 1rem; }
-  .joinButton { padding: 0.75rem 1.5rem; font-size: 0.9rem; }
-  .planVisitLink { font-size: 0.85rem; margin-top: 1.5rem; }
-}
-
-.storySection {
-  position: relative;
-  min-height: 700px;
-  display: flex;
-  align-items: center;
-  overflow: hidden;
-  margin: 0;
-  border-top: 2px solid rgba(255, 215, 0, 0.38);
-  border-bottom: 2px solid rgba(255, 215, 0, 0.28);
-}
-
-.storySectionReverse {
-  justify-content: flex-end;
-}
-
-.storyBackgroundLayer {
-  position: absolute;
-  inset: 0;
-}
-
-.storyBackgroundImage {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0;
-  transition: opacity 1.1s ease;
-}
-
-.storyBackgroundImageActive {
-  opacity: 1;
-}
-
-.storyOverlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(100deg, rgba(8, 12, 20, 0.72) 0%, rgba(8, 12, 20, 0.58) 45%, rgba(8, 12, 20, 0.7) 100%);
-}
-
-.storyContent {
-  position: relative;
-  z-index: 1;
-  width: min(100%, 760px);
-  padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 4vw, 2.5rem);
-  color: #fff;
-}
-
-.storyGap {
-  position: relative;
-  height: 26px;
-  overflow: hidden;
-  background:
-    linear-gradient(180deg, rgba(6, 10, 18, 0.96) 0%, rgba(19, 28, 44, 0.9) 50%, rgba(8, 12, 20, 0.96) 100%);
-}
-
-.storyGap::before,
-.storyGap::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-}
-
-.storyGap::before {
-  background: linear-gradient(90deg, transparent 0%, rgba(255, 215, 0, 0.28) 35%, rgba(220, 20, 60, 0.32) 55%, transparent 100%);
-  transform: translateX(-100%);
-  animation: gapSweep 5.5s linear infinite;
-}
-
-.storyGap::after {
-  background: radial-gradient(60% 140% at 50% 50%, rgba(255, 215, 0, 0.22) 0%, transparent 75%);
-  animation: gapPulse 2.8s ease-in-out infinite;
-}
-
-@keyframes gapSweep {
-  from { transform: translateX(-100%); }
-  to { transform: translateX(100%); }
-}
-
-@keyframes gapPulse {
-  0%, 100% { opacity: 0.35; }
-  50% { opacity: 0.85; }
+  
+  .storySection {
+    flex-direction: column !important;
+    gap: 3rem;
+    padding: 5rem 0;
+  }
+  
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 768px) {
-  .storySection {
-    min-height: 550px;
-  }
-  .storyGap {
-    height: 20px;
-  }
-  .storySectionReverse {
-    justify-content: flex-start;
-  }
-  .storyOverlay {
-    background: linear-gradient(180deg, rgba(8, 12, 20, 0.62) 0%, rgba(8, 12, 20, 0.74) 100%);
-  }
-  .storyContent {
-    width: 100%;
-    padding: 1.25rem 1rem 1.75rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .storySection {
-    min-height: 480px;
-  }
-  .storyGap {
-    height: 16px;
-  }
-}
-
-@media (max-width: 360px) {
-  .storySection {
-    min-height: 420px;
+  .section {
+    padding: 5rem 0;
   }
 }

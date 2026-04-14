@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import styles from './admin.module.css'
 import { adminApi } from '@/lib/api'
+import { getAdminToken } from '@/lib/adminSession'
 
 interface Program {
   id: string
@@ -40,7 +41,7 @@ export default function Programs() {
 
   const fetchPrograms = async () => {
     try {
-      const token = localStorage.getItem('adminToken')
+      const token = getAdminToken()
       if (!token) return
 
       const response = await adminApi.getPrograms(token)
@@ -56,7 +57,7 @@ export default function Programs() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    const token = localStorage.getItem('adminToken')
+    const token = getAdminToken()
     if (!token) return
 
     try {
@@ -69,14 +70,16 @@ export default function Programs() {
 
       if (editingId) {
         await adminApi.updateProgram(token, editingId, programData)
+        alert('Program updated successfully')
       } else {
         await adminApi.createProgram(token, programData)
+        alert('Program created successfully')
       }
 
       fetchPrograms()
       resetForm()
     } catch (error: any) {
-      alert(error.response?.data?.error || 'Error saving program')
+      alert(error.message || 'Error saving program')
     }
   }
 
@@ -104,13 +107,13 @@ export default function Programs() {
     if (!confirm('Are you sure you want to delete this program?')) return
 
     try {
-      const token = localStorage.getItem('adminToken')
+      const token = getAdminToken()
       if (!token) return
 
       await adminApi.deleteProgram(token, id)
       fetchPrograms()
     } catch (error: any) {
-      alert(error.response?.data?.error || 'Error deleting program')
+      alert(error.message || 'Error deleting program')
     }
   }
 
@@ -136,19 +139,19 @@ export default function Programs() {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h2>Programs</h2>
+        <h2>Gatherings & Services</h2>
         <button onClick={() => setShowForm(true)} className={styles.addButton}>
-          + Add New Program
+          + Add New Service
         </button>
       </div>
 
       {showForm && (
         <div className={styles.formModal}>
           <div className={styles.formContent}>
-            <h3>{editingId ? 'Edit' : 'Add'} Program</h3>
+            <h3>{editingId ? 'Edit' : 'Add'} Service</h3>
             <form onSubmit={handleSubmit}>
               <div className={styles.formGroup}>
-                <label>Title *</label>
+                <label>Service Title *</label>
                 <input
                   type="text"
                   value={formData.title}
@@ -211,7 +214,7 @@ export default function Programs() {
                 />
               </div>
               <div className={styles.formGroup}>
-                <label>Poster Image URL</label>
+                <label>Poster Image URL (Optional)</label>
                 <input
                   type="url"
                   value={formData.posterImageUrl}
@@ -219,7 +222,7 @@ export default function Programs() {
                 />
               </div>
               <div className={styles.formGroup}>
-                <label>Description</label>
+                <label>Brief Description</label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -228,7 +231,7 @@ export default function Programs() {
               </div>
               <div className={styles.formRow}>
                 <div className={styles.formGroup}>
-                  <label>Order Index</label>
+                  <label>Display Order</label>
                   <input
                     type="number"
                     value={formData.orderIndex}
@@ -242,12 +245,12 @@ export default function Programs() {
                       checked={formData.isActive}
                       onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
                     />
-                    Active
+                    Publish & Active
                   </label>
                 </div>
               </div>
               <div className={styles.formActions}>
-                <button type="submit" className={styles.saveButton}>Save</button>
+                <button type="submit" className={styles.saveButton}>Save Service</button>
                 <button type="button" onClick={resetForm} className={styles.cancelButton}>Cancel</button>
               </div>
             </form>
@@ -281,7 +284,7 @@ export default function Programs() {
                   <td>{program.venue}</td>
                   <td>
                     <span className={program.isActive ? styles.active : styles.inactive}>
-                      {program.isActive ? 'Active' : 'Inactive'}
+                      {program.isActive ? 'Active' : 'Hidden'}
                     </span>
                   </td>
                   <td>

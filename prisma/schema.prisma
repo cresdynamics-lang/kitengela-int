@@ -234,3 +234,18 @@ model Testimonial {
   @@map("testimonials")
   @@index([isPublished, orderIndex])
 }
+
+model Photo {
+  id           String   @id @default(cuid())
+  filename     String
+  originalName String   @map("original_name")
+  url          String
+  size         Int      @default(0)
+  category     String   @default("general")
+  uploadDate   DateTime @default(now()) @map("upload_date")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  updatedBy    String?  @map("updated_by")
+
+  @@map("photos")
+  @@index([category, uploadDate])
+}

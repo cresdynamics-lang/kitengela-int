@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import PageHeader from '@/components/PageHeader'
 import ScrollReveal from '@/components/ScrollReveal'
 import Carousel from '@/components/Carousel'
 import styles from './Outreach.module.css'
@@ -59,14 +60,12 @@ export default function Outreach() {
   return (
     <main>
       <Header />
+      <PageHeader 
+        title="Outreach & Mission" 
+        subtitle="Love Beyond Our Walls"
+        backgroundImage="/latestoutreach.jpeg"
+      />
       <div className={styles.container}>
-        <ScrollReveal direction="left">
-          <div className={styles.hero}>
-            <h1 className={styles.title}>Outreach & Mission</h1>
-            <p className={styles.subtitle}>Making a difference in our community and beyond</p>
-          </div>
-        </ScrollReveal>
-        
         <ScrollReveal direction="right">
           <section className={styles.carouselSection}>
             <h2 className={styles.sectionTitle}>Our Mission in Action</h2>
@@ -96,7 +95,7 @@ export default function Outreach() {
                   </div>
                   <div className={styles.activityContent}>
                     <h3 className={styles.activityTitle}>{activity.title}</h3>
-                    <p className={styles.activityDescription}>{activity.description}</p>
+                    <p className={activity.description}>{activity.description}</p>
                   </div>
                 </div>
               ))}

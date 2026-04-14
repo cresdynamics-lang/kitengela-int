@@ -134,10 +134,19 @@ async function dbQuery<T>(table: string, options: {
   return (data || []) as T[]
 }
 
+import crypto from 'crypto'
+
 async function dbInsert<T>(table: string, record: Record<string, any>): Promise<T> {
+  const recordWithId = {
+    id: record.id || crypto.randomUUID(),
+    ...record,
+    created_at: record.created_at || new Date().toISOString(),
+    updated_at: record.updated_at || new Date().toISOString()
+  }
+
   const { data, error } = await getSupabaseAdmin()
     .from(table)
-    .insert(record as any)
+    .insert(recordWithId as any)
     .select()
     .single()
   if (error) throw new Error(error.message)
@@ -216,6 +225,47 @@ app.get('/api/debug', async (_req, res) => {
     env: envStatus,
     message: 'Check server logs for full environment details'
   })
+})
+
+app.get('/api/public/photos', async (_req, res) => {
+  try {
+    const photos = await dbQuery<any>('photos', { order: [{ column: 'upload_date', ascending: false }] })
+    res.json({ success: true, data: photos })
+  } catch (e: any) {
+    console.error('GET public/photos:', e.message)
+    
+    // FALLBACK: Read from filesystem if DB table doesn't exist yet
+    try {
+      const publicDir = path.join(process.cwd(), 'public')
+      const uploadsDir = path.join(publicDir, 'uploads')
+      
+      const files: any[] = []
+      
+      // 1. Root public images
+      if (fs.existsSync(publicDir)) {
+        const rootFiles = fs.readdirSync(publicDir)
+        rootFiles.forEach(file => {
+          if (file.match(/\.(jpg|jpeg|png|webp)$/i) && file.toLowerCase().includes('whatsapp')) {
+            files.push({ id: file, filename: file, url: `/${file}`, category: 'general' })
+          }
+        })
+      }
+      
+      // 2. Uploads images (Only WhatsApp if that's the rule, but usually uploads are all valid)
+      if (fs.existsSync(uploadsDir)) {
+        const uploadFiles = fs.readdirSync(uploadsDir)
+        uploadFiles.forEach(file => {
+          if (file.match(/\.(jpg|jpeg|png|webp)$/i) && file.toLowerCase().includes('whatsapp')) {
+            files.push({ id: file, filename: file, url: `/uploads/${file}`, category: 'general' })
+          }
+        })
+      }
+      
+      res.json({ success: true, data: files, fallback: true })
+    } catch (fsError: any) {
+      res.status(500).json({ success: false, error: 'Failed to fetch photos' })
+    }
+  }
 })
 
 app.get('/api/public/site', async (_req, res) => {
@@ -626,16 +676,8 @@ app.get('/api/admin/photos', async (req, res) => {
   const admin = await getAdminFromToken(req.headers.authorization)
   if (!admin) return res.status(401).json({ error: 'Unauthorized' })
   try {
-    const dir = path.join(process.cwd(), 'public', 'uploads')
-    if (!fs.existsSync(dir)) return res.json({ success: true, data: [] })
-    const files = fs.readdirSync(dir)
-      .filter(f => /\.(jpg|jpeg|png|gif|webp)$/i.test(f))
-      .map(f => {
-        const stats = fs.statSync(path.join(dir, f))
-        return { id: f, filename: f, originalName: f, url: `/uploads/${f}`, size: stats.size, uploadDate: stats.mtime.toISOString() }
-      })
-      .sort((a, b) => new Date(b.uploadDate).getTime() - new Date(a.uploadDate).getTime())
-    res.json({ success: true, data: files })
+    const photos = await dbQuery<any>('photos', { order: [{ column: 'upload_date', ascending: false }] })
+    res.json({ success: true, data: photos })
   } catch (e: any) {
     console.error('GET admin/photos:', e.message)
     res.status(500).json({ success: false, error: 'Failed to fetch photos' })
@@ -647,14 +689,22 @@ app.post('/api/admin/photos', upload.single('photo'), async (req, res) => {
   if (!admin) return res.status(401).json({ error: 'Unauthorized' })
   if (!req.file) return res.status(400).json({ success: false, error: 'No photo file provided' })
   try {
+    const photoData = {
+      id: req.file.filename,
+      filename: req.file.filename,
+      original_name: req.file.originalname,
+      url: `/uploads/${req.file.filename}`,
+      size: req.file.size,
+      category: req.body.category || 'general',
+      upload_date: new Date().toISOString(),
+      updated_by: admin.id
+    }
+    
+    const row = await dbInsert<any>('photos', photoData)
+    
     res.json({
       success: true,
-      data: {
-        id: req.file.filename, filename: req.file.filename,
-        originalName: req.file.originalname,
-        url: `/uploads/${req.file.filename}`,
-        size: req.file.size, uploadDate: new Date().toISOString(),
-      }
+      data: row
     })
   } catch (e: any) {
     console.error('POST admin/photos:', e.message)
@@ -662,13 +712,52 @@ app.post('/api/admin/photos', upload.single('photo'), async (req, res) => {
   }
 })
 
+app.patch('/api/admin/photos/:id/category', async (req, res) => {
+  const admin = await getAdminFromToken(req.headers.authorization)
+  if (!admin) return res.status(401).json({ error: 'Unauthorized' })
+  const { category } = req.body
+  if (!category) return res.status(400).json({ success: false, error: 'Category is required' })
+  
+  try {
+    const { data, error } = await getSupabaseAdmin()
+      .from('photos')
+      .update({ category, updated_at: new Date().toISOString() })
+      .eq('id', req.params.id)
+      .select()
+      .single()
+      
+    if (error) throw error
+    res.json({ success: true, data })
+  } catch (e: any) {
+    console.error('PATCH admin/photos/category:', e.message)
+    res.status(500).json({ success: false, error: 'Failed to update category' })
+  }
+})
+
 app.delete('/api/admin/photos/:filename', async (req, res) => {
   const admin = await getAdminFromToken(req.headers.authorization)
   if (!admin) return res.status(401).json({ error: 'Unauthorized' })
   try {
-    const filePath = path.join(process.cwd(), 'public', 'uploads', req.params.filename)
-    if (!fs.existsSync(filePath)) return res.status(404).json({ success: false, error: 'Photo not found' })
-    fs.unlinkSync(filePath)
+    const filename = req.params.filename
+    const publicPath = path.join(process.cwd(), 'public', filename)
+    const uploadsPath = path.join(process.cwd(), 'public', 'uploads', filename)
+    
+    // 1. Try to delete from filesystem (check both possible locations)
+    if (fs.existsSync(uploadsPath)) {
+      fs.unlinkSync(uploadsPath)
+    } else if (fs.existsSync(publicPath)) {
+      // Be careful: avoid deleting essential system files if they match by some fluke
+      if (filename !== 'robots.txt' && !filename.endsWith('.json')) {
+        fs.unlinkSync(publicPath)
+      }
+    }
+    
+    // 2. Delete from DB (metadata)
+    await getSupabaseAdmin()
+      .from('photos')
+      .delete()
+      .eq('filename', filename)
+      
     res.json({ success: true, message: 'Photo deleted successfully' })
   } catch (e: any) {
     console.error('DELETE admin/photos:', e.message)

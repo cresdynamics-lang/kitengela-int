@@ -1,6 +1,9 @@
-import { useState, useEffect } from 'react'
-import { Trash2, Upload, Image as ImageIcon, FileImage, X } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { Trash2, Upload, FileImage } from 'lucide-react'
 import styles from './PhotoManager.module.css'
+import { adminApi } from '@/lib/api'
+import { getAdminToken } from '@/lib/adminSession'
+import { supabase } from '@/lib/supabase'
 
 interface Photo {
   id: string
@@ -8,8 +11,18 @@ interface Photo {
   originalName: string
   url: string
   size: number
+  category: string
   uploadDate: string
 }
+
+const CATEGORIES = [
+  { id: 'general', name: 'General / Gallery' },
+  { id: 'hero', name: 'Main Header (Hero)' },
+  { id: 'foundation', name: 'Our Foundation' },
+  { id: 'reach', name: 'Community Reach' },
+  { id: 'prayer', name: 'House of Prayer' },
+  { id: 'giving', name: 'Generous Living' },
+]
 
 export default function PhotoManager() {
   const [photos, setPhotos] = useState<Photo[]>([])
@@ -17,27 +30,31 @@ export default function PhotoManager() {
   const [uploading, setUploading] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [dragActive, setDragActive] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     fetchPhotos()
+
+    const channel = supabase
+      .channel('admin:photos')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'photos' }, () => {
+        fetchPhotos()
+      })
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
   }, [])
 
   const fetchPhotos = async () => {
     try {
-      const token = localStorage.getItem('adminToken')
+      const token = getAdminToken()
       if (!token) return
 
-      const response = await fetch('/api/admin/photos', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        setPhotos(data.success ? data.data : [])
-      } else {
-        console.error('Failed to fetch photos')
+      const response = await adminApi.getPhotos(token)
+      if (response.success && Array.isArray(response.data)) {
+        setPhotos(response.data as Photo[])
       }
     } catch (error) {
       console.error('Error fetching photos:', error)
@@ -73,39 +90,27 @@ export default function PhotoManager() {
     }
   }
 
+  const handleDropZoneClick = () => {
+    fileInputRef.current?.click()
+  }
+
   const handleUpload = async () => {
     if (!selectedFile) return
 
     setUploading(true)
     try {
-      const formData = new FormData()
-      formData.append('photo', selectedFile)
-
-      const token = localStorage.getItem('adminToken')
+      const token = getAdminToken()
       if (!token) return
 
-      const response = await fetch('/api/admin/photos', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formData
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        if (data.success) {
-          setPhotos(prev => [data.data, ...prev])
-          setSelectedFile(null)
-          // Reset file input
-          const fileInput = document.getElementById('photo-input') as HTMLInputElement
-          if (fileInput) fileInput.value = ''
-        }
-      } else {
-        console.error('Upload failed')
+      const response = await adminApi.uploadPhoto(token, selectedFile)
+      if (response.success && response.data) {
+        setPhotos(prev => [response.data as Photo, ...prev])
+        setSelectedFile(null)
+        const fileInput = document.getElementById('photo-input') as HTMLInputElement
+        if (fileInput) fileInput.value = ''
       }
-    } catch (error) {
-      console.error('Error uploading photo:', error)
+    } catch (error: any) {
+      alert(error.message || 'Upload failed')
     } finally {
       setUploading(false)
     }
@@ -115,23 +120,29 @@ export default function PhotoManager() {
     if (!confirm('Are you sure you want to delete this photo?')) return
 
     try {
-      const token = localStorage.getItem('adminToken')
+      const token = getAdminToken()
       if (!token) return
 
-      const response = await fetch(`/api/admin/photos/${filename}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-
-      if (response.ok) {
+      const response = await adminApi.deletePhoto(token, filename)
+      if (response.success) {
         setPhotos(prev => prev.filter(photo => photo.filename !== filename))
-      } else {
-        console.error('Delete failed')
       }
-    } catch (error) {
-      console.error('Error deleting photo:', error)
+    } catch (error: any) {
+      alert(error.message || 'Delete failed')
+    }
+  }
+
+  const handleCategoryChange = async (photoId: string, newCategory: string) => {
+    try {
+      const token = getAdminToken()
+      if (!token) return
+
+      const response = await adminApi.updatePhotoCategory(token, photoId, newCategory)
+      if (response.success) {
+        setPhotos(prev => prev.map(p => p.id === photoId ? { ...p, category: newCategory } : p))
+      }
+    } catch (error: any) {
+      alert(error.message || 'Update failed')
     }
   }
 
@@ -150,18 +161,18 @@ export default function PhotoManager() {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h2 className={styles.title}>Photo Manager</h2>
-        <p className={styles.subtitle}>Upload and manage photos for carousels</p>
+        <h2 className={styles.title}>Media Library</h2>
+        <p className={styles.subtitle}>Upload and manage church photos for galleries and stories.</p>
       </div>
 
       <div className={styles.uploadSection}>
         <div className={styles.uploadArea}>
-          <input
             id="photo-input"
             type="file"
             accept="image/*"
             onChange={handleFileSelect}
             className={styles.fileInput}
+            ref={fileInputRef}
           />
           
           <div
@@ -169,6 +180,7 @@ export default function PhotoManager() {
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
+            onClick={handleDropZoneClick}
           >
             <Upload className={styles.uploadIcon} size={48} />
             <p className={styles.dropText}>
@@ -197,19 +209,19 @@ export default function PhotoManager() {
             disabled={!selectedFile || uploading}
             className={styles.uploadButton}
           >
-            {uploading ? 'Uploading...' : 'Upload Photo'}
+            {uploading ? 'Processing...' : 'Upload to Library'}
           </button>
         </div>
       </div>
 
       {loading ? (
-        <div className={styles.loading}>Loading photos...</div>
+        <div className={styles.loading}>Loading media...</div>
       ) : (
         <div className={styles.photoGrid}>
           {photos.length === 0 ? (
             <div className={styles.emptyState}>
               <FileImage className={styles.emptyIcon} size={48} />
-              <p>No photos uploaded yet</p>
+              <p>Your library is empty. Upload your first photo above.</p>
             </div>
           ) : (
             photos.map((photo) => (
@@ -232,8 +244,24 @@ export default function PhotoManager() {
                 </div>
                 <div className={styles.photoInfo}>
                   <p className={styles.photoName}>{photo.originalName}</p>
-                  <p className={styles.photoSize}>{formatFileSize(photo.size)}</p>
-                  <p className={styles.photoDate}>{formatDate(photo.uploadDate)}</p>
+                  
+                  <div className={styles.categorySelect}>
+                    <select 
+                      value={photo.category || 'general'} 
+                      onChange={(e) => handleCategoryChange(photo.id, e.target.value)}
+                      className={styles.select}
+                    >
+                      {CATEGORIES.map(cat => (
+                        <option key={cat.id} value={cat.id}>{cat.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <p className={styles.photoMeta}>
+                    <span>{formatFileSize(photo.size)}</span>
+                    <span className={styles.dot}>•</span>
+                    <span>{formatDate(photo.uploadDate)}</span>
+                  </p>
                 </div>
               </div>
             ))

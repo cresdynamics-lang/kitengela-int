@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import styles from './admin.module.css'
 import { adminApi } from '@/lib/api'
+import { getAdminToken } from '@/lib/adminSession'
 
 interface UpdateLink {
   id: string
@@ -32,7 +33,7 @@ export default function UpdateLinks() {
 
   const fetchLinks = async () => {
     try {
-      const token = localStorage.getItem('adminToken')
+      const token = getAdminToken()
       if (!token) return
 
       const response = await adminApi.getUpdateLinks(token)
@@ -48,7 +49,7 @@ export default function UpdateLinks() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    const token = localStorage.getItem('adminToken')
+    const token = getAdminToken()
     if (!token) return
 
     try {
@@ -62,8 +63,10 @@ export default function UpdateLinks() {
       }
       if (editingId) {
         await adminApi.updateUpdateLink(token, editingId, payload)
+        alert('Link updated successfully.')
       } else {
         await adminApi.createUpdateLink(token, payload)
+        alert('Link created successfully.')
       }
       fetchLinks()
       resetForm()
@@ -87,7 +90,7 @@ export default function UpdateLinks() {
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this link?')) return
-    const token = localStorage.getItem('adminToken')
+    const token = getAdminToken()
     if (!token) return
     try {
       await adminApi.deleteUpdateLink(token, id)

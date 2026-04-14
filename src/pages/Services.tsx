@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import PageHeader from '@/components/PageHeader'
 import ScrollReveal from '@/components/ScrollReveal'
 import Carousel from '@/components/Carousel'
 import { publicApi } from '@/lib/api'
@@ -112,15 +113,17 @@ export default function Services() {
   return (
     <main>
       <Header />
+      <PageHeader 
+        title="Services & Programs" 
+        subtitle="Spiritual Refreshment for Your Week"
+        backgroundImage="/sundayservices.jpeg"
+        hideDivider={true}
+      />
       <div className={styles.container}>
-        <ScrollReveal direction="left">
-          <h1 className={styles.title}>Our Services & Programs</h1>
-          <p className={styles.subtitle}>Join us for worship, prayer, and fellowship throughout the week</p>
-        </ScrollReveal>
         <ScrollReveal direction="right">
           <section className={styles.carouselSection}>
             <h2 className={styles.carouselTitle}>Church Life & Activities</h2>
-            <Carousel images={churchActivitiesCarouselImages} />
+            <Carousel images={churchActivitiesCarouselImages} hideDivider={true} />
           </section>
         </ScrollReveal>
         <ScrollReveal direction="right">

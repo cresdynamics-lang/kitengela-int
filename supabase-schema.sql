@@ -153,3 +153,18 @@ CREATE TABLE admins (
   created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at    TIMESTAMPTZ NOT NULL
 );
+
+-- 10. photos
+CREATE TABLE photos (
+  id             TEXT PRIMARY KEY,
+  filename       TEXT NOT NULL,
+  original_name  TEXT NOT NULL,
+  url            TEXT NOT NULL,
+  size           INTEGER DEFAULT 0,
+  category       TEXT DEFAULT 'general',
+  upload_date    TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_by     TEXT
+);
+-- Enable Realtime for photos table
+ALTER PUBLICATION supabase_realtime ADD TABLE photos;

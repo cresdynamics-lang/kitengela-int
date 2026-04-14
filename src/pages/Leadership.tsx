@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import PageHeader from '@/components/PageHeader'
 import ScrollReveal from '@/components/ScrollReveal'
 import Carousel from '@/components/Carousel'
 import { publicApi } from '@/lib/api'
@@ -52,17 +53,16 @@ export default function Leadership() {
   return (
     <main>
       <Header />
+      <PageHeader 
+        title="Our Leadership" 
+        subtitle="Meet Our Dedicated Service Team"
+        backgroundImage="/Rev.Evans1.jpeg"
+        hideDivider={true}
+      />
       <div className={styles.container}>
-        <ScrollReveal direction="left">
-          <div className={styles.hero}>
-            <h1 className={styles.title}>Our Leadership</h1>
-            <p className={styles.subtitle}>Meet the dedicated leaders serving our church community</p>
-          </div>
-        </ScrollReveal>
         <ScrollReveal direction="right">
           <section className={styles.carouselSection}>
-            <h2 className={styles.carouselTitle}>Leadership in Action</h2>
-            <Carousel images={leadershipShowcaseCarouselImages} />
+            <Carousel images={leadershipShowcaseCarouselImages} hideDivider={true} />
           </section>
         </ScrollReveal>
         {loading ? <div className={styles.loading}>Loading...</div> : (

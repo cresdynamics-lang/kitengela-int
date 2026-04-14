@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import PageHeader from '@/components/PageHeader'
 import ScrollReveal from '@/components/ScrollReveal'
 import CoreValues from '@/components/CoreValues'
 import Carousel from '@/components/Carousel'
@@ -33,6 +34,8 @@ export default function About() {
         setSiteInfo({
           ...FALLBACK,
           churchName: d.churchName ?? FALLBACK.churchName,
+          mission: d.missionText || FALLBACK.mission,
+          vision: d.visionText || FALLBACK.vision,
           location: { city: 'Kitengela', address: d.locationText || FALLBACK.location.address }
         })
       }
@@ -40,50 +43,99 @@ export default function About() {
   }, [])
 
   return (
-    <main>
+    <main className={styles.aboutMain}>
       <Header />
+      <PageHeader 
+        title="Who We Are" 
+        subtitle={siteInfo.churchName}
+        backgroundImage="/biblestudysundaymorning.jpeg"
+        hideDivider={true}
+      />
+
       <div className={styles.container}>
-        <div className={styles.hero}>
-          <h1 className={styles.title}>About Us</h1>
-          <p className={styles.subtitle}>{siteInfo.churchName}</p>
+        {/* Mission & Vision Split Grid */}
+        <div className={styles.mvGrid}>
+          <ScrollReveal direction="left">
+            <div className={styles.mvCard}>
+              <div className={styles.cardImage} style={{ backgroundImage: 'url("/mission and vission.jpeg")' }} />
+              <div className={styles.cardOverlay} />
+              <div className={styles.cardContent}>
+                <span className={styles.cardBadge}>Our Mission</span>
+                <h2 className={styles.cardTitle}>Impact & Solutions</h2>
+                <p className={styles.cardText}>{siteInfo.mission}</p>
+              </div>
+            </div>
+          </ScrollReveal>
+
+          <ScrollReveal direction="right">
+            <div className={styles.mvCard}>
+              <div className={styles.cardImage} style={{ backgroundImage: 'url("/churchcorevalues.jpeg")' }} />
+              <div className={styles.cardOverlay} />
+              <div className={styles.cardContent}>
+                <span className={styles.cardBadge}>Our Vision</span>
+                <h2 className={styles.cardTitle}>Spirit-Led Community</h2>
+                <p className={styles.cardText}>{siteInfo.vision}</p>
+              </div>
+            </div>
+          </ScrollReveal>
         </div>
+
+        {/* Leadership Featured Section */}
+        <section className={styles.leadershipSpotlight}>
+          <div className={styles.spotlightContent}>
+            <ScrollReveal direction="left">
+              <div className={styles.leaderPortrait}>
+                <img src="/Rev.Evans1.jpeg" alt='Rev. Evans O. Kochoo' className={styles.portraitImg} />
+                <div className={styles.portraitTag}>
+                  <h3>Rev. Evans O. Kochoo</h3>
+                  <p>"The Eagle"</p>
+                </div>
+              </div>
+            </ScrollReveal>
+            
+            <ScrollReveal direction="right">
+              <div className={styles.leaderBio}>
+                <span className={styles.sectionBadge}>Our Leadership</span>
+                <h2 className={styles.sectionTitle}>Guided by Faith & Vision</h2>
+                <p className={styles.bioText}>
+                  VOSH Church International Kitengela is led by <strong>Rev. Evans O. Kochoo</strong>, a passionate servant of God known for his apostolic vision and commitment to the pure Gospel.
+                </p>
+                <p className={styles.bioText}>
+                  Under his leadership, our church has become a house of solutions, reaching thousands in Kitengela and beyond with the transforming power of Christ.
+                </p>
+                <Link to="/leadership/evans-kochoo" className={styles.premiumLink}>
+                  Explore Full Leadership Profile
+                  <span className={styles.linkArrow}>→</span>
+                </Link>
+              </div>
+            </ScrollReveal>
+          </div>
+        </section>
+
+        {/* Leadership Carousel */}
+        <ScrollReveal direction="right">
+          <section className={styles.carouselWrapper}>
+            <h2 className={styles.carouselHeading}>The Leadership Team</h2>
+            <Carousel images={leadershipCarouselImages} hideDivider={true} />
+          </section>
+        </ScrollReveal>
+
+        <ScrollReveal direction="right">
+          <section className={styles.legacySection}>
+            <div className={styles.addressBox}>
+              <h2 className={styles.sectionTitle}>Visit Us</h2>
+              <p className={styles.text}><strong>Location:</strong> {siteInfo.location.address}</p>
+            </div>
+          </section>
+        </ScrollReveal>
+
         <ScrollReveal direction="left">
-          <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>Our Mission</h2>
-            <p className={styles.text}>{siteInfo.mission}</p>
-          </section>
+          <div className={styles.valuesBottom}>
+            <CoreValues />
+          </div>
         </ScrollReveal>
-        <ScrollReveal direction="right">
-          <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>Our Vision</h2>
-            <p className={styles.text}>{siteInfo.vision}</p>
-          </section>
-        </ScrollReveal>
-        <ScrollReveal direction="left">
-          <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>Our Leadership</h2>
-            <p className={styles.text}>
-              VOSH Church International Kitengela is led by <strong>Rev. Evans O. Kochoo</strong> ("The Eagle").
-            </p>
-            <p className={styles.text}>
-              <Link to="/leadership/evans-kochoo" className={styles.leaderLink}>Learn more about Rev. Evans O. Kochoo →</Link>
-            </p>
-          </section>
-        </ScrollReveal>
-        <ScrollReveal direction="right">
-          <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>Meet Our Leadership Team</h2>
-            <Carousel images={leadershipCarouselImages} />
-          </section>
-        </ScrollReveal>
-        <ScrollReveal direction="right">
-          <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>Location</h2>
-            <p className={styles.text}><strong>Address:</strong> {siteInfo.location.address}</p>
-          </section>
-        </ScrollReveal>
-        <ScrollReveal direction="left"><CoreValues /></ScrollReveal>
       </div>
+
       <Footer />
     </main>
   )

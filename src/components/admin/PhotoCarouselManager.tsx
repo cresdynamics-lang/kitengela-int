@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import PhotoManager from './PhotoManager'
 import styles from './PhotoCarouselManager.module.css'
+import { supabase } from '@/lib/supabase'
 
 interface CarouselPhoto {
   id: string
@@ -23,31 +24,46 @@ export default function PhotoCarouselManager() {
     const token = localStorage.getItem('adminToken')
     if (!token) return
 
-    fetch('/api/admin/photos', {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          const photos = data.data.map((photo: any) => ({
-            id: photo.id,
-            url: photo.url,
-            title: photo.originalName,
-            description: `Uploaded: ${new Date(photo.uploadDate).toLocaleDateString()}`
-          }))
-          
-          setCarousels({
-            home: photos,
-            about: photos,
-            services: photos,
-            leadership: photos,
-            outreach: photos
-          })
+    const fetchPhotos = () => {
+      fetch('/api/admin/photos', {
+        headers: {
+          'Authorization': `Bearer ${token}`
         }
       })
-      .catch(error => console.error('Error fetching photos:', error))
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            const photos = data.data.map((photo: any) => ({
+              id: photo.id,
+              url: photo.url,
+              title: photo.originalName || photo.original_name,
+              description: photo.uploadDate ? `Uploaded: ${new Date(photo.uploadDate).toLocaleDateString()}` : photo.upload_date ? `Uploaded: ${new Date(photo.upload_date).toLocaleDateString()}` : 'Date unknown'
+            }))
+            
+            setCarousels({
+              home: photos,
+              about: photos,
+              services: photos,
+              leadership: photos,
+              outreach: photos
+            })
+          }
+        })
+        .catch(error => console.error('Error fetching photos:', error))
+    }
+
+    fetchPhotos()
+
+    const channel = supabase
+      .channel('carousel:photos')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'photos' }, () => {
+        fetchPhotos()
+      })
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
   }, [])
 
   const handleRemoveFromCarousel = (photoId: string) => {

@@ -1,16 +1,22 @@
 .header {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  padding: 1rem 0;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  position: relative;
+  width: 100%;
+  padding: 1.5rem 0;
+  z-index: 1000;
+  background: var(--primary);
+  border-bottom: 3px solid var(--accent);
+  box-shadow: var(--shadow-xl);
+}
+
+/* We simplify the scrolled state since the header is no longer fixed */
+.headerScrolled {
+  padding: 1.25rem 0;
 }
 
 .container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -24,14 +30,21 @@
 .logoLink {
   display: flex;
   align-items: center;
+  gap: 1.25rem;
   text-decoration: none;
-  gap: 15px;
 }
 
 .logo {
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid #FFD700;
+  border: 2px solid var(--accent);
+  transition: transform 0.3s ease;
+}
+
+.logoLink:hover .logo {
+  transform: scale(1.05);
 }
 
 .logoText {
@@ -40,306 +53,187 @@
 }
 
 .churchName {
-  font-size: clamp(0.75rem, 2.5vw + 0.5rem, 1.5rem);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: white; /* Changed to white for high contrast on navy */
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.locationTag {
+  font-size: 0.8125rem;
   font-weight: 700;
-  color: #FFD700;
-  margin: 0;
-  line-height: 1.2;
+  color: var(--accent);
+  letter-spacing: 0.15em;
+  margin-top: -2px;
 }
 
-.location {
-  font-size: clamp(0.65rem, 1.5vw + 0.4rem, 0.9rem);
-  color: #FFFFFF;
-  margin: 0;
-  font-weight: 500;
-}
-
-/* Wrapper for mobile: Join Us Live button + hamburger */
-.mobileActions {
-  display: none;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-/* Red "Join Us Live" button - visible only on small screens, left of hamburger */
-.joinUsLiveButton {
+.nav {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
-  background-color: #DC143C;
-  color: #FFFFFF;
-  padding: 0.4rem 0.6rem;
-  border-radius: 4px;
-  text-decoration: none;
-  font-weight: 700;
-  font-size: clamp(0.65rem, 2vw + 0.4rem, 0.8rem);
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 5px rgba(220, 20, 60, 0.3);
-  white-space: nowrap;
+  gap: 2.5rem;
 }
 
-.joinUsLiveButton:hover {
-  background-color: #B8122E;
-  color: #FFFFFF;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 10px rgba(220, 20, 60, 0.4);
+.navLink {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: white; /* Contrast */
+  opacity: 0.8;
+  transition: all 0.2s ease;
+  position: relative;
+  text-decoration: none;
+}
+
+.navLink:hover, .activeLink {
+  opacity: 1;
+  color: var(--accent);
+}
+
+.activeLink::after {
+  content: '';
+  position: absolute;
+  bottom: -0.5rem;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent);
+}
+
+.planVisitBtn {
+  background: var(--accent);
+  color: var(--primary);
+  padding: 0.875rem 1.75rem;
+  border-radius: 100px;
+  font-weight: 800;
+  font-size: 0.875rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2);
+  text-decoration: none;
+}
+
+.planVisitBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
+  background: white;
+}
+
+.liveButton {
+  background: #ef4444;
+  color: white;
+  padding: 0.625rem 1.25rem;
+  border-radius: 100px;
+  font-weight: 800;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  animation: pulse-red 2s infinite;
+}
+
+@keyframes pulse-red {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+.liveDot {
+  width: 6px;
+  height: 6px;
+  background: white;
+  border-radius: 50%;
+}
+
+.prayerButton {
+  background: white;
+  color: var(--primary);
+  padding: 0.625rem 1.25rem;
+  border-radius: 100px;
+  font-weight: 800;
+  font-size: 0.75rem;
+  text-decoration: none;
+  border: 2px solid var(--accent);
+  transition: all 0.3s ease;
+}
+
+.prayerButton:hover {
+  background: var(--accent);
+  color: white;
+  transform: translateY(-2px);
 }
 
 .hamburger {
   display: none;
   flex-direction: column;
-  gap: 5px;
-  background: transparent;
+  gap: 6px;
+  background: none;
   border: none;
   cursor: pointer;
-  padding: 0.5rem;
-  z-index: 101;
-  position: relative;
 }
 
 .hamburgerLine {
-  width: 25px;
-  height: 3px;
-  background-color: #FFFFFF;
-  border-radius: 3px;
-  transition: all 0.3s ease;
-}
-
-.hamburger:hover .hamburgerLine {
-  background-color: #FFD700;
-}
-
-.nav {
-  display: flex;
-  gap: 2rem;
-  align-items: center;
-}
-
-.navLink {
-  color: #FFFFFF;
-  text-decoration: none;
-  font-weight: 500;
-  font-size: 1rem;
-  transition: color 0.3s ease;
-  position: relative;
-}
-
-.navLink:hover {
-  color: #FFD700;
-}
-
-.navLink::after {
-  content: '';
-  position: absolute;
-  bottom: -5px;
-  left: 0;
-  width: 0;
+  width: 24px;
   height: 2px;
-  background-color: #FFD700;
-  transition: width 0.3s ease;
-}
-
-.navLink:hover::after {
-  width: 100%;
-}
-
-.liveButton {
-  background-color: #DC143C;
-  color: #FFFFFF;
-  padding: 0.75rem 1.5rem;
-  border-radius: 4px;
-  text-decoration: none;
-  font-weight: 700;
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  background: white;
+  border-radius: 2px;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 5px rgba(220, 20, 60, 0.3);
-}
-
-.liveButton:hover {
-  background-color: #B8122E;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(220, 20, 60, 0.4);
-}
-
-.liveDot {
-  width: 8px;
-  height: 8px;
-  background-color: #FFFFFF;
-  border-radius: 50%;
-  display: inline-block;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
 }
 
 @media (max-width: 1024px) {
-  .mobileActions {
+  .nav {
+    display: none;
+  }
+
+  .navOpen {
     display: flex;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 300px;
+    background: var(--primary);
+    flex-direction: column;
+    padding: 6rem 2rem;
+    gap: 2rem;
+    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
   }
 
   .hamburger {
     display: flex;
   }
 
-  .container {
-    gap: 0.75rem;
-  }
-
-  .nav {
-    position: fixed;
-    top: 0;
-    right: -100%;
-    width: 80%;
-    max-width: 400px;
-    height: 100vh;
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 5rem 2rem 2rem;
-    gap: 1.5rem;
-    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
-    transition: right 0.3s ease;
-    z-index: 100;
-    overflow-y: auto;
-  }
-
-  /* Overlay when menu is open */
   .overlay {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 99;
-    animation: fadeIn 0.3s ease;
-  }
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-
-  .navOpen {
     right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 999;
   }
 
   .navLink {
-    width: 100%;
-    padding: 0.75rem 0;
-    font-size: 1.1rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 1.25rem;
   }
 
-  .navLink::after {
-    display: none;
-  }
-
-  .liveButton {
-    width: 100%;
-    justify-content: center;
-    padding: 0.75rem 1.5rem;
-    font-size: 0.9rem;
-    margin-top: 1rem;
-  }
-
-  /* Hamburger animation when menu is open */
-  .hamburgerOpen .hamburgerLine:nth-child(1) {
-    transform: rotate(45deg) translate(8px, 8px);
-  }
-
-  .hamburgerOpen .hamburgerLine:nth-child(2) {
-    opacity: 0;
-  }
-
-  .hamburgerOpen .hamburgerLine:nth-child(3) {
-    transform: rotate(-45deg) translate(7px, -7px);
-  }
+  .hamburgerOpen .hamburgerLine:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+  .hamburgerOpen .hamburgerLine:nth-child(2) { opacity: 0; }
+  .hamburgerOpen .hamburgerLine:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
 }
 
 @media (max-width: 768px) {
-  .container {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 12px;
+  .header {
+    padding: 1rem 0;
   }
-
-  .churchName {
-    font-size: clamp(0.7rem, 3vw + 0.5rem, 1rem);
-  }
-
-  .location {
-    font-size: clamp(0.6rem, 2vw + 0.35rem, 0.75rem);
-  }
-
+  
   .logo {
-    width: 60px;
-    height: 60px;
-  }
-
-  .logoText {
-    gap: 0.2rem;
-  }
-
-  .logoLink {
-    gap: 8px;
-  }
-}
-
-@media (max-width: 480px) {
-  .container {
-    padding: 0 10px;
-    gap: 0.5rem;
+    width: 45px;
+    height: 45px;
   }
 
   .churchName {
-    font-size: 0.7rem;
-    max-width: 120px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    line-height: 1.15;
-  }
-
-  .location {
-    font-size: 0.6rem;
-  }
-
-  .logo {
-    width: 48px;
-    height: 48px;
-  }
-
-  .joinUsLiveButton {
-    padding: 0.35rem 0.5rem;
-    font-size: 0.65rem;
-  }
-}
-
-@media (max-width: 360px) {
-  .churchName {
-    font-size: 0.65rem;
-    max-width: 100px;
-  }
-
-  .location {
-    font-size: 0.55rem;
+    font-size: 1.125rem;
   }
 }

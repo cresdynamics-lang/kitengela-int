@@ -1,286 +1,283 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import Carousel from '@/components/Carousel'
 import Header from '@/components/Header'
-import ScrollReveal from '@/components/ScrollReveal'
 import Services from '@/components/Services'
 import CoreValues from '@/components/CoreValues'
 import Footer from '@/components/Footer'
+import BackgroundCarouselSection from '@/components/BackgroundCarouselSection'
 import { publicApi } from '@/lib/api'
+import { supabase } from '@/lib/supabase'
 import styles from './Home.module.css'
 
-const defaultCarouselImages = [
-  { id: 0, title: "Welcome to VOSH Church International — Kitengela Branch", image: "/Carousel1.jpg", description: "We are committed to teaching the Word, building strong faith, and transforming lives through Christ." },
-  { id: 1, title: "Voice Of Salvation And Healing Church Int'l – Kitengela", image: "/Carousel2.jpg", description: "A House of Solutions — Manifesting Christ in Our Community" },
-  { id: 2, title: "Join Us for Worship and Fellowship!", image: "/Carousell3.jpeg", description: "Experience the power of God's Word and fellowship with believers", location: "Along Baraka Road / Treewa Road, Next to Balozi Junior Academy, Kitengela" },
-  { id: 3, title: "Community Fellowship", image: "/WhatsApp Image 2026-04-08 at 13.57.45.jpeg", description: "Building community through fellowship and shared faith", phoneNumbers: ["+254 722 566 399", "+254 720 276 162", "+254 720 977 189"] },
-  { id: 4, title: "Youth Empowerment", image: "/WhatsApp Image 2026-04-08 at 13.57.46.jpeg", description: "Empowering the next generation in faith and purpose", services: ["Bible Study: Sunday 8:00 AM - 9:00 AM", "SB1 Service: Sunday 9:00 AM - 10:30 AM", "Word Manifest: Sunday 10:30 AM - 1:00 PM", "Discipleship: Sunday 2:30 PM - 4:00 PM"] },
-  { id: 5, title: "Family Ministry", image: "/WhatsApp Image 2026-04-08 at 13.57.53.jpeg", description: "Strengthening families through faith and fellowship", services: ["Bible Study: Sunday 8:00 AM - 9:00 AM", "SB1 Service: Sunday 9:00 AM - 10:30 AM", "Word Manifest: Sunday 10:30 AM - 1:00 PM", "Discipleship: Sunday 2:30 PM - 4:00 PM"] },
-  { id: 6, title: "Community Outreach", image: "/WhatsApp Image 2026-04-08 at 13.57.54 (1).jpeg", description: "Reaching out to our community with love and service" },
-  { id: 7, title: "Prayer & Intercession", image: "/WhatsApp Image 2026-04-08 at 13.57.56 (2).jpeg", description: "Standing in the gap through prayer and intercession" },
-  { id: 8, title: "Worship Experience", image: "/WhatsApp Image 2026-04-08 at 13.57.57.jpeg", description: "Experiencing God's presence through worship" }
+const heroImages = [
+  { id: 0, title: "Welcome to VOSH Church International", image: "/Carousel1.jpg", description: "Transforming lives through the pure Word and building strong faith for our community." },
+  { id: 1, title: "Manifesting Christ in Our Community", image: "/Carousel2.jpg", description: "We are a House of Solutions, reaching out with love and power in Kitengela." },
+  { id: 2, title: "Experience Supernatural Worship", image: "/Carousell3.jpeg", description: "Join us this Sunday along Baraka Road for a time of refreshment and miracles." },
 ]
 
-const beforeServicesCarouselImages = [
-  { id: 10, title: "Morning Prayers", image: "/Morningprayers.jpg", description: "Start your day in God's presence. Join our morning prayers and be refreshed." },
-  { id: 11, title: "Church in Prayer", image: "/churchpraying.jpg", description: "Corporate prayer and intercession—together we seek His face." },
-  { id: 12, title: "Praise & Worship", image: "/praiseandworshipdancing.jpg", description: "Celebrate the Lord with joy. Experience praise and worship that lifts the spirit." },
-  { id: 13, title: "Preaching the Word", image: "/preachinghour.jpg", description: "Sound teaching that transforms lives. Tune in to the preaching hour." },
-  { id: 14, title: "Sermon & Note-Taking", image: "/sermontimenoteteking.jpg", description: "Grow in the Word. Take notes and apply the message to your life." },
-  { id: 15, title: "Community Fellowship", image: "/WhatsApp Image 2026-04-08 at 13.57.45.jpeg", description: "Building community through fellowship and shared faith" },
-  { id: 16, title: "Youth Ministry", image: "/WhatsApp Image 2026-04-08 at 13.57.46.jpeg", description: "Empowering the next generation in faith" },
-  { id: 17, title: "Family Ministry", image: "/WhatsApp Image 2026-04-08 at 13.57.53.jpeg", description: "Strengthening families through faith" }
+const foundationImages = [
+  "/churchcorevalues.jpeg",
+  "/mission and vission.jpeg",
+  "/biblestudysundaymorning.jpeg"
 ]
 
-// Replace with your YouTube video ID or full embed URL for Wednesday Online Prayers (e.g. 'dQw4w9WgXcQ' or 'https://www.youtube.com/embed/dQw4w9WgXcQ')
-const WEDNESDAY_PRAYER_VIDEO_URL = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_WEDNESDAY_PRAYER_VIDEO_URL) || ''
-function getWednesdayVideoEmbedUrl(url: string) {
-  if (!url) return ''
-  const trimmed = url.trim()
-  const idMatch = trimmed.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/)
-  if (idMatch) return `https://www.youtube.com/embed/${idMatch[1]}`
-  if (trimmed.includes('youtube.com/embed/')) return trimmed
-  return trimmed.length === 11 ? `https://www.youtube.com/embed/${trimmed}` : ''
+const reachImages = [
+  "/latestoutreach.jpeg",
+  "/latestoutrach.jpeg",
+  "/WhatsApp Image 2026-04-08 at 13.57.54.jpeg"
+]
+
+const prayerImages = [
+  "/churchpraying.jpg",
+  "/praiseandworshipdancing.jpg",
+  "/manpraying.jpg"
+]
+
+const givingImages = [
+  "/handstogether unity.jpg",
+  "/WhatsApp Image 2026-04-08 at 13.57.55.jpeg",
+  "/womanpraying.jpg"
+]
+
+// Universal Exclusion List: Images used across the entire site that should NOT be in the gallery
+const SYSTEM_IMAGES = [
+  ...heroImages.map(img => img.image),
+  ...foundationImages,
+  ...reachImages,
+  ...prayerImages,
+  ...givingImages,
+  "/logo/vosh-logo.png",
+  "/logo/logo.png",
+  "/chuurchlogo.jpeg",
+  "/Past.Nancy.Sai.jpeg",
+  "/PastorNancySai.jpeg",
+  "/Rev.Evans1.jpeg",
+  "/Rev.Evans2.jpeg",
+  "/Rev.Evans3.jpeg",
+  "/mission and vission.jpeg",
+  "/churchcorevalues.jpeg",
+  "/biblestudysundaymorning.jpeg"
+]
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: 'easeOut' } }
 }
 
 export default function Home() {
-  const [carouselImages] = useState(defaultCarouselImages)
   const [services, setServices] = useState<any[]>([])
-  const [sundaySermon, setSundaySermon] = useState<any>(null)
+  const [galleryImages, setGalleryImages] = useState<string[]>([
+    "/WhatsApp Image 2026-04-08 at 13.57.54.jpeg",
+    "/WhatsApp Image 2026-04-08 at 13.57.55.jpeg",
+    "/WhatsApp Image 2026-04-08 at 13.57.56.jpeg",
+    "/latestoutreach.jpeg",
+    "/churchpraying.jpg",
+    "/manpraying.jpg",
+    "/sundayservices.jpeg",
+    "/preachinghour.jpg"
+  ])
+  const [heroImagesState, setHeroImagesState] = useState<any[]>(heroImages)
+  const [foundationImagesState, setFoundationImagesState] = useState<string[]>(foundationImages)
+  const [reachImagesState, setReachImagesState] = useState<string[]>(reachImages)
+  const [prayerImagesState, setPrayerImagesState] = useState<string[]>(prayerImages)
+  const [givingImagesState, setGivingImagesState] = useState<string[]>(givingImages)
   const [loading, setLoading] = useState(true)
-  const [liveStreamUrl, setLiveStreamUrl] = useState<string | null>(null)
-  const [sectionTick, setSectionTick] = useState(0)
 
   useEffect(() => {
-    publicApi.getLive().then((r) => {
-      if (r.success && r.data) {
-        const d = r.data as any
-        setLiveStreamUrl(d.youtubeLiveUrl || d.facebookLiveUrl || d.googleMeetUrl || null)
+    const fetchGallery = async () => {
+      try {
+        const response = await publicApi.getPhotos()
+        if (response.success && Array.isArray(response.data)) {
+          const allPhotos = response.data as any[]
+          
+          // 1. Update Gallery (All photos)
+          setGalleryImages(allPhotos.map(p => p.url))
+
+          // 2. Helper to get top 3 by category
+          const getByCategory = (cat: string) => allPhotos.filter(p => p.category === cat).slice(0, 3).map(p => p.url)
+
+          // 3. Update Hero
+          const heroPhotos = allPhotos.filter(p => p.category === 'hero').slice(0, 3)
+          if (heroPhotos.length > 0) {
+            const dynamicHero = heroPhotos.map((p, i) => ({
+              id: p.id,
+              title: i === 0 ? "Welcome to VOSH Church International" : i === 1 ? "Manifesting Christ in Our Community" : "Experience Supernatural Worship",
+              image: p.url,
+              description: i === 0 ? "Transforming lives through the pure Word and building strong faith for our community." : i === 1 ? "We are a House of Solutions, reaching out with love and power in Kitengela." : "Join us this Sunday along Baraka Road for a time of refreshment and miracles."
+            }))
+            // Merge with fallbacks if less than 3
+            setHeroImagesState(dynamicHero.length >= 3 ? dynamicHero : [...dynamicHero, ...heroImages.slice(dynamicHero.length)])
+          } else {
+            setHeroImagesState(heroImages)
+          }
+
+          // 4. Update Sections with guaranteed 3 images
+          const usedImagesSet = new Set<string>()
+          
+          const updateSection = (cat: string, fallbackArr: string[], setState: Function) => {
+            const catPhotos = allPhotos.filter(p => p.category === cat).map(p => p.url)
+            const finalImages = catPhotos.length >= 3 
+              ? catPhotos.slice(0, 3) 
+              : [...catPhotos, ...fallbackArr.slice(0, 3 - catPhotos.length)]
+            
+            setState(finalImages)
+            // Track these as used
+            finalImages.forEach(img => usedImagesSet.add(img))
+          }
+
+          updateSection('foundation', foundationImages, setFoundationImagesState)
+          updateSection('reach', reachImages, setReachImagesState)
+          updateSection('prayer', prayerImages, setPrayerImagesState)
+          updateSection('giving', givingImages, setGivingImagesState)
+
+          // Track hero images as used too
+          heroImagesState.forEach(item => usedImagesSet.add(item.image))
+
+          // 5. Update Gallery (Strictly WhatsApp images only)
+          // The user requested to ONLY show WhatsApp images in this section.
+          // We also still exclude anything used in carousels/sections.
+          const gallery = allPhotos
+            .map(p => p.url)
+            .filter(url => 
+              url.toLowerCase().includes('whatsapp') && 
+              !usedImagesSet.has(url) && 
+              !SYSTEM_IMAGES.includes(url)
+            )
+          
+          if (gallery.length > 0) {
+            setGalleryImages(gallery)
+          } else {
+            // Fallback to local WhatsApp images if DB is empty
+            const localWhatsApp = [
+              "/WhatsApp Image 2026-04-08 at 13.57.57.jpeg",
+              "/WhatsApp Image 2026-04-08 at 13.57.58.jpeg",
+              "/WhatsApp Image 2026-04-08 at 13.58.00.jpeg",
+              "/WhatsApp Image 2026-04-08 at 13.57.59.jpeg"
+            ].filter(img => !usedImagesSet.has(img) && !SYSTEM_IMAGES.includes(img))
+            setGalleryImages(localWhatsApp)
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching gallery:', error)
       }
-    }).catch(() => {})
-  }, [])
+    }
 
-  useEffect(() => {
-    Promise.allSettled([
-      publicApi.getSermons().then((r) => r.success && Array.isArray(r.data) && r.data.length > 0 ? r.data[0] : null),
+    Promise.all([
       publicApi.getWeeklyPrograms().then((r) => {
-        if (!r.success || !Array.isArray(r.data)) return []
-        return (r.data as any[]).filter((p: any) => p.isActive !== false).map((p: any) => ({
-          id: p.id,
-          name: p.title || p.name || '',
-          time: p.startTime && p.endTime ? `${p.startTime} - ${p.endTime}` : p.startTime || p.time || '',
-          day: p.day || '',
-          description: p.description || ''
-        }))
+        if (r.success && Array.isArray(r.data)) {
+          setServices((r.data as any[]).map((p) => ({
+            id: p.id,
+            name: p.title || p.name || '',
+            time: p.startTime && p.endTime ? `${p.startTime} - ${p.endTime}` : p.startTime || p.time || '',
+            day: p.day || '',
+            description: p.description || ''
+          })))
+        }
+      }),
+      fetchGallery()
+    ]).finally(() => setLoading(false))
+
+    // Real-time updates subscription
+    const channel = supabase
+      .channel('public:photos')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'photos' }, () => {
+        fetchGallery()
       })
-    ]).then(([sermonResult, programsResult]) => {
-      const sermon = sermonResult.status === 'fulfilled' ? sermonResult.value : null
-      const prog = programsResult.status === 'fulfilled' ? programsResult.value : []
-      setSundaySermon(sermon)
-      setServices(prog)
-    }).finally(() => setLoading(false))
-  }, [])
+      .subscribe()
 
-  useEffect(() => {
-    const interval = window.setInterval(() => {
-      setSectionTick((prev) => prev + 1)
-    }, 7000)
-    return () => window.clearInterval(interval)
+    return () => {
+      supabase.removeChannel(channel)
+    }
   }, [])
-
-  const midweekHref = getWednesdayVideoEmbedUrl(WEDNESDAY_PRAYER_VIDEO_URL) || liveStreamUrl || '/services'
 
   return (
-    <main>
+    <main className={styles.main}>
       <Header />
-      <Carousel images={carouselImages} />
-      {sundaySermon && (
-        <ScrollReveal direction="left">
-          <section className={styles.sundaySermonSection}>
-            <div className={styles.sundaySermonInner}>
-              <div className={styles.sundaySermonContent}>
-                <h1 className={styles.sundaySermonHeading}>{sundaySermon.title}</h1>
-                {sundaySermon.description && <p className={styles.sundaySermonParagraph}>{sundaySermon.description}</p>}
-                {sundaySermon.speaker && <p className={styles.sundaySermonSpeakers}>{sundaySermon.speaker.includes(',') ? 'Speakers: ' : 'Speaker: '}{sundaySermon.speaker}</p>}
-                <div className={styles.sundaySermonActions}>
-                  <a
-                    href={liveStreamUrl || '/services'}
-                    target={liveStreamUrl ? '_blank' : undefined}
-                    rel={liveStreamUrl ? 'noopener noreferrer' : undefined}
-                    className={styles.sundaySermonBtn}
-                  >
-                    Join Us Live
-                  </a>
-                </div>
-              </div>
-              {sundaySermon.thumbnailUrl && <div className={styles.sundaySermonPoster}><img src={sundaySermon.thumbnailUrl} alt={sundaySermon.title} /></div>}
-            </div>
-          </section>
-        </ScrollReveal>
-      )}
-      <ScrollReveal direction="right">
-        <section className={styles.joinSection}>
-          <div className={styles.joinInner}>
-            <h2 className={styles.joinTitle}>Join Us Online</h2>
-            <p className={styles.joinSubtitle}>Experience worship and prayer from anywhere</p>
-            <div className={styles.joinButtons}>
-              <a
-                href={liveStreamUrl || '/services'}
-                target={liveStreamUrl ? '_blank' : undefined}
-                rel={liveStreamUrl ? 'noopener noreferrer' : undefined}
-                className={`${styles.joinButton} ${styles.joinButtonRed}`}
-              >
-                <span>▶️</span> Watch Live
-              </a>
-              <a
-                href={liveStreamUrl || '/services'}
-                target={liveStreamUrl ? '_blank' : undefined}
-                rel={liveStreamUrl ? 'noopener noreferrer' : undefined}
-                className={`${styles.joinButton} ${styles.joinButtonGold}`}
-              >
-                <span>🙏</span> Join Prayer
-              </a>
-            </div>
-            <Link to="/services" className={styles.planVisitLink}>Plan Your Visit / Join Us This Sunday →</Link>
-          </div>
-        </section>
-      </ScrollReveal>
+      <Carousel images={heroImagesState} />
 
-      {/* Second carousel – before Services */}
-      <ScrollReveal direction="left">
-        <section className={styles.secondCarouselWrap}>
-          <h2 className={styles.secondCarouselTitle}>Life at VOSH — Prayers, Worship & Word</h2>
-          <Carousel images={beforeServicesCarouselImages} />
-        </section>
-      </ScrollReveal>
-      {[
-        {
-          id: 'midweek',
-          badge: 'Midweek',
-          title: 'Wednesday Online Prayers',
-          text: 'Join us every Wednesday for a time of corporate prayer and intercession. Connect online from wherever you are and experience the power of agreement in prayer.',
-          images: ['/WhatsApp Image 2026-04-08 at 13.57.53.jpeg', '/midweekwednesday.jpeg', '/churchpraying.jpg'],
-          primaryLabel: 'Join Wednesday Prayers ->',
-          primaryHref: midweekHref,
-          primaryExternal: midweekHref.startsWith('http'),
-          reverse: false,
-        },
-        {
-          id: 'weekly',
-          badge: 'Weekly',
-          title: 'Friday Night Service',
-          text: 'End your week in worship and the Word. Our Friday night gatherings are a time for refreshing, fellowship, and encountering God together.',
-          images: ['/WhatsApp Image 2026-04-08 at 13.57.55 (1).jpeg', '/midweekservicefriday.jpeg', '/praiseandworshipdancing.jpg'],
-          primaryLabel: 'View Times & Venue ->',
-          primaryHref: '/services',
-          reverse: true,
-        },
-        {
-          id: 'sunday',
-          badge: 'Sunday',
-          title: 'Sunday Worship & Word',
-          text: 'Bible Study, SB1 Service, Word Manifest, and Discipleship all in one place. Come as you are and experience a house of solutions, manifesting Christ.',
-          images: ['/WhatsApp Image 2026-04-08 at 13.57.55 (2).jpeg', '/sundayservices.jpeg', '/biblestudysundaymorning.jpeg'],
-          primaryLabel: 'Plan Your Visit ->',
-          primaryHref: '/services',
-          reverse: false,
-        },
-        {
-          id: 'connect',
-          badge: 'Connect',
-          title: 'Connect With Us & Give',
-          text: 'Stay connected through our online platforms. Your giving supports ministry, the building of our sanctuary, and outreach. Every gift makes a difference.',
-          images: ['/WhatsApp Image 2026-04-08 at 13.57.58.jpeg', '/onlineconnectthurday.jpeg', '/handstogether unity.jpg'],
-          primaryLabel: 'Give & Support ->',
-          primaryHref: '/give',
-          secondaryLabel: 'Contact Us',
-          secondaryHref: '/contact',
-          reverse: true,
-        },
-        {
-          id: 'prayer',
-          badge: 'Prayer',
-          title: 'Prayer From the Heart',
-          text: 'When we pray from the heart, God hears. Join a community that values genuine, Spirit-led prayer and intercession for one another and our nation.',
-          images: ['/WhatsApp Image 2026-04-08 at 13.57.59.jpeg', '/fromheartprayesr.jpg', '/womanpraying.jpg'],
-          primaryLabel: 'Join in Prayer ->',
-          primaryHref: '/services',
-          reverse: true,
-        },
-        {
-          id: 'devotion',
-          badge: 'Devotion',
-          title: 'Personal & Corporate Devotion',
-          text: 'Whether alone or together, our church is built on a foundation of prayer. Find space for personal devotion and corporate prayer throughout the week.',
-          images: [
-            '/WhatsApp Image 2026-04-08 at 13.58.00.jpeg',
-            '/WhatsApp Image 2026-04-08 at 13.57.59 (2).jpeg',
-            '/WhatsApp Image 2026-04-08 at 13.57.58 (2).jpeg'
-          ],
-          primaryLabel: 'Find a Service ->',
-          primaryHref: '/services',
-          reverse: false,
-        },
-        {
-          id: 'mission',
-          badge: 'Mission',
-          title: 'Mission & Outreach',
-          text: 'We take the Gospel beyond our walls. Through outreach, evangelism, and community impact, we are manifesting Christ in Kitengela and beyond.',
-          images: ['/WhatsApp Image 2026-04-08 at 13.57.54 (1).jpeg', '/latestoutreach.jpeg', '/mission and vission.jpeg'],
-          primaryLabel: 'Our Mission ->',
-          primaryHref: '/about',
-          reverse: true,
-        },
-      ].map((section, sectionIdx) => {
-        const imageIndex = sectionTick % section.images.length
-        return (
-          <div key={section.id}>
-            <ScrollReveal direction={section.reverse ? 'right' : 'left'}>
-              <section className={`${styles.storySection} ${section.reverse ? styles.storySectionReverse : ''}`}>
-                <div className={styles.storyBackgroundLayer}>
-                  {section.images.map((image, idx) => (
-                    <img
-                      key={`${section.id}-${image}`}
-                      src={image}
-                      alt={section.title}
-                      loading={sectionIdx === 0 && idx === imageIndex ? 'eager' : 'lazy'}
-                      decoding="async"
-                      fetchpriority={sectionIdx === 0 && idx === imageIndex ? 'high' : 'low'}
-                      className={`${styles.storyBackgroundImage} ${idx === imageIndex ? styles.storyBackgroundImageActive : ''}`}
-                    />
-                  ))}
-                </div>
-                <div className={styles.storyOverlay} />
-                <div className={styles.storyContent}>
-                  <span className={styles.bannerBadge}>{section.badge}</span>
-                  <h2 className={styles.bannerTitle}>{section.title}</h2>
-                  <p className={styles.bannerText}>{section.text}</p>
-                  {section.primaryExternal ? (
-                    <a href={section.primaryHref} target="_blank" rel="noopener noreferrer" className={styles.bannerCta}>
-                      {section.primaryLabel}
-                    </a>
-                  ) : (
-                    <Link to={section.primaryHref} className={styles.bannerCta}>
-                      {section.primaryLabel}
-                    </Link>
-                  )}
-                  {section.secondaryHref && section.secondaryLabel && (
-                    <Link to={section.secondaryHref} className={`${styles.bannerCta} ${styles.outline}`} style={{ marginLeft: '0.75rem' }}>
-                      {section.secondaryLabel}
-                    </Link>
-                  )}
-                </div>
-              </section>
-            </ScrollReveal>
-            {sectionIdx < 6 && <div className={styles.storyGap} />}
-          </div>
-        )
-      })}
+      {/* 1. Our Foundation (Left Aligned) */}
+      <BackgroundCarouselSection
+        images={foundationImagesState}
+        badge="Our Foundation"
+        title="Rooted in the Word, Rising in Spirit"
+        description="VOSH Church International Kitengela is built on the apostolic mandate to disseminate the pure Gospel of Jesus Christ. We are a house of spiritual solutions where miracles are matched with sound teaching."
+        ctaText="Discover Our Roots"
+        ctaLink="/about"
+        alignment="left"
+        overlayVariant="navy"
+      />
 
-      {loading ? <div className={styles.loadingText}>Loading services...</div> : <ScrollReveal direction="left"><Services services={services} /></ScrollReveal>}
-      <ScrollReveal direction="right"><CoreValues /></ScrollReveal>
+      {/* 2. Community Reach (Right Aligned) */}
+      <BackgroundCarouselSection
+        images={reachImagesState}
+        badge="Community Reach"
+        title="Love Beyond Our Walls"
+        description="Our mission extends to the streets of Kitengela and beyond. Through our outreach programs, we bring hope, healing, and the tangible love of Christ to those who need it most."
+        ctaText="Our Mission In Action"
+        ctaLink="/outreach"
+        alignment="right"
+        overlayVariant="gold"
+      />
+
+      {/* 3. House of Prayer (Center Aligned) */}
+      <BackgroundCarouselSection
+        images={prayerImagesState}
+        badge="House of Prayer"
+        title="Experience the Supernatural"
+        description="Join our vibrant community of believers as we lift our voices in prayer and worship. Experience a time of refreshment, healing, and divine encounters in the presence of God."
+        ctaText="View Service Times"
+        ctaLink="/services"
+        alignment="center"
+        overlayVariant="indigo"
+      />
+
+      {/* 4. Generous Living (Left Aligned) */}
+      <BackgroundCarouselSection
+        images={givingImagesState}
+        badge="Generous Living"
+        title="Partnering for Transformation"
+        description="Your support enables us to reach more lives with the Gospel and impact our community through tangible acts of love. Partner with us today to build the kingdom of God together."
+        ctaText="Ways to Give"
+        ctaLink="/give"
+        alignment="left"
+        overlayVariant="dark"
+        hideDivider={true}
+      />
+
+      {/* 5. Services Grid */}
+      <section id="services" className={styles.section}>
+        <div className={styles.container}>
+          {loading ? <div>Loading services...</div> : <Services services={services} />}
+        </div>
+      </section>
+
+      {/* 6. Media In Pictures Section */}
+      <section className={`${styles.section} ${styles.mediaSection}`}>
+        <div className={styles.container}>
+          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} style={{ textAlign: 'center', marginBottom: '4rem' }}>
+            <span className={styles.badge} style={{ color: 'white' }}>In Pictures</span>
+            <h2 className={styles.title} style={{ color: 'white' }}>Life at VOSH Kitengela</h2>
+          </motion.div>
+          <div className={styles.grid}>
+            {galleryImages.map((img, i) => (
+              <motion.div 
+                key={i} 
+                initial={{ opacity: 0, scale: 0.8 }} 
+                whileInView={{ opacity: 1, scale: 1 }} 
+                transition={{ delay: i * 0.1 }}
+                viewport={{ once: true }}
+                className={styles.gridItem}
+              >
+                <img src={img} alt="Church gallery" className={styles.gridImg} />
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <CoreValues />
       <Footer />
     </main>
   )
 }
-

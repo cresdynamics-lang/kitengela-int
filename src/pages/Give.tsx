@@ -1,5 +1,6 @@
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import PageHeader from '@/components/PageHeader'
 import ScrollReveal from '@/components/ScrollReveal'
 import styles from './Give.module.css'
 
@@ -7,11 +8,13 @@ export default function Give() {
   return (
     <main>
       <Header />
+      <PageHeader 
+        title="Give & Support" 
+        subtitle="Partnering for Transformation"
+        backgroundImage="/handstogether unity.jpg"
+        hideDivider={true}
+      />
       <div className={styles.container}>
-        <div className={styles.hero}>
-          <h1 className={styles.title}>Give & Support Ministry</h1>
-          <p className={styles.subtitle}>Your giving supports tithes & offerings, the building of our church sanctuary, and ministry equipment for evangelism and outreach.</p>
-        </div>
         <ScrollReveal direction="left">
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}>For Tithes & Offerings</h2>
