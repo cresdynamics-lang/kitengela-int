@@ -14,7 +14,7 @@ export default function PageHeader({ title, subtitle, backgroundImage, hideDivid
       <div className={styles.backgroundContainer}>
         <div 
           className={styles.backgroundImage} 
-          style={{ backgroundImage: `url("${backgroundImage}")` }}
+          style={{ backgroundImage: `url(${backgroundImage})` }}
         />
         <div className={styles.overlay} />
       </div>

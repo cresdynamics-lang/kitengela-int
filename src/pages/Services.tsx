@@ -141,43 +141,39 @@ export default function Services() {
         hideDivider={true}
       />
       <div className={styles.container}>
-        <ScrollReveal direction="right">
-          <section className={styles.carouselSection}>
-            <h2 className={styles.carouselTitle}>Church Life & Activities</h2>
-            <Carousel images={churchActivitiesCarouselImages} hideDivider={true} />
-          </section>
-        </ScrollReveal>
-        <ScrollReveal direction="right">
-          <div className={styles.featuredGrid}>
-            {effectiveServiceCards.map((card) => (
-                <div key={card.id} className={styles.featuredCard}>
-                  {card.thumbnailUrl && (
-                    <div className={styles.featuredImageWrap}>
-                      <img src={card.thumbnailUrl} alt={card.title} className={styles.featuredImage} />
-                    </div>
-                  )}
-                  <div className={styles.featuredContent}>
-                    <h2 className={styles.featuredTitle}>{card.title}</h2>
-                    {card.description && (
-                      <p className={styles.featuredDescription}>{card.description}</p>
-                    )}
-                    <a
-                      href={card.linkUrl || '/services'}
-                      target={card.linkUrl ? '_blank' : undefined}
-                      rel={card.linkUrl ? 'noopener noreferrer' : undefined}
-                      className={styles.featuredButton}
-                    >
-                      {card.linkUrl ? 'Open Stream / Details' : 'View Service Details'}
-                    </a>
+        <section className={styles.carouselSection}>
+          <h2 className={styles.carouselTitle}>Church Life & Activities</h2>
+          <Carousel images={churchActivitiesCarouselImages} hideDivider={true} />
+        </section>
+        
+        <div className={styles.featuredGrid}>
+          {effectiveServiceCards.map((card) => (
+              <div key={card.id} className={styles.featuredCard}>
+                {card.thumbnailUrl && (
+                  <div className={styles.featuredImageWrap}>
+                    <img src={card.thumbnailUrl} alt={card.title} className={styles.featuredImage} />
                   </div>
+                )}
+                <div className={styles.featuredContent}>
+                  <h2 className={styles.featuredTitle}>{card.title}</h2>
+                  {card.description && (
+                    <p className={styles.featuredDescription}>{card.description}</p>
+                  )}
+                  <a
+                    href={card.linkUrl || '/services'}
+                    target={card.linkUrl ? '_blank' : undefined}
+                    rel={card.linkUrl ? 'noopener noreferrer' : undefined}
+                    className={styles.featuredButton}
+                  >
+                    {card.linkUrl ? 'Open Stream / Details' : 'View Service Details'}
+                  </a>
                 </div>
-              ))}
-          </div>
-        </ScrollReveal>
+              </div>
+            ))}
+        </div>
         {loading ? (
           <div className={styles.loading}>Loading...</div>
         ) : (
-          <ScrollReveal direction="right">
             <div className={styles.programsContainer}>
               {daysOrder.map((day) => {
                 const dayPrograms = groupedPrograms[day] || []
@@ -226,7 +222,6 @@ export default function Services() {
                 )
               })}
             </div>
-          </ScrollReveal>
         )}
       </div>
       <Footer />
