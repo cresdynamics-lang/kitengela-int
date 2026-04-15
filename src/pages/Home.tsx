@@ -25,7 +25,8 @@ const foundationImages = [
 const reachImages = [
   "/outreach-1.jpeg",
   "/outreach-2.jpeg",
-  "/whatsapp-5.jpeg"
+  "/Carousel1.jpg",
+  "/Carousel4.jpg"
 ]
 
 const prayerImages = [

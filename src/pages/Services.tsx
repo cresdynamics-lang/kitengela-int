@@ -31,9 +31,9 @@ const churchActivitiesCarouselImages = [
   { id: 1, title: "Sunday Worship Experience", image: "/sunday-services.jpeg", description: "Join us every Sunday for powerful worship and life-changing messages" },
   { id: 2, title: "Bible Study Sessions", image: "/bible-study.jpeg", description: "Deep dive into God's Word and grow in your understanding of Scripture" },
   { id: 3, title: "Corporate Prayer", image: "/church-praying.jpg", description: "Experience the power of corporate prayer and intercession" },
-  { id: 4, title: "Online Connect Fellowship", image: "/online-connect-poster.jpeg", description: "Join our Online Connect Fellowship every Thursday from 8:30 PM - 9:30 PM" },
-  { id: 5, title: "Men's Fellowship", image: "/mens-fellowship-poster.jpeg", description: "Men gathering together to reclaim the divine mandate of manhood" },
-  { id: 6, title: "Our Core Values", image: "/core-values-poster.jpeg", description: "Prayer, Stewardship, Holiness, Advocacy, and Unity form our foundation" },
+  { id: 4, title: "Online Connect Fellowship", image: "/online-connect.jpeg", description: "Join our Online Connect Fellowship every Thursday from 8:30 PM - 9:30 PM" },
+  { id: 5, title: "Men's Fellowship", image: "/man-praying.jpg", description: "Men gathering together to reclaim the divine mandate of manhood" },
+  { id: 6, title: "Our Core Values", image: "/core-values.jpeg", description: "Prayer, Stewardship, Holiness, Advocacy, and Unity form our foundation" },
   { id: 7, title: "Praise & Worship", image: "/praise-worship.jpg", description: "Celebrate God's goodness through vibrant praise and worship" },
   { id: 8, title: "Midweek Refreshment", image: "/midweek-fri.jpeg", description: "Midweek spiritual refreshment and fellowship" }
 ]
@@ -112,7 +112,7 @@ export default function Services() {
             id: 'thursday',
             title: 'Thursday Online Connect',
             description: 'Online Connect Fellowship every Thursday 8:30 PM - 9:30 PM on Google Meet.',
-            thumbnailUrl: '/online-connect-poster.jpeg',
+            thumbnailUrl: '/online-connect.jpeg',
             linkUrl: null,
           },
           {

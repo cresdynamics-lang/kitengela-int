@@ -9,16 +9,16 @@ const EVANS_IMAGES = [
   '/Rev.Evans1.jpeg',
   '/Rev.Evans2.jpeg',
   '/Rev.Evans3.jpeg',
-  '/Morningprayers.jpg',
-  '/churchpraying.jpg',
-  '/womanpraying.jpg'
+  '/morning-prayers.jpg',
+  '/church-praying.jpg',
+  '/woman-praying.jpg'
 ]
 
 const NANCY_IMAGES = [
   '/PastorNancySai.jpeg',
-  '/praiseandworshipdancing.jpg',
-  '/preachinghour.jpg',
-  '/sermontimenoteteking.jpg'
+  '/praise-worship.jpg',
+  '/preaching.jpg',
+  '/sermon-notes.jpg'
 ]
 
 const FALLBACK: Record<string, { name: string; title: string; bio: string; imageUrl: string }> = {
