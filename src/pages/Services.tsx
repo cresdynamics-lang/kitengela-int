@@ -48,17 +48,19 @@ export default function Services() {
     Promise.all([publicApi.getWeeklyPrograms(), publicApi.getSermons()])
       .then(([programsRes, sermonsRes]) => {
         if (programsRes.success && Array.isArray(programsRes.data)) {
-          const progData = (programsRes.data as any[]).map(p => ({
+          const rawData = programsRes.data as any[]
+          const progData = rawData.map(p => ({
             id: p.id,
             title: p.title,
             day: p.day,
-            startTime: p.start_time,
-            endTime: p.end_time,
+            startTime: p.startTime || p.start_time || '',
+            endTime: p.endTime || p.end_time || '',
             venue: p.venue,
             description: p.description,
             contacts: p.contacts,
-            posterImageUrl: p.poster_image_url || null
+            posterImageUrl: p.posterImageUrl || p.poster_image_url || null
           })) as Program[]
+          
           setPrograms(progData)
           const grouped: Record<string, Program[]> = {}
           progData.forEach((p) => {
@@ -69,18 +71,27 @@ export default function Services() {
         }
 
         if (sermonsRes.success && Array.isArray(sermonsRes.data)) {
-          const mapped = (sermonsRes.data as any[])
-            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+          const rawSermons = sermonsRes.data as any[]
+          const mapped = rawSermons
+            .filter(s => s && (s.date || s.createdAt))
+            .sort((a, b) => {
+              const dateA = new Date(a.date || a.createdAt).getTime()
+              const dateB = new Date(b.date || b.createdAt).getTime()
+              return dateB - dateA
+            })
             .slice(0, 4)
             .map((s) => ({
               id: s.id,
               title: s.title || 'Service',
               description: s.description || null,
-              thumbnailUrl: s.thumbnailUrl || null,
-              linkUrl: s.videoUrl || s.audioUrl || null,
+              thumbnailUrl: s.thumbnailUrl || s.thumbnail_url || null,
+              linkUrl: s.videoUrl || s.video_url || s.audioUrl || s.audio_url || null,
             }))
           setServiceCards(mapped)
         }
+      })
+      .catch(err => {
+        console.error('Error fetching services data:', err)
       })
       .finally(() => setLoading(false))
   }, [])

@@ -244,8 +244,8 @@ app.get('/api/public/live', async (_req, res) => {
 app.get('/api/public/programs/weekly', async (_req, res) => {
   try {
     const rows = await dbQuery<any>('programs', {
-      eq: [['is_active', true]],
-      order: [{ column: 'day' }, { column: 'order_index' }]
+      eq: [['isActive', true]],
+      order: [{ column: 'day' }, { column: 'orderIndex' }]
     })
     res.json({ success: true, data: rows })
   } catch (e: any) {
