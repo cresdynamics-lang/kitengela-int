@@ -11,7 +11,7 @@ export default function Give() {
       <PageHeader 
         title="Give & Support" 
         subtitle="Partnering for Transformation"
-        backgroundImage="/handstogether unity.jpg"
+        backgroundImage="/unity.jpg"
         hideDivider={true}
       />
       <div className={styles.container}>
