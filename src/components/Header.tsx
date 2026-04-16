@@ -41,6 +41,12 @@ export default function Header() {
     setShowPlayer(false)
   }, [location.pathname])
 
+  // Ensure overlays are closed on mount
+  useEffect(() => {
+    setIsMenuOpen(false)
+    setShowPlayer(false)
+  }, [])
+
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
   const closeMenu = () => setIsMenuOpen(false)
 
