@@ -10,6 +10,14 @@ import bcrypt from 'bcryptjs'
 import { z } from 'zod'
 import { getSupabaseAdmin, isSupabaseConfigured } from '../server/supabase'
 
+// Log environment on startup
+console.log('API Server Starting...')
+console.log('NODE_ENV:', process.env.NODE_ENV)
+console.log('VERCEL:', process.env.VERCEL)
+console.log('SUPABASE_URL configured:', !!process.env.SUPABASE_URL)
+console.log('SUPABASE_SERVICE_ROLE_KEY configured:', !!process.env.SUPABASE_SERVICE_ROLE_KEY)
+console.log('isSupabaseConfigured:', isSupabaseConfigured)
+
 // Define login schema inline to avoid import issues
 const loginSchema = z.object({
   username: z.string().min(1),
