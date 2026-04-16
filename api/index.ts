@@ -365,15 +365,19 @@ app.post('/api/public/contact', async (_req, res) => {
 
 app.post('/api/admin/login', async (req, res) => {
   try {
+    console.log('Login attempt received')
     const body = loginSchema.parse(req.body || {})
     const normalizedLogin = normalizeIdentifier(body.username)
 
     const envAdmin = getEnvAdmin()
+    console.log('Env admin configured:', !!envAdmin)
+    
     if (
       envAdmin &&
       body.password === envAdmin.password &&
       (normalizedLogin === envAdmin.username || normalizedLogin === envAdmin.email)
     ) {
+      console.log('Login successful with env admin')
       return res.json({
         success: true,
         data: {
@@ -383,27 +387,30 @@ app.post('/api/admin/login', async (req, res) => {
       })
     }
 
-    // Try DB admin lookup
-    try {
-      const admins = await dbQuery<any>('admins', {
-        filter: (q: any) => q.or(`username.eq.${body.username},email.eq.${body.username}`),
-        limit: 1
-      })
-      const admin = admins[0]
-      if (!admin) return res.status(401).json({ success: false, error: 'Invalid credentials' })
-      const isValid = await bcrypt.compare(body.password, admin.password_hash)
-      if (!isValid) return res.status(401).json({ success: false, error: 'Invalid credentials' })
-      return res.json({
-        success: true,
-        data: {
-          token: admin.id,
-          admin: { id: admin.id, username: admin.username, email: admin.email, role: admin.role, isSuperAdmin: admin.is_super_admin },
-        },
-      })
-    } catch (dbErr: any) {
-      console.error('DB login lookup failed:', dbErr.message)
-      return res.status(401).json({ success: false, error: 'Invalid credentials' })
+    // Try DB admin lookup only if Supabase is configured
+    if (isSupabaseConfigured) {
+      try {
+        const admins = await dbQuery<any>('admins', {
+          filter: (q: any) => q.or(`username.eq.${body.username},email.eq.${body.username}`),
+          limit: 1
+        })
+        const admin = admins[0]
+        if (!admin) return res.status(401).json({ success: false, error: 'Invalid credentials' })
+        const isValid = await bcrypt.compare(body.password, admin.password_hash)
+        if (!isValid) return res.status(401).json({ success: false, error: 'Invalid credentials' })
+        return res.json({
+          success: true,
+          data: {
+            token: admin.id,
+            admin: { id: admin.id, username: admin.username, email: admin.email, role: admin.role, isSuperAdmin: admin.is_super_admin },
+          },
+        })
+      } catch (dbErr: any) {
+        console.error('DB login lookup failed:', dbErr.message)
+      }
     }
+
+    return res.status(401).json({ success: false, error: 'Invalid credentials' })
   } catch (err: any) {
     if (err?.name === 'ZodError') return res.status(400).json({ success: false, error: 'Username and password are required.' })
     console.error('Login error:', err)
