@@ -23,7 +23,7 @@ app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ limit: '10mb', extended: true }))
 
 // Request logging and path normalization
-app.use((_req, res, next) => {
+app.use((_req, _res, next) => {
   const originalUrl = _req.url
   
   // Normalization: Ensure req.url starts with /api if it's missing (Vercel mapping)
@@ -137,10 +137,16 @@ async function dbQuery<T>(table: string, options: {
 import crypto from 'crypto'
 
 async function dbInsert<T>(table: string, record: Record<string, any>): Promise<T> {
+  // Handle special case for photos table which uses upload_date instead of created_at
+  const isPhotosTable = table === 'photos'
+  
   const recordWithId = {
     id: record.id || crypto.randomUUID(),
     ...record,
-    created_at: record.created_at || new Date().toISOString(),
+    ...(isPhotosTable 
+      ? { upload_date: record.upload_date || new Date().toISOString() }
+      : { created_at: record.created_at || new Date().toISOString() }
+    ),
     updated_at: record.updated_at || new Date().toISOString()
   }
 
@@ -154,12 +160,8 @@ async function dbInsert<T>(table: string, record: Record<string, any>): Promise<
 }
 
 async function dbUpdate<T>(table: string, id: string, record: Record<string, any>): Promise<T> {
-  const { data, error } = await getSupabaseAdmin()
-    .from(table)
-    .update(record as any)
-    .eq('id', id)
-    .select()
-    .single()
+  const sb = getSupabaseAdmin()
+  const { data, error } = await (sb.from(table) as any).update(record).eq('id', id).select().single()
   if (error) throw new Error(error.message)
   return data as T
 }
@@ -213,7 +215,7 @@ app.get('/api/debug', async (_req, res) => {
     SUPABASE_SERVICE_ROLE_KEY: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
     SUPABASE_ANON_KEY: !!process.env.SUPABASE_ANON_KEY,
     DATABASE_URL: !!process.env.DATABASE_URL,
-    isSupabaseConfigured: isSupabaseConfigured(),
+    isSupabaseConfigured: isSupabaseConfigured,
     nodeEnv: process.env.NODE_ENV,
     timestamp: new Date().toISOString()
   }
@@ -689,8 +691,13 @@ app.post('/api/admin/photos', upload.single('photo'), async (req, res) => {
   if (!admin) return res.status(401).json({ error: 'Unauthorized' })
   if (!req.file) return res.status(400).json({ success: false, error: 'No photo file provided' })
   try {
+    // Check if Supabase is configured
+    if (!isSupabaseConfigured) {
+      return res.status(503).json({ success: false, error: 'Database not configured. Please set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env' })
+    }
+    
     const photoData = {
-      id: req.file.filename,
+      id: crypto.randomUUID(),
       filename: req.file.filename,
       original_name: req.file.originalname,
       url: `/uploads/${req.file.filename}`,
@@ -708,7 +715,7 @@ app.post('/api/admin/photos', upload.single('photo'), async (req, res) => {
     })
   } catch (e: any) {
     console.error('POST admin/photos:', e.message)
-    res.status(500).json({ success: false, error: 'Failed to upload photo' })
+    res.status(500).json({ success: false, error: e.message || 'Failed to upload photo' })
   }
 })
 
@@ -719,12 +726,8 @@ app.patch('/api/admin/photos/:id/category', async (req, res) => {
   if (!category) return res.status(400).json({ success: false, error: 'Category is required' })
   
   try {
-    const { data, error } = await getSupabaseAdmin()
-      .from('photos')
-      .update({ category, updated_at: new Date().toISOString() })
-      .eq('id', req.params.id)
-      .select()
-      .single()
+    const sb = getSupabaseAdmin()
+    const { data, error } = await (sb.from('photos') as any).update({ category: category, updated_at: new Date().toISOString() }).eq('id', req.params.id).select().single()
       
     if (error) throw error
     res.json({ success: true, data })

@@ -24,6 +24,7 @@ const leadershipShowcaseCarouselImages = [
 export default function Leadership() {
   const [leaders, setLeaders] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [leadershipCarousel, setLeadershipCarousel] = useState(leadershipShowcaseCarouselImages)
 
   useEffect(() => {
     publicApi.getLeaders()
@@ -36,6 +37,23 @@ export default function Leadership() {
       })
       .catch(() => setLeaders(defaultLeaders))
       .finally(() => setLoading(false))
+
+    // Fetch leadership page images
+    publicApi.getPhotos().then((res) => {
+      if (res.success && Array.isArray(res.data)) {
+        const photos = res.data as any[]
+        const leadershipPhotos = photos.filter(p => p.category === 'leadership')
+        if (leadershipPhotos.length > 0) {
+          const carouselImages = leadershipPhotos.slice(0, 5).map((p, i) => ({
+            id: i + 1,
+            title: i === 0 ? "Rev. Evans O. Kochoo - Senior Pastor" : i === 1 ? "Teaching Ministry" : i === 2 ? "Pastoral Leadership" : i === 3 ? "Pastor Nancy Sai - Ministry" : "Women's Leadership",
+            image: p.url,
+            description: "Leadership in action at VOSH Church"
+          }))
+          setLeadershipCarousel(carouselImages)
+        }
+      }
+    }).catch(() => {})
   }, [])
 
   const getSlug = (leader: any) => {
@@ -62,7 +80,7 @@ export default function Leadership() {
       <div className={styles.container}>
         <ScrollReveal direction="right">
           <section className={styles.carouselSection}>
-            <Carousel images={leadershipShowcaseCarouselImages} hideDivider={true} />
+            <Carousel images={leadershipCarousel} hideDivider={true} />
           </section>
         </ScrollReveal>
         {loading ? <div className={styles.loading}>Loading...</div> : (

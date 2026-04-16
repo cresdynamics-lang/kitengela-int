@@ -22,6 +22,10 @@ const CATEGORIES = [
   { id: 'reach', name: 'Community Reach' },
   { id: 'prayer', name: 'House of Prayer' },
   { id: 'giving', name: 'Generous Living' },
+  { id: 'leadership', name: 'Leadership' },
+  { id: 'about', name: 'Who We Are (About)' },
+  { id: 'services', name: 'Join Us (Services)' },
+  { id: 'give', name: 'Give' },
 ]
 
 export default function PhotoManager() {

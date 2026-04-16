@@ -30,9 +30,9 @@ const reachImages = [
 ]
 
 const prayerImages = [
-  "/church-praying.jpg",
-  "/praise-worship.jpg",
-  "/man-praying.jpg"
+  "/whatsapp-1.jpeg",
+  "/whatsapp-15.jpeg",
+  "/whatsapp-11.jpeg"
 ]
 
 const givingImages = [
@@ -69,14 +69,25 @@ const fadeUp = {
 export default function Home() {
   const [services, setServices] = useState<any[]>([])
   const [galleryImages, setGalleryImages] = useState<string[]>([
+    "/whatsapp-1.jpeg",
+    "/whatsapp-2.jpeg",
+    "/whatsapp-3.jpeg",
+    "/whatsapp-4.jpeg",
     "/whatsapp-5.jpeg",
+    "/whatsapp-6.jpeg",
     "/whatsapp-7.jpeg",
+    "/whatsapp-8.jpeg",
     "/whatsapp-9.jpeg",
-    "/outreach-1.jpeg",
-    "/church-praying.jpg",
-    "/man-praying.jpg",
-    "/sunday-services.jpeg",
-    "/preaching.jpg"
+    "/whatsapp-10.jpeg",
+    "/whatsapp-11.jpeg",
+    "/whatsapp-12.jpeg",
+    "/whatsapp-13.jpeg",
+    "/whatsapp-14.jpeg",
+    "/whatsapp-15.jpeg",
+    "/whatsapp-16.jpeg",
+    "/whatsapp-17.jpeg",
+    "/whatsapp-18.jpeg",
+    "/whatsapp-19.jpeg"
   ])
   const [heroImagesState, setHeroImagesState] = useState<any[]>(heroImages)
   const [foundationImagesState, setFoundationImagesState] = useState<string[]>(foundationImages)
@@ -135,29 +146,6 @@ export default function Home() {
           // Track hero images as used too
           heroImagesState.forEach(item => usedImagesSet.add(item.image))
 
-          // 5. Update Gallery (Strictly WhatsApp images only)
-          // The user requested to ONLY show WhatsApp images in this section.
-          // We also still exclude anything used in carousels/sections.
-          const gallery = allPhotos
-            .map(p => p.url)
-            .filter(url => 
-              url.toLowerCase().includes('whatsapp') && 
-              !usedImagesSet.has(url) && 
-              !SYSTEM_IMAGES.includes(url)
-            )
-          
-          if (gallery.length > 0) {
-            setGalleryImages(gallery)
-          } else {
-            // Fallback to local WhatsApp images if DB is empty
-            const localWhatsApp = [
-              "/whatsapp-11.jpeg",
-              "/whatsapp-14.jpeg",
-              "/whatsapp-19.jpeg",
-              "/whatsapp-18.jpeg"
-            ].filter(img => !usedImagesSet.has(img) && !SYSTEM_IMAGES.includes(img))
-            setGalleryImages(localWhatsApp)
-          }
         }
       } catch (error) {
         console.error('Error fetching gallery:', error)

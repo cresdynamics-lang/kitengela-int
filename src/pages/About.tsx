@@ -26,6 +26,11 @@ const leadershipCarouselImages = [
 
 export default function About() {
   const [siteInfo, setSiteInfo] = useState(FALLBACK)
+  const [aboutImages, setAboutImages] = useState({
+    header: '/bible-study.jpeg',
+    mission: '/mission-vision.jpeg',
+    vision: '/core-values.jpeg'
+  })
 
   useEffect(() => {
     publicApi.getSite().then((res) => {
@@ -40,6 +45,21 @@ export default function About() {
         })
       }
     }).catch(() => {})
+
+    // Fetch about page images
+    publicApi.getPhotos().then((res) => {
+      if (res.success && Array.isArray(res.data)) {
+        const photos = res.data as any[]
+        const aboutPhotos = photos.filter(p => p.category === 'about')
+        if (aboutPhotos.length > 0) {
+          setAboutImages({
+            header: aboutPhotos[0]?.url || '/bible-study.jpeg',
+            mission: aboutPhotos[1]?.url || '/mission-vision.jpeg',
+            vision: aboutPhotos[2]?.url || '/core-values.jpeg'
+          })
+        }
+      }
+    }).catch(() => {})
   }, [])
 
   return (
@@ -48,7 +68,7 @@ export default function About() {
       <PageHeader 
         title="Who We Are" 
         subtitle={siteInfo.churchName}
-        backgroundImage="/bible-study.jpeg"
+        backgroundImage={aboutImages.header}
         hideDivider={true}
       />
 
@@ -57,7 +77,7 @@ export default function About() {
         <div className={styles.mvGrid}>
           <ScrollReveal direction="left">
             <div className={styles.mvCard}>
-              <div className={styles.cardImage} style={{ backgroundImage: 'url("/mission-vision.jpeg")' }} />
+              <div className={styles.cardImage} style={{ backgroundImage: `url("${aboutImages.mission}")` }} />
               <div className={styles.cardOverlay} />
               <div className={styles.cardContent}>
                 <span className={styles.cardBadge}>Our Mission</span>
@@ -69,7 +89,7 @@ export default function About() {
 
           <ScrollReveal direction="right">
             <div className={styles.mvCard}>
-              <div className={styles.cardImage} style={{ backgroundImage: 'url("/core-values.jpeg")' }} />
+              <div className={styles.cardImage} style={{ backgroundImage: `url("${aboutImages.vision}")` }} />
               <div className={styles.cardOverlay} />
               <div className={styles.cardContent}>
                 <span className={styles.cardBadge}>Our Vision</span>

@@ -43,6 +43,7 @@ export default function Services() {
   const [groupedPrograms, setGroupedPrograms] = useState<Record<string, Program[]>>({})
   const [loading, setLoading] = useState(true)
   const [serviceCards, setServiceCards] = useState<ServiceCard[]>([])
+  const [servicesCarousel, setServicesCarousel] = useState(churchActivitiesCarouselImages)
 
   useEffect(() => {
     Promise.all([publicApi.getWeeklyPrograms(), publicApi.getSermons()])
@@ -94,6 +95,23 @@ export default function Services() {
         console.error('Error fetching services data:', err)
       })
       .finally(() => setLoading(false))
+
+    // Fetch services page images
+    publicApi.getPhotos().then((res) => {
+      if (res.success && Array.isArray(res.data)) {
+        const photos = res.data as any[]
+        const servicesPhotos = photos.filter(p => p.category === 'services')
+        if (servicesPhotos.length > 0) {
+          const carouselImages = servicesPhotos.slice(0, 8).map((p, i) => ({
+            id: i + 1,
+            title: i === 0 ? "Sunday Worship Experience" : i === 1 ? "Bible Study Sessions" : i === 2 ? "Corporate Prayer" : i === 3 ? "Online Connect Fellowship" : i === 4 ? "Men's Fellowship" : i === 5 ? "Our Core Values" : i === 6 ? "Praise & Worship" : "Midweek Refreshment",
+            image: p.url,
+            description: "Join us for church activities"
+          }))
+          setServicesCarousel(carouselImages)
+        }
+      }
+    }).catch(() => {})
   }, [])
 
   const daysOrder = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
@@ -143,9 +161,7 @@ export default function Services() {
       <div className={styles.container}>
         <section className={styles.carouselSection}>
           <h2 className={styles.carouselTitle}>Church Life & Activities</h2>
-          <Carousel images={churchActivitiesCarouselImages} hideDivider={true} />
-        </section>
-        
+            <Carousel images={servicesCarousel} hideDivider={true} />
         <div className={styles.featuredGrid}>
           {effectiveServiceCards.map((card) => (
               <div key={card.id} className={styles.featuredCard}>

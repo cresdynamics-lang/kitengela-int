@@ -1,17 +1,33 @@
+import { useEffect, useState } from 'react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import PageHeader from '@/components/PageHeader'
 import ScrollReveal from '@/components/ScrollReveal'
+import { publicApi } from '@/lib/api'
 import styles from './Give.module.css'
 
 export default function Give() {
+  const [giveImage, setGiveImage] = useState('/unity.jpg')
+
+  useEffect(() => {
+    publicApi.getPhotos().then((res) => {
+      if (res.success && Array.isArray(res.data)) {
+        const photos = res.data as any[]
+        const givePhotos = photos.filter(p => p.category === 'give')
+        if (givePhotos.length > 0) {
+          setGiveImage(givePhotos[0].url)
+        }
+      }
+    }).catch(() => {})
+  }, [])
+
   return (
     <main>
       <Header />
       <PageHeader 
         title="Give & Support" 
         subtitle="Partnering for Transformation"
-        backgroundImage="/unity.jpg"
+        backgroundImage={giveImage}
         hideDivider={true}
       />
       <div className={styles.container}>
