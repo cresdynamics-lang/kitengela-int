@@ -8,7 +8,7 @@ import multer from 'multer'
 import path from 'path'
 import bcrypt from 'bcryptjs'
 import { z } from 'zod'
-import { getSupabaseAdmin, isSupabaseConfigured } from './supabase'
+import { getSupabaseAdmin, isSupabaseConfigured } from './supabase.js'
 
 console.log('API Server Starting...')
 console.log('NODE_ENV:', process.env.NODE_ENV)
