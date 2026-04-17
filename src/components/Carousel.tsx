@@ -95,7 +95,7 @@ export default function Carousel({ images, hideDivider = false }: CarouselProps)
                 }}
                 className={styles.title}
                 style={{
-                  textShadow: current.title.includes('Katan Ngila') ? '0 0 30px rgba(255, 215, 0, 0.8)' : 'none'
+                  textShadow: currentItem.title.includes('Katan Ngila') ? '0 0 30px rgba(255, 215, 0, 0.8)' : 'none'
                 }}
               >
                 {currentItem.title}
