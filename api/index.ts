@@ -5,7 +5,6 @@ import express from 'express'
 import cors from 'cors'
 import multer from 'multer'
 import path from 'path'
-import fs from 'fs'
 import bcrypt from 'bcryptjs'
 import { z } from 'zod'
 import { getSupabaseAdmin, isSupabaseConfigured } from '../server/supabase'
@@ -58,21 +57,8 @@ app.options('*', (_req, res) => {
   res.sendStatus(200)
 })
 
-// Configure multer for file uploads
-const uploadsDir = path.join(process.cwd(), 'public', 'uploads')
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true })
-}
-
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, uploadsDir)
-  },
-  filename: (_req, _file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-    cb(null, _file.fieldname + '-' + uniqueSuffix + path.extname(_file.originalname))
-  }
-})
+// Use in-memory uploads so the Vercel function does not depend on a writable filesystem.
+const storage = multer.memoryStorage()
 
 const upload = multer({
   storage: storage,
@@ -679,11 +665,33 @@ app.post('/api/admin/photos', upload.single('photo'), async (req, res) => {
       return res.status(503).json({ success: false, error: 'Database not configured. Please set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env' })
     }
     
+    const supabase = getSupabaseAdmin()
+    const fileName = `${Date.now()}-${req.file.originalname}`
+    const filePath = `photos/${fileName}`
+    
+    // Upload to Supabase Storage
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('photos')
+      .upload(filePath, req.file.buffer, {
+        contentType: req.file.mimetype,
+        upsert: true
+      })
+    
+    if (uploadError) {
+      console.error('Supabase storage upload error:', uploadError)
+      return res.status(500).json({ success: false, error: 'Failed to upload to storage' })
+    }
+    
+    // Get public URL
+    const { data: urlData } = supabase.storage
+      .from('photos')
+      .getPublicUrl(filePath)
+    
     const photoData = {
       id: crypto.randomUUID(),
-      filename: req.file.filename,
+      filename: fileName,
       original_name: req.file.originalname,
-      url: `/uploads/${req.file.filename}`,
+      url: urlData.publicUrl,
       size: req.file.size,
       category: req.body.category || 'general',
       upload_date: new Date().toISOString(),
@@ -725,21 +733,19 @@ app.delete('/api/admin/photos/:filename', async (req, res) => {
   if (!admin) return res.status(401).json({ error: 'Unauthorized' })
   try {
     const filename = req.params.filename
-    const publicPath = path.join(process.cwd(), 'public', filename)
-    const uploadsPath = path.join(process.cwd(), 'public', 'uploads', filename)
+    const supabase = getSupabaseAdmin()
     
-    // 1. Try to delete from filesystem (check both possible locations)
-    if (fs.existsSync(uploadsPath)) {
-      fs.unlinkSync(uploadsPath)
-    } else if (fs.existsSync(publicPath)) {
-      // Be careful: avoid deleting essential system files if they match by some fluke
-      if (filename !== 'robots.txt' && !filename.endsWith('.json')) {
-        fs.unlinkSync(publicPath)
-      }
+    // Delete from Supabase Storage
+    const { error: storageError } = await supabase.storage
+      .from('photos')
+      .remove([`photos/${filename}`])
+    
+    if (storageError) {
+      console.error('Storage deletion error:', storageError)
     }
     
-    // 2. Delete from DB (metadata)
-    await getSupabaseAdmin()
+    // Delete from DB (metadata)
+    await supabase
       .from('photos')
       .delete()
       .eq('filename', filename)

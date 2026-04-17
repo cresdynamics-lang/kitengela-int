@@ -28,6 +28,10 @@ export default defineConfig(({ mode }) => {
     env.SUPABASE_ANON_KEY ||
     ''
 
+  const apiUrl =
+    env.VITE_API_URL ||
+    (mode === 'development' ? 'http://localhost:3001' : '/api')
+
   return {
     plugins: [react()],
     resolve: {
@@ -41,7 +45,7 @@ export default defineConfig(({ mode }) => {
     define: {
       'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(supabaseUrl),
       'import.meta.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(supabaseAnonKey),
-      'import.meta.env.VITE_API_URL': JSON.stringify(env.VITE_API_URL || 'http://localhost:3001'),
+      'import.meta.env.VITE_API_URL': JSON.stringify(apiUrl),
     },
     server: {
       port: 3000,
@@ -49,10 +53,8 @@ export default defineConfig(({ mode }) => {
       strictPort: false,
       proxy: {
         '/api': {
-          target: (env.VITE_API_URL && env.VITE_API_URL.startsWith('http')) 
-            ? env.VITE_API_URL 
-            : 'http://localhost:3001',
-          changeOrigin: true
+          target: apiUrl.startsWith('http') ? apiUrl : 'http://localhost:3001',
+          changeOrigin: true,
         },
       },
     },
