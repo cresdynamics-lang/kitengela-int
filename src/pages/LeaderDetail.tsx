@@ -9,9 +9,9 @@ const EVANS_IMAGES = [
   '/Rev.Evans1.jpeg',
   '/Rev.Evans2.jpeg',
   '/Rev.Evans3.jpeg',
-  '/morning-prayers.jpg',
-  '/church-praying.jpg',
-  '/woman-praying.jpg'
+  '/evans-activity-1.jpg',
+  '/evans-activity-2.jpg',
+  '/evans-activity-3.jpg'
 ]
 
 const NANCY_IMAGES = [
