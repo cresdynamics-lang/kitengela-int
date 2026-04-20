@@ -11,7 +11,7 @@ import { supabase } from '@/lib/supabase'
 import styles from './Home.module.css'
 
 const heroImages = [
-  { id: 0, title: "Katan Ngila", image: "/Carousel1.jpg", description: "#House_Of_Solutions" },
+  { id: 0, title: "Welcome to Kitengela", image: "/Carousel1.jpg", description: "#House_Of_Solutions" },
   { id: 1, title: "Manifesting Christ in Our Community", image: "/Carousel2.jpg", description: "We are a House of Solutions, reaching out with love and power in Kitengela." },
   { id: 2, title: "Experience Supernatural Worship", image: "/carousel3.jpeg", description: "Join us this Sunday along Baraka Road for a time of refreshment and miracles." },
 ]
@@ -120,7 +120,7 @@ export default function Home() {
           if (heroPhotos.length > 0) {
             const dynamicHero = heroPhotos.map((p, i) => ({
               id: p.id,
-              title: i === 0 ? "Katan Ngila" : i === 1 ? "Manifesting Christ in Our Community" : "Experience Supernatural Worship",
+              title: i === 0 ? "Welcome to Kitengela" : i === 1 ? "Manifesting Christ in Our Community" : "Experience Supernatural Worship",
               image: p.url,
               description: i === 0 ? "#House_Of_Solutions - Transforming lives through the pure Word and building strong faith for our community." : i === 1 ? "We are a House of Solutions, reaching out with love and power in Kitengela." : "Join us this Sunday along Baraka Road for a time of refreshment and miracles."
             }))
@@ -166,7 +166,9 @@ export default function Home() {
             name: p.title || p.name || '',
             time: p.startTime && p.endTime ? `${p.startTime} - ${p.endTime}` : p.startTime || p.time || '',
             day: p.day || '',
-            description: p.description || ''
+            description: p.description || '',
+            venue: p.venue || '',
+            url: p.url || p.linkUrl || p.venue || ''
           })))
         }
       }),

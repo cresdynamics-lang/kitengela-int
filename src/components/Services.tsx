@@ -11,6 +11,8 @@ interface Service {
   speaker?: string
   host?: string
   platform?: string
+  venue?: string
+  url?: string
 }
 
 interface MassCard {
@@ -26,6 +28,7 @@ interface ServicesProps {
 
 export default function Services({ services }: ServicesProps) {
   const [massCards, setMassCards] = useState<MassCard[]>([])
+  const [adminLinks, setAdminLinks] = useState<any[]>([])
   const featuredCards = [
     {
       id: 'sunday',
@@ -78,7 +81,74 @@ export default function Services({ services }: ServicesProps) {
       }
     }
     fetchMasses()
+
+    const fetchLinks = async () => {
+      try {
+        const res = await publicApi.getLinks()
+        if (res.success && Array.isArray(res.data)) {
+          setAdminLinks(res.data)
+        }
+      } catch (e) {
+        console.error('Error fetching admin links:', e)
+      }
+    }
+    fetchLinks()
   }, [])
+
+  const effectiveFeaturedCards = featuredCards.map(card => {
+    const matchingLink = adminLinks.find(link => 
+      (link.description && link.description.toLowerCase().includes(card.cta.toLowerCase())) ||
+      (link.title && link.title.toLowerCase().includes(card.title.toLowerCase())) ||
+      (card.id === 'sunday' && link.description?.toLowerCase().includes('sunday')) ||
+      (card.id === 'wednesday' && link.description?.toLowerCase().includes('wednesday')) ||
+      (card.id === 'friday' && link.description?.toLowerCase().includes('friday')) ||
+      (card.id === 'biblestudy' && link.description?.toLowerCase().includes('bible'))
+    )
+
+    const matchingService = services?.find(s => 
+      (s.description && s.description.toLowerCase().includes(card.cta.toLowerCase())) ||
+      (s.name && s.name.toLowerCase().includes(card.title.toLowerCase())) ||
+      (card.id === 'sunday' && s.name?.toLowerCase().includes('sunday') && !s.name?.toLowerCase().includes('bible')) ||
+      (card.id === 'wednesday' && s.name?.toLowerCase().includes('wednesday')) ||
+      (card.id === 'friday' && s.name?.toLowerCase().includes('friday')) ||
+      (card.id === 'biblestudy' && s.name?.toLowerCase().includes('bible'))
+    )
+
+    let finalHref = '/services';
+    let target = undefined;
+    let rel = undefined;
+    let finalDescription = card.description;
+
+    if (matchingLink && matchingLink.url) {
+      finalHref = matchingLink.url;
+      target = '_blank';
+      rel = 'noopener noreferrer';
+      if (matchingLink.description && !matchingLink.description.toLowerCase().includes('join')) {
+         finalDescription = matchingLink.description;
+      }
+    } else if (matchingService) {
+      if (matchingService.venue?.startsWith('http')) {
+        finalHref = matchingService.venue;
+        target = '_blank';
+        rel = 'noopener noreferrer';
+      } else if (matchingService.url?.startsWith('http')) {
+        finalHref = matchingService.url;
+        target = '_blank';
+        rel = 'noopener noreferrer';
+      }
+      if (matchingService.description) {
+        finalDescription = matchingService.description;
+      }
+    }
+
+    return {
+      ...card,
+      description: finalDescription,
+      href: finalHref,
+      target,
+      rel
+    }
+  })
 
   return (
     <section className={styles.servicesSection}>
@@ -87,7 +157,7 @@ export default function Services({ services }: ServicesProps) {
         <p className={styles.sectionSubtitle}>Join us for worship, prayer, and fellowship throughout the week</p>
 
         <div className={styles.featuredGrid}>
-          {featuredCards.map((card) => (
+          {effectiveFeaturedCards.map((card) => (
             <div key={card.id} className={styles.featuredCard}>
               <div className={styles.featuredImageWrap}>
                 <img src={card.image} alt={card.title} className={styles.featuredImage} />
@@ -95,7 +165,20 @@ export default function Services({ services }: ServicesProps) {
               <div className={styles.featuredContent}>
                 <h3 className={styles.featuredTitle}>{card.title}</h3>
                 <p className={styles.featuredDescription}>{card.description}</p>
-                <a href="/services" className={styles.featuredButton}>{card.cta}</a>
+                <a 
+                  href={card.href} 
+                  target={card.target} 
+                  rel={card.rel} 
+                  className={styles.featuredButton}
+                  onClick={(e) => {
+                    if (card.href === '/services') {
+                      e.preventDefault();
+                      alert(`The live link for ${card.title} has not been updated yet. Please check back later!`);
+                    }
+                  }}
+                >
+                  {card.cta}
+                </a>
               </div>
             </div>
           ))}
