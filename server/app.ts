@@ -393,14 +393,21 @@ app.post('/api/admin/login', async (req, res) => {
 
     if (isSupabaseConfigured) {
       try {
+        const safeLogin = normalizedLogin.replace(/"/g, '').replace(/,/g, '')
         const admins = await dbQuery<any>('admins', {
-          filter: (q: any) => q.or(`username.eq.${body.username},email.eq.${body.username}`),
+          filter: (q: any) => q.or(`username.eq.${safeLogin},email.eq.${safeLogin}`),
           limit: 1,
         })
         const admin = admins[0]
-        if (!admin) return res.status(401).json({ success: false, error: 'Invalid credentials' })
+        if (!admin) {
+          console.warn(`Login failed: no admin found for "${normalizedLogin}"`)
+          return res.status(401).json({ success: false, error: 'Invalid credentials' })
+        }
         const isValid = await bcrypt.compare(body.password, admin.password_hash)
-        if (!isValid) return res.status(401).json({ success: false, error: 'Invalid credentials' })
+        if (!isValid) {
+          console.warn(`Login failed: invalid password for "${normalizedLogin}"`)
+          return res.status(401).json({ success: false, error: 'Invalid credentials' })
+        }
         return res.json({
           success: true,
           data: {
@@ -415,7 +422,11 @@ app.post('/api/admin/login', async (req, res) => {
           },
         })
       } catch (dbErr: any) {
-        console.error('DB login lookup failed:', dbErr.message)
+        console.error(`DB login lookup failed for "${normalizedLogin}":`, dbErr.message)
+        return res.status(503).json({
+          success: false,
+          error: 'Authentication service temporarily unavailable. Please try again.',
+        })
       }
     }
 

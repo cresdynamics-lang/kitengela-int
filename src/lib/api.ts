@@ -246,8 +246,12 @@ export const adminApi = {
       const apiHost = API_URL || 'this site (/api)'
       data = { success: false, error: response.ok ? 'Invalid response' : `Server error. Is the API running on ${apiHost}?` }
     }
-    if (!response.ok && data && !data.error) {
-      data.error = response.status === 500 ? 'Server error. Check API is running and database is set up.' : 'Login failed.'
+    if (!response.ok) {
+      if (response.status === 503) {
+        data.error = 'Authentication service is temporarily unavailable. Please try again in a moment.'
+      } else if (!data.error) {
+        data.error = response.status === 500 ? 'Server error. Check API is running and database is set up.' : 'Login failed.'
+      }
     }
     return data
   },
