@@ -19,12 +19,23 @@ const PhotoManager = lazy(() => import('@/components/admin/PhotoManager')) as Re
 const PhotoCarouselManager = lazy(() => import('@/components/admin/PhotoCarouselManager')) as React.LazyExoticComponent<any>
 
 type TabKey = 'programs' | 'events' | 'live' | 'sermons' | 'links' | 'admins' | 'photos' | 'carousel-manager'
+const tabs: { key: TabKey; label: string }[] = [
+  { key: 'programs', label: 'Programs' },
+  { key: 'events', label: 'Events' },
+  { key: 'live', label: 'Live Stream' },
+  { key: 'sermons', label: 'Sermons' },
+  { key: 'links', label: 'Links' },
+  { key: 'admins', label: 'Admin Rights' },
+  { key: 'photos', label: 'Photos' },
+  { key: 'carousel-manager', label: 'Carousels' },
+]
 
 export default function AdminDashboard() {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<TabKey>(() => {
     return getAdminActiveTab<TabKey>('live')
   })
+  const [isNavOpen, setIsNavOpen] = useState(false)
   const [admin] = useState<any>(() => getAdminUser())
 
   useEffect(() => {
@@ -67,35 +78,52 @@ export default function AdminDashboard() {
     <div className={styles.dashboard}>
       <header className={styles.header}>
         <div className={styles.headerContent}>
-          <h1>Admin Dashboard</h1>
+          <div className={styles.headerLeft}>
+            <button
+              type="button"
+              className={styles.menuButton}
+              onClick={() => setIsNavOpen((prev) => !prev)}
+              aria-label={isNavOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            >
+              {isNavOpen ? '✕' : '☰'}
+            </button>
+            <h1>Admin Dashboard</h1>
+          </div>
           <div className={styles.userInfo}>
             <span>Welcome, {admin.username}</span>
             <button onClick={handleLogout} className={styles.logoutButton}>Logout</button>
           </div>
         </div>
       </header>
-      <nav className={styles.tabs}>
-        <button className={`${styles.tab} ${activeTab === 'programs' ? styles.active : ''}`} onClick={() => setActiveTab('programs')}>Programs</button>
-        <button className={`${styles.tab} ${activeTab === 'events' ? styles.active : ''}`} onClick={() => setActiveTab('events')}>Events</button>
-        <button className={`${styles.tab} ${activeTab === 'live' ? styles.active : ''}`} onClick={() => setActiveTab('live')}>Live Stream</button>
-        <button className={`${styles.tab} ${activeTab === 'sermons' ? styles.active : ''}`} onClick={() => setActiveTab('sermons')}>Sermons</button>
-        <button className={`${styles.tab} ${activeTab === 'links' ? styles.active : ''}`} onClick={() => setActiveTab('links')}>Links</button>
-        <button className={`${styles.tab} ${activeTab === 'admins' ? styles.active : ''}`} onClick={() => setActiveTab('admins')}>Admin Rights</button>
-        <button className={`${styles.tab} ${activeTab === 'photos' ? styles.active : ''}`} onClick={() => setActiveTab('photos')}>Photos</button>
-        <button className={`${styles.tab} ${activeTab === 'carousel-manager' ? styles.active : ''}`} onClick={() => setActiveTab('carousel-manager')}>Carousels</button>
-      </nav>
-      <main className={styles.content}>
-        <Suspense fallback={<div className={styles.tabLoading}>Loading section...</div>}>
-          {activeTab === 'programs' && <Programs />}
-          {activeTab === 'events' && <div>Events management coming soon</div>}
-          {activeTab === 'live' && <LiveStreamAdmin />}
-          {activeTab === 'sermons' && <MassSermons />}
-          {activeTab === 'links' && <UpdateLinks />}
-          {activeTab === 'admins' && <AdminRights />}
-          {activeTab === 'photos' && <PhotoManager />}
-          {activeTab === 'carousel-manager' && <PhotoCarouselManager />}
-        </Suspense>
-      </main>
+      <div className={styles.workspace}>
+        {isNavOpen && <button className={styles.backdrop} onClick={() => setIsNavOpen(false)} aria-label="Close menu overlay" />}
+        <nav className={`${styles.tabs} ${!isNavOpen ? styles.tabsHidden : ''}`}>
+          {tabs.map((tabItem) => (
+            <button
+              key={tabItem.key}
+              className={`${styles.tab} ${activeTab === tabItem.key ? styles.active : ''}`}
+              onClick={() => {
+                setActiveTab(tabItem.key)
+                setIsNavOpen(false)
+              }}
+            >
+              {tabItem.label}
+            </button>
+          ))}
+        </nav>
+        <main className={styles.content}>
+          <Suspense fallback={<div className={styles.tabLoading}>Loading section...</div>}>
+            {activeTab === 'programs' && <Programs />}
+            {activeTab === 'events' && <div>Events management coming soon</div>}
+            {activeTab === 'live' && <LiveStreamAdmin />}
+            {activeTab === 'sermons' && <MassSermons />}
+            {activeTab === 'links' && <UpdateLinks />}
+            {activeTab === 'admins' && <AdminRights />}
+            {activeTab === 'photos' && <PhotoManager />}
+            {activeTab === 'carousel-manager' && <PhotoCarouselManager />}
+          </Suspense>
+        </main>
+      </div>
     </div>
   )
 }

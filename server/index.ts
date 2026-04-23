@@ -1,6 +1,6 @@
 import app from './app.js'
 
-const PORT = Number(process.env.PORT) || 3001
+const PORT = Number(process.env.PORT) || 3101
 const isVercelRuntime = Boolean(process.env.VERCEL) || Boolean(process.env.VERCEL_REGION)
 
 if (!isVercelRuntime) {

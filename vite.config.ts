@@ -6,6 +6,7 @@ import dotenv from 'dotenv'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
+  const devApiPort = Number(env.PORT || process.env.PORT) || 3101
 
   // Prefer values from .env so frontend works even when .env.local is absent.
   let envFile: Record<string, string> = {}
@@ -30,7 +31,7 @@ export default defineConfig(({ mode }) => {
 
   const apiUrl =
     env.VITE_API_URL ||
-    (mode === 'development' ? 'http://localhost:3001' : '/api')
+    (mode === 'development' ? `http://localhost:${devApiPort}` : '/api')
 
   return {
     plugins: [react()],
@@ -53,7 +54,7 @@ export default defineConfig(({ mode }) => {
       strictPort: false,
       proxy: {
         '/api': {
-          target: apiUrl.startsWith('http') ? apiUrl : 'http://localhost:3001',
+          target: apiUrl.startsWith('http') ? apiUrl : `http://localhost:${devApiPort}`,
           changeOrigin: true,
         },
       },

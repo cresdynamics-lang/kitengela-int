@@ -2,6 +2,8 @@
   min-height: 100vh;
   background: #f8fafc;
   color: var(--primary);
+  display: flex;
+  flex-direction: column;
 }
 
 .header {
@@ -20,6 +22,12 @@
   align-items: center;
 }
 
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
 .header h1 {
   margin: 0;
   font-size: 1.5rem;
@@ -31,6 +39,27 @@
   display: flex;
   align-items: center;
   gap: 1.5rem;
+}
+
+.menuButton {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1.25rem;
+  line-height: 1;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.menuButton:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .userInfo span {
@@ -58,29 +87,40 @@
 
 .tabs {
   background: white;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.1);
+  border-right: 1px solid rgba(15, 23, 42, 0.1);
   display: flex;
-  overflow-x: auto;
-  padding: 0;
-  max-width: 100%;
-  scrollbar-width: none;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem;
+  width: 250px;
+  flex-shrink: 0;
 }
 
-.tabs::-webkit-scrollbar {
-  display: none;
+.workspace {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  position: relative;
 }
 
 .tab {
-  padding: 1.25rem 2rem;
+  padding: 0.875rem 1rem;
   background: none;
   border: none;
-  border-bottom: 2px solid transparent;
+  border-left: 3px solid transparent;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 0.9375rem;
   font-weight: 600;
   color: var(--muted-foreground);
   transition: all 0.3s ease;
-  white-space: nowrap;
+  text-align: left;
+}
+
+.tabsHidden {
+  transform: translateX(-100%);
+  opacity: 0;
+  pointer-events: none;
 }
 
 .tab:hover {
@@ -90,13 +130,31 @@
 
 .tab.active {
   color: var(--accent);
-  border-bottom-color: var(--accent);
+  border-left-color: var(--accent);
+  background: rgba(15, 23, 42, 0.05);
 }
 
 .content {
-  max-width: 1400px;
-  margin: 0 auto;
+  flex: 1;
   padding: 3rem 2rem;
+  overflow: auto;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.35);
+  border: none;
+  z-index: 20;
+}
+
+.tabs {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 30;
+  transition: transform 0.25s ease, opacity 0.25s ease;
 }
 
 .tabLoading {
@@ -131,6 +189,30 @@
 
   .userInfo span {
     display: none;
+  }
+
+  .tabs {
+    width: 220px;
+    border-right: 1px solid rgba(15, 23, 42, 0.1);
+    border-bottom: none;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    gap: 0.25rem;
+    padding: 0.75rem;
+  }
+
+  .tab {
+    border-left: 3px solid transparent;
+    border-bottom: none;
+    border-radius: 8px;
+    padding: 0.8rem 0.9rem;
+    white-space: normal;
+  }
+
+  .tab.active {
+    border-left-color: var(--accent);
+    background: rgba(15, 23, 42, 0.05);
   }
 
   .content {
