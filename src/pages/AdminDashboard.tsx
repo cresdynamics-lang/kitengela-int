@@ -17,8 +17,9 @@ const AdminRights = lazy(() => import('@/components/admin/AdminRights'))
 const LiveStreamAdmin = lazy(() => import('@/components/admin/LiveStream'))
 const PhotoManager = lazy(() => import('@/components/admin/PhotoManager')) as React.LazyExoticComponent<any>
 const PhotoCarouselManager = lazy(() => import('@/components/admin/PhotoCarouselManager')) as React.LazyExoticComponent<any>
+const TestimonialManager = lazy(() => import('@/components/admin/TestimonialManager'))
 
-type TabKey = 'programs' | 'events' | 'live' | 'sermons' | 'links' | 'admins' | 'photos' | 'carousel-manager'
+type TabKey = 'programs' | 'events' | 'live' | 'sermons' | 'links' | 'admins' | 'photos' | 'carousel-manager' | 'testimonials'
 const tabs: { key: TabKey; label: string }[] = [
   { key: 'programs', label: 'Programs' },
   { key: 'events', label: 'Events' },
@@ -28,6 +29,7 @@ const tabs: { key: TabKey; label: string }[] = [
   { key: 'admins', label: 'Admin Rights' },
   { key: 'photos', label: 'Photos' },
   { key: 'carousel-manager', label: 'Carousels' },
+  { key: 'testimonials', label: 'Testimonials' },
 ]
 
 export default function AdminDashboard() {
@@ -121,6 +123,7 @@ export default function AdminDashboard() {
             {activeTab === 'admins' && <AdminRights />}
             {activeTab === 'photos' && <PhotoManager />}
             {activeTab === 'carousel-manager' && <PhotoCarouselManager />}
+            {activeTab === 'testimonials' && <TestimonialManager />}
           </Suspense>
         </main>
       </div>

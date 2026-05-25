@@ -7,6 +7,7 @@ interface CarouselImage {
   title: string
   image: string
   description: string
+  verse?: string
   phoneNumbers?: string[]
   location?: string
   services?: string[]
@@ -85,6 +86,24 @@ export default function Carousel({ images, hideDivider = false }: CarouselProps)
 
           <div className={styles.contentContainer}>
             <div className={styles.contentInner}>
+              {currentItem.verse && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3, duration: 0.6 }}
+                  className={styles.verseBadge}
+                  style={{
+                    color: 'var(--gold-gradient, #ffd700)',
+                    fontStyle: 'italic',
+                    fontSize: '1.2rem',
+                    marginBottom: '1rem',
+                    fontWeight: 500,
+                    textShadow: '0 2px 4px rgba(0,0,0,0.5)'
+                  }}
+                >
+                  "{currentItem.verse}"
+                </motion.div>
+              )}
               <motion.h2
                 initial={{ opacity: 0, y: 30, scale: 0.9 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}

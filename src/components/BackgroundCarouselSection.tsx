@@ -13,6 +13,7 @@ interface Props {
   alignment?: 'left' | 'right' | 'center'
   overlayVariant?: 'navy' | 'gold' | 'indigo' | 'dark'
   hideDivider?: boolean
+  scripture?: string
 }
 
 export default function BackgroundCarouselSection({
@@ -24,7 +25,8 @@ export default function BackgroundCarouselSection({
   ctaLink,
   alignment = 'left',
   overlayVariant = 'navy',
-  hideDivider = false
+  hideDivider = false,
+  scripture
 }: Props) {
   const [index, setIndex] = useState(0)
 
@@ -70,6 +72,17 @@ export default function BackgroundCarouselSection({
             <span className={styles.badge}>{badge}</span>
             <h2 className={styles.title}>{title}</h2>
             <p className={styles.description}>{description}</p>
+            {scripture && (
+              <motion.div 
+                className={styles.scripture}
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 1, delay: 0.3 }}
+              >
+                "{scripture}"
+              </motion.div>
+            )}
             <Link to={ctaLink} className={styles.btnPremium}>
               {ctaText}
             </Link>

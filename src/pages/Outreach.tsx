@@ -12,9 +12,9 @@ const outreachCarouselImages = [
   { id: 3, title: "Mission & Vision", image: "/mission-vision.jpeg", description: "Fulfilling our mandate to manifest Christ in Kitengela and beyond" },
   { id: 4, title: "Unity in Service", image: "/unity.jpg", description: "Working together in unity to serve our community" },
   { id: 5, title: "Heart for Mission", image: "/prayer-heart.jpg", description: "A heart committed to prayer and outreach" },
-  { id: 6, title: "Community Impact", image: "/whatsapp-4.jpeg", description: "Making a positive impact in our community" },
+  { id: 6, title: "Community Impact", image: "/outreach-1.jpeg", description: "Making a positive impact in our community" },
   { id: 7, title: "Prayer & Service", image: "/whatsapp-9.jpeg", description: "Combining prayer with practical service" },
-  { id: 8, title: "Transforming Lives", image: "/whatsapp-11.jpeg", description: "Transforming lives through the Gospel and service" }
+  { id: 8, title: "Transforming Lives", image: "/outreach-2.jpeg", description: "Transforming lives through the Gospel and service" }
 ]
 
 const outreachActivities = [

@@ -177,6 +177,10 @@ export const publicApi = {
   async getPhotos() {
     return fetchApi('/api/public/photos')
   },
+
+  async getTestimonials() {
+    return fetchApi('/api/public/testimonials')
+  },
 }
 
 async function fetchApiWithAuth<T>(endpoint: string, token: string, options: RequestInit = {}): Promise<{ success: boolean; data: T }> {
@@ -376,6 +380,31 @@ export const adminApi = {
     return fetchApiWithAuth(`/api/admin/photos/${id}/category`, token, {
       method: 'PATCH',
       body: JSON.stringify({ category }),
+    })
+  },
+
+  // Testimonials management functions
+  async getTestimonials(token: string) {
+    return fetchApiWithAuth('/api/admin/testimonials', token)
+  },
+
+  async createTestimonial(token: string, data: any) {
+    return fetchApiWithAuth('/api/admin/testimonials', token, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  },
+
+  async updateTestimonial(token: string, id: string, data: any) {
+    return fetchApiWithAuth(`/api/admin/testimonials/${id}`, token, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    })
+  },
+
+  async deleteTestimonial(token: string, id: string) {
+    return fetchApiWithAuth(`/api/admin/testimonials/${id}`, token, {
+      method: 'DELETE',
     })
   },
 }

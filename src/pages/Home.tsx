@@ -11,7 +11,7 @@ import { supabase } from '@/lib/supabase'
 import styles from './Home.module.css'
 
 const heroImages = [
-  { id: 0, title: "Welcome to Kitengela", image: "/Carousel1.jpg", description: "#House_Of_Solutions" },
+  { id: 0, title: "Welcome to Kitengela", image: "/Carousel1.jpg", description: "#House_Of_Solutions", verse: "I was glad when they said to me, 'Let us go to the house of the LORD!' - Psalm 122:1" },
   { id: 1, title: "Manifesting Christ in Our Community", image: "/Carousel2.jpg", description: "We are a House of Solutions, reaching out with love and power in Kitengela." },
   { id: 2, title: "Experience Supernatural Worship", image: "/carousel3.jpeg", description: "Join us this Sunday along Baraka Road for a time of refreshment and miracles." },
 ]
@@ -32,13 +32,13 @@ const reachImages = [
 const prayerImages = [
   "/whatsapp-1.jpeg",
   "/whatsapp-2.jpeg",
-  "/whatsapp-3.jpeg"
+  "/whatsapp-4.jpeg"
 ]
 
 const givingImages = [
-  "/whatsapp-1.jpeg",
-  "/whatsapp-2.jpeg",
-  "/whatsapp-3.jpeg"
+  "/whatsapp-7.jpeg",
+  "/whatsapp-11.jpeg",
+  "/whatsapp-12.jpeg"
 ]
 
 // Universal Exclusion List: Images used across the entire site that should NOT be in the gallery
@@ -74,14 +74,8 @@ export default function Home() {
   const [galleryImages, setGalleryImages] = useState<string[]>([
     "/whatsapp-1.jpeg",
     "/whatsapp-2.jpeg",
-    "/whatsapp-3.jpeg",
     "/whatsapp-4.jpeg",
-    "/whatsapp-5.jpeg",
-    "/whatsapp-6.jpeg",
     "/whatsapp-7.jpeg",
-    "/whatsapp-8.jpeg",
-    "/whatsapp-9.jpeg",
-    "/whatsapp-10.jpeg",
     "/whatsapp-11.jpeg",
     "/whatsapp-12.jpeg",
     "/whatsapp-13.jpeg",
@@ -106,8 +100,12 @@ export default function Home() {
         if (response.success && Array.isArray(response.data)) {
           const allPhotos = response.data as any[]
           
-          // 1. Update Gallery (All photos)
-          setGalleryImages(allPhotos.map(p => p.url))
+          // 1. Update Gallery (All photos) - exclude non-gallery categories if needed
+          const galleryPhotos = allPhotos.filter(p => !['hero', 'foundation', 'reach', 'prayer', 'giving', 'discipleship', 'ministries', 'contact'].includes(p.category)).map(p => p.url)
+          
+          if (galleryPhotos.length > 0) {
+            setGalleryImages(galleryPhotos)
+          }
 
           // 2. Helper to get top 3 by category (used for fallback)
           const getByCategory = (cat: string): string[] => allPhotos.filter(p => p.category === cat).slice(0, 3).map(p => p.url)
@@ -122,10 +120,11 @@ export default function Home() {
               id: p.id,
               title: i === 0 ? "Welcome to Kitengela" : i === 1 ? "Manifesting Christ in Our Community" : "Experience Supernatural Worship",
               image: p.url,
-              description: i === 0 ? "#House_Of_Solutions - Transforming lives through the pure Word and building strong faith for our community." : i === 1 ? "We are a House of Solutions, reaching out with love and power in Kitengela." : "Join us this Sunday along Baraka Road for a time of refreshment and miracles."
+              description: i === 0 ? "#House_Of_Solutions - Transforming lives through the pure Word and building strong faith for our community." : i === 1 ? "We are a House of Solutions, reaching out with love and power in Kitengela." : "Join us this Sunday along Baraka Road for a time of refreshment and miracles.",
+              verse: i === 0 ? "I was glad when they said to me, 'Let us go to the house of the LORD!' - Psalm 122:1" : undefined
             }))
-            // Merge with fallbacks if less than 3
-            setHeroImagesState(dynamicHero.length >= 3 ? dynamicHero : [...dynamicHero, ...heroImages.slice(dynamicHero.length)])
+            // Do not merge with fallbacks. Only use admin-selected images.
+            setHeroImagesState(dynamicHero)
           } else {
             setHeroImagesState(heroImages)
           }
@@ -158,9 +157,17 @@ export default function Home() {
       }
     }
 
+    // Timeout mechanism: fail fast if Supabase takes too long (e.g. 1500ms)
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('API Timeout')), 1500)
+    )
+
     Promise.all([
-      publicApi.getWeeklyPrograms().then((r) => {
-        if (r.success && Array.isArray(r.data)) {
+      Promise.race([
+        publicApi.getWeeklyPrograms(),
+        timeoutPromise
+      ]).then((r: any) => {
+        if (r && r.success && Array.isArray(r.data)) {
           setServices((r.data as any[]).map((p) => ({
             id: p.id,
             name: p.title || p.name || '',
@@ -171,8 +178,11 @@ export default function Home() {
             url: p.url || p.linkUrl || p.venue || ''
           })))
         }
-      }),
-      fetchGallery()
+      }).catch(err => console.warn('Programs fetch failed or timed out:', err)),
+      Promise.race([
+        fetchGallery(),
+        timeoutPromise
+      ]).catch(err => console.warn('Gallery fetch failed or timed out:', err))
     ]).finally(() => setLoading(false))
 
     // Real-time updates subscription
@@ -199,21 +209,23 @@ export default function Home() {
         badge="Our Foundation"
         title="Rooted in the Word, Rising in Spirit"
         description="VOSH Church International Kitengela is built on the apostolic mandate to disseminate the pure Gospel of Jesus Christ. We are a house of spiritual solutions where miracles are matched with sound teaching."
+        scripture="Built on the foundation of the apostles and prophets, with Christ Jesus himself as the chief cornerstone. - Ephesians 2:20"
         ctaText="Discover Our Roots"
         ctaLink="/about"
         alignment="left"
         overlayVariant="navy"
       />
 
-      {/* 2. Community Reach (Right Aligned) */}
+      {/* 2. Community Reach (Left Aligned) */}
       <BackgroundCarouselSection
         images={reachImagesState}
         badge="Community Reach"
         title="Love Beyond Our Walls"
         description="Our mission extends to the streets of Kitengela and beyond. Through our outreach programs, we bring hope, healing, and the tangible love of Christ to those who need it most."
+        scripture="Therefore go and make disciples of all nations, baptizing them in the name of the Father and of the Son and of the Holy Spirit. - Matthew 28:19"
         ctaText="Our Mission In Action"
         ctaLink="/outreach"
-        alignment="right"
+        alignment="left"
         overlayVariant="gold"
       />
 
@@ -223,6 +235,7 @@ export default function Home() {
         badge="House of Prayer"
         title="Experience the Supernatural"
         description="Join our vibrant community of believers as we lift our voices in prayer and worship. Experience a time of refreshment, healing, and divine encounters in the presence of God."
+        scripture="For my house will be called a house of prayer for all nations. - Isaiah 56:7"
         ctaText="View Service Times"
         ctaLink="/services"
         alignment="center"
@@ -235,6 +248,7 @@ export default function Home() {
         badge="Generous Living"
         title="Partnering for Transformation"
         description="Your support enables us to reach more lives with the Gospel and impact our community through tangible acts of love. Partner with us today to build the kingdom of God together."
+        scripture="Each of you should give what you have decided in your heart to give, not reluctantly or under compulsion, for God loves a cheerful giver. - 2 Corinthians 9:7"
         ctaText="Ways to Give"
         ctaLink="/give"
         alignment="left"
@@ -243,31 +257,38 @@ export default function Home() {
       />
 
       {/* 5. Services Grid */}
-      <section id="services" className={styles.section}>
-        <div className={styles.container}>
-          {loading ? <div>Loading services...</div> : <Services services={services} />}
-        </div>
-      </section>
+      <div id="services">
+        {loading ? <div className={styles.container} style={{ padding: '80px 20px', textAlign: 'center' }}>Loading services...</div> : <Services services={services} />}
+      </div>
 
-      {/* 6. Media In Pictures Section */}
+      {/* 6. Media In Pictures Section (Marquee) */}
       <section className={`${styles.section} ${styles.mediaSection}`}>
         <div className={styles.container}>
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} style={{ textAlign: 'center', marginBottom: '4rem' }}>
-            <span className={styles.badge} style={{ color: 'white' }}>In Pictures</span>
-            <h2 className={styles.title} style={{ color: 'white' }}>Life at VOSH Kitengela</h2>
+            <span className={styles.badge}>In Pictures</span>
+            <h2 className={styles.title}>Life at VOSH Kitengela</h2>
           </motion.div>
-          <div className={styles.grid}>
-            {galleryImages.map((img, i) => (
-              <motion.div 
-                key={i} 
-                initial={{ opacity: 0, scale: 0.8 }} 
-                whileInView={{ opacity: 1, scale: 1 }} 
-                transition={{ delay: i * 0.1 }}
-                viewport={{ once: true }}
-                className={styles.gridItem}
-              >
-                <img src={img} alt="Church gallery" className={styles.gridImg} />
-              </motion.div>
+        </div>
+        
+        {/* Infinite Marquee Container */}
+        <div className={styles.marqueeContainer}>
+          <div className={styles.marqueeTrack}>
+            {/* Render images twice for seamless infinite scroll */}
+            {[...galleryImages, ...galleryImages].map((img, i) => (
+              <div key={i} className={styles.marqueeItem}>
+                <img 
+                  src={img} 
+                  alt="Church gallery" 
+                  className={styles.marqueeImg} 
+                  loading="lazy" 
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                    // Optionally hide the parent div to remove the empty box
+                    const parent = (e.target as HTMLImageElement).parentElement;
+                    if (parent) parent.style.display = 'none';
+                  }}
+                />
+              </div>
             ))}
           </div>
         </div>

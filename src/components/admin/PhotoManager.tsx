@@ -26,6 +26,9 @@ const CATEGORIES = [
   { id: 'about', name: 'Who We Are (About)' },
   { id: 'services', name: 'Join Us (Services)' },
   { id: 'give', name: 'Give' },
+  { id: 'discipleship', name: 'Discipleship Banner' },
+  { id: 'ministries', name: 'Ministries Banner' },
+  { id: 'contact', name: 'Contact Banner' },
 ]
 
 export default function PhotoManager() {
@@ -58,12 +61,57 @@ export default function PhotoManager() {
       const token = getAdminToken()
       if (!token) return
 
-      const response = await adminApi.getPhotos(token)
-      if (response.success && Array.isArray(response.data)) {
-        setPhotos(response.data as Photo[])
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('API Timeout')), 10000)
+      )
+
+      let fetchedPhotos: Photo[] = []
+      
+      try {
+        const response = await Promise.race([
+          adminApi.getPhotos(token),
+          timeoutPromise
+        ]) as { success: boolean; data: any }
+
+        if (response && response.success && Array.isArray(response.data)) {
+          fetchedPhotos = response.data as Photo[]
+        }
+      } catch (err) {
+        console.warn('Photos load timed out or failed:', err)
       }
+
+      // Hardcoded fallback photos so Admin can see and manage them even if DB is empty or down
+      const defaultPhotos: Photo[] = [
+        { id: 'sys-hero-1', url: '/Carousel1.jpg', originalName: 'Carousel1.jpg', filename: 'Carousel1.jpg', category: 'hero', size: 0, uploadDate: new Date().toISOString() },
+        { id: 'sys-hero-2', url: '/Carousel2.jpg', originalName: 'Carousel2.jpg', filename: 'Carousel2.jpg', category: 'hero', size: 0, uploadDate: new Date().toISOString() },
+        { id: 'sys-hero-3', url: '/carousel3.jpeg', originalName: 'carousel3.jpeg', filename: 'carousel3.jpeg', category: 'hero', size: 0, uploadDate: new Date().toISOString() },
+        { id: 'sys-found-1', url: '/whatsapp-14.jpeg', originalName: 'whatsapp-14.jpeg', filename: 'whatsapp-14.jpeg', category: 'foundation', size: 0, uploadDate: new Date().toISOString() },
+        { id: 'sys-found-2', url: '/whatsapp-15.jpeg', originalName: 'whatsapp-15.jpeg', filename: 'whatsapp-15.jpeg', category: 'foundation', size: 0, uploadDate: new Date().toISOString() },
+        { id: 'sys-found-3', url: '/whatsapp-16.jpeg', originalName: 'whatsapp-16.jpeg', filename: 'whatsapp-16.jpeg', category: 'foundation', size: 0, uploadDate: new Date().toISOString() },
+        { id: 'sys-reach-1', url: '/outreach-1.jpeg', originalName: 'outreach-1.jpeg', filename: 'outreach-1.jpeg', category: 'reach', size: 0, uploadDate: new Date().toISOString() },
+        { id: 'sys-reach-2', url: '/outreach-2.jpeg', originalName: 'outreach-2.jpeg', filename: 'outreach-2.jpeg', category: 'reach', size: 0, uploadDate: new Date().toISOString() },
+        { id: 'sys-reach-3', url: '/whatsapp-19.jpeg', originalName: 'whatsapp-19.jpeg', filename: 'whatsapp-19.jpeg', category: 'reach', size: 0, uploadDate: new Date().toISOString() },
+        { id: 'sys-pray-1', url: '/whatsapp-1.jpeg', originalName: 'whatsapp-1.jpeg', filename: 'whatsapp-1.jpeg', category: 'prayer', size: 0, uploadDate: new Date().toISOString() },
+        { id: 'sys-pray-2', url: '/whatsapp-2.jpeg', originalName: 'whatsapp-2.jpeg', filename: 'whatsapp-2.jpeg', category: 'prayer', size: 0, uploadDate: new Date().toISOString() },
+        { id: 'sys-pray-3', url: '/whatsapp-4.jpeg', originalName: 'whatsapp-4.jpeg', filename: 'whatsapp-4.jpeg', category: 'prayer', size: 0, uploadDate: new Date().toISOString() },
+        { id: 'sys-give-1', url: '/whatsapp-7.jpeg', originalName: 'whatsapp-7.jpeg', filename: 'whatsapp-7.jpeg', category: 'giving', size: 0, uploadDate: new Date().toISOString() },
+        { id: 'sys-give-2', url: '/whatsapp-11.jpeg', originalName: 'whatsapp-11.jpeg', filename: 'whatsapp-11.jpeg', category: 'giving', size: 0, uploadDate: new Date().toISOString() },
+        { id: 'sys-give-3', url: '/whatsapp-12.jpeg', originalName: 'whatsapp-12.jpeg', filename: 'whatsapp-12.jpeg', category: 'giving', size: 0, uploadDate: new Date().toISOString() },
+        { id: 'sys-about-1', url: '/bible-study.jpeg', originalName: 'bible-study.jpeg', filename: 'bible-study.jpeg', category: 'about', size: 0, uploadDate: new Date().toISOString() },
+        { id: 'sys-about-2', url: '/mission-vision.jpeg', originalName: 'mission-vision.jpeg', filename: 'mission-vision.jpeg', category: 'about', size: 0, uploadDate: new Date().toISOString() },
+        { id: 'sys-about-3', url: '/core-values.jpeg', originalName: 'core-values.jpeg', filename: 'core-values.jpeg', category: 'about', size: 0, uploadDate: new Date().toISOString() },
+        { id: 'sys-lead-1', url: '/Rev.Evans1.jpeg', originalName: 'Rev.Evans1.jpeg', filename: 'Rev.Evans1.jpeg', category: 'leadership', size: 0, uploadDate: new Date().toISOString() },
+        { id: 'sys-lead-2', url: '/Rev.Evans2.jpeg', originalName: 'Rev.Evans2.jpeg', filename: 'Rev.Evans2.jpeg', category: 'leadership', size: 0, uploadDate: new Date().toISOString() },
+        { id: 'sys-lead-3', url: '/Rev.Evans3.jpeg', originalName: 'Rev.Evans3.jpeg', filename: 'Rev.Evans3.jpeg', category: 'leadership', size: 0, uploadDate: new Date().toISOString() },
+        { id: 'sys-disc-1', url: '/bible-study.jpeg', originalName: 'bible-study.jpeg', filename: 'bible-study.jpeg', category: 'discipleship', size: 0, uploadDate: new Date().toISOString() },
+      ]
+
+      const existingUrls = new Set(fetchedPhotos.map(p => p.url))
+      const missingDefaults = defaultPhotos.filter(p => !existingUrls.has(p.url))
+
+      setPhotos([...fetchedPhotos, ...missingDefaults])
     } catch (error) {
-      console.error('Error fetching photos:', error)
+      console.error('Fatal error in fetchPhotos:', error)
     } finally {
       setLoading(false)
     }

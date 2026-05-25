@@ -46,30 +46,15 @@
 
 /* Overlay Variants */
 .overlay_navy {
-  background: linear-gradient(
-    to right,
-    rgba(15, 23, 42, 0.9) 0%,
-    rgba(15, 23, 42, 0.45) 50%,
-    rgba(15, 23, 42, 0.9) 100%
-  );
+  background: rgba(10, 20, 30, 0.5); /* Classic Dark Overlay */
 }
 
 .overlay_gold {
-  background: linear-gradient(
-    to right,
-    rgba(15, 23, 42, 0.8) 0%,
-    rgba(120, 53, 15, 0.4) 50%,
-    rgba(15, 23, 42, 0.8) 100%
-  );
+  background: rgba(30, 25, 10, 0.5); /* Warm Dark Overlay */
 }
 
 .overlay_indigo {
-  background: linear-gradient(
-    to right,
-    rgba(15, 23, 42, 0.9) 0%,
-    rgba(49, 46, 129, 0.4) 50%,
-    rgba(15, 23, 42, 0.9) 100%
-  );
+  background: rgba(15, 15, 40, 0.5); /* Deep Indigo Overlay */
 }
 
 .overlay_dark {
@@ -100,7 +85,7 @@
 
 .content {
   max-width: 650px;
-  color: white;
+  color: #ffffff;
 }
 
 .badge {
@@ -114,11 +99,12 @@
 }
 
 .title {
+  font-family: var(--font-heading);
   font-size: clamp(2.5rem, 6vw, 4.5rem);
   font-weight: 900;
   line-height: 1.1;
   margin-bottom: 2rem;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.01em;
 }
 
 .description {
@@ -129,24 +115,38 @@
   font-weight: 450;
 }
 
+.scripture {
+  font-style: italic;
+  font-size: 1.35rem;
+  color: var(--accent);
+  margin: 2rem 0 3rem;
+  padding-left: 1.5rem;
+  border-left: 4px solid var(--accent);
+  letter-spacing: 0.02em;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 1.5rem 2rem;
+  font-weight: 400;
+}
+
 .btnPremium {
   display: inline-block;
   background: var(--accent);
-  color: var(--primary);
+  color: var(--foreground);
   padding: 1.25rem 2.5rem;
-  border-radius: 100px;
+  border-radius: 0;
   font-weight: 800;
   font-size: 0.9375rem;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.15em;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 10px 30px rgba(245, 158, 11, 0.2);
+  box-shadow: 0 10px 30px rgba(212, 175, 55, 0.2);
 }
 
 .btnPremium:hover {
-  transform: translateY(-5px);
-  background: white;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  transform: translateY(-3px);
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
 }
 
 @media (max-width: 1024px) {
@@ -166,7 +166,7 @@
   }
   
   .overlay {
-    background: rgba(15, 23, 42, 0.85) !important;
+    background: rgba(0, 0, 0, 0.6) !important;
   }
   
   .contentWrapper {

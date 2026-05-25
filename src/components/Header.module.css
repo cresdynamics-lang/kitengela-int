@@ -1,16 +1,20 @@
 .header {
-  position: relative;
+  position: sticky;
+  top: 0;
   width: 100%;
-  padding: 1.5rem 0;
+  padding: 1rem 0;
   z-index: 1000;
-  background: var(--primary);
-  border-bottom: 3px solid var(--accent);
-  box-shadow: var(--shadow-xl);
+  background: var(--background); /* Pure White */
+  border-bottom: 2px solid var(--accent);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
 }
 
-/* We simplify the scrolled state since the header is no longer fixed */
 .headerScrolled {
-  padding: 1.25rem 0;
+  padding: 0.75rem 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
 }
 
 .container {
@@ -37,7 +41,7 @@
 .logo {
   width: 60px;
   height: 60px;
-  border-radius: 50%;
+  border-radius: 0; /* Sharp corner */
   object-fit: cover;
   border: 2px solid var(--accent);
   transition: transform 0.3s ease;
@@ -55,7 +59,7 @@
 .churchName {
   font-size: 1.5rem;
   font-weight: 800;
-  color: white; /* Changed to white for high contrast on navy */
+  color: var(--foreground);
   letter-spacing: -0.02em;
   margin: 0;
 }
@@ -77,7 +81,7 @@
 .navLink {
   font-size: 0.9375rem;
   font-weight: 700;
-  color: white; /* Contrast */
+  color: var(--primary); /* Dark Text */
   opacity: 0.8;
   transition: all 0.2s ease;
   position: relative;
@@ -87,6 +91,7 @@
 .navLink:hover, .activeLink {
   opacity: 1;
   color: var(--accent);
+  transform: translateY(-1px);
 }
 
 .activeLink::after {
@@ -101,27 +106,28 @@
 
 .planVisitBtn {
   background: var(--accent);
-  color: var(--primary);
+  color: white;
   padding: 0.875rem 1.75rem;
-  border-radius: 100px;
+  border-radius: 0;
   font-weight: 800;
   font-size: 0.875rem;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2);
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
   text-decoration: none;
+  text-transform: uppercase;
 }
 
 .planVisitBtn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
-  background: white;
+  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
+  background: var(--primary);
 }
 
 .liveButton {
   background: #ef4444;
   color: white;
   padding: 0.625rem 1.25rem;
-  border-radius: 100px;
+  border-radius: 0;
   font-weight: 800;
   font-size: 0.75rem;
   display: flex;
@@ -129,6 +135,7 @@
   gap: 0.5rem;
   text-decoration: none;
   animation: pulse-red 2s infinite;
+  text-transform: uppercase;
 }
 
 @keyframes pulse-red {
@@ -145,19 +152,20 @@
 }
 
 .prayerButton {
-  background: white;
+  background: transparent;
   color: var(--primary);
   padding: 0.625rem 1.25rem;
-  border-radius: 100px;
+  border-radius: 0;
   font-weight: 800;
   font-size: 0.75rem;
   text-decoration: none;
-  border: 2px solid var(--accent);
+  border: 2px solid var(--primary);
   transition: all 0.3s ease;
+  text-transform: uppercase;
 }
 
 .prayerButton:hover {
-  background: var(--accent);
+  background: var(--primary);
   color: white;
   transform: translateY(-2px);
 }
@@ -174,7 +182,7 @@
 .hamburgerLine {
   width: 24px;
   height: 2px;
-  background: white;
+  background: var(--primary);
   border-radius: 2px;
   transition: all 0.3s ease;
 }

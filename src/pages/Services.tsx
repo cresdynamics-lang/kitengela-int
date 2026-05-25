@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import PageHeader from '@/components/PageHeader'
@@ -25,6 +26,10 @@ interface ServiceCard {
   description: string | null
   thumbnailUrl: string | null
   linkUrl: string | null
+  time?: string
+  location?: string
+  expect?: string
+  who?: string
 }
 
 const churchActivitiesCarouselImages = [
@@ -34,7 +39,7 @@ const churchActivitiesCarouselImages = [
   { id: 4, title: "Online Connect Fellowship", image: "/whatsapp-7.jpeg", description: "Join our Online Connect Fellowship every Thursday from 8:30 PM - 9:30 PM" },
   { id: 5, title: "Men's Fellowship", image: "/whatsapp-8.jpeg", description: "Men gathering together to reclaim the divine mandate of manhood" },
   { id: 6, title: "Our Core Values", image: "/whatsapp-9.jpeg", description: "Prayer, Stewardship, Holiness, Advocacy, and Unity form our foundation" },
-  { id: 7, title: "Praise & Worship", image: "/whatsapp-10.jpeg", description: "Celebrate God's goodness through vibrant praise and worship" },
+  { id: 7, title: "Praise & Worship", image: "/outreach-2.jpeg", description: "Celebrate God's goodness through vibrant praise and worship" },
   { id: 8, title: "Midweek Refreshment", image: "/whatsapp-11.jpeg", description: "Midweek spiritual refreshment and fellowship" }
 ]
 
@@ -125,6 +130,10 @@ export default function Services() {
             description: 'Main Sunday celebration service with worship, Word, and ministry.',
             thumbnailUrl: '/sunday-services.jpeg',
             linkUrl: null,
+            time: 'Every Sunday | 9:30 AM - 1:00 PM',
+            location: 'VOSH Kitengela Main Sanctuary',
+            expect: 'Dynamic Praise & Worship, Prophetic Ministry, and Life-Transforming Word.',
+            who: "Open to Everyone (Children's Church available)"
           },
           {
             id: 'thursday',
@@ -132,6 +141,10 @@ export default function Services() {
             description: 'Online Connect Fellowship every Thursday 8:30 PM - 9:30 PM on Google Meet.',
             thumbnailUrl: '/online-connect.jpeg',
             linkUrl: null,
+            time: 'Every Thursday | 8:30 PM - 9:30 PM',
+            location: 'Online (Google Meet)',
+            expect: 'Fellowship, Word, and Community Building.',
+            who: 'Open to Everyone'
           },
           {
             id: 'friday',
@@ -139,6 +152,10 @@ export default function Services() {
             description: 'Friday night encounter in worship, intercession, and the Word.',
             thumbnailUrl: '/midweek-fri.jpeg',
             linkUrl: null,
+            time: 'Every Friday | 5:30 PM - 7:30 PM',
+            location: 'VOSH Kitengela Main Sanctuary',
+            expect: "Extended Worship, Deliverance, and Encountering God's Presence.",
+            who: 'Youth, Young Adults & Everyone Hungry for God'
           },
           {
             id: 'biblestudy',
@@ -146,6 +163,10 @@ export default function Services() {
             description: 'Grow deeper in Scripture before the main Sunday services.',
             thumbnailUrl: '/bible-study.jpeg',
             linkUrl: null,
+            time: 'Every Sunday | 8:30 AM - 9:30 AM',
+            location: 'VOSH Kitengela Main Sanctuary',
+            expect: 'In-depth Scripture Exploration, Q&A, and Foundation Building.',
+            who: 'New Believers and Growing Disciples'
           },
         ]
 
@@ -176,14 +197,23 @@ export default function Services() {
                   {card.description && (
                     <p className={styles.featuredDescription}>{card.description}</p>
                   )}
-                  <a
-                    href={card.linkUrl || '/services'}
-                    target={card.linkUrl ? '_blank' : undefined}
-                    rel={card.linkUrl ? 'noopener noreferrer' : undefined}
-                    className={styles.featuredButton}
-                  >
-                    {card.linkUrl ? 'Open Stream / Details' : 'View Service Details'}
-                  </a>
+                  {card.linkUrl ? (
+                    <a
+                      href={card.linkUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.featuredButton}
+                    >
+                      Open Stream
+                    </a>
+                  ) : (
+                    <Link
+                      to={`/services/${card.id}`}
+                      className={styles.featuredButton}
+                    >
+                      View Service Details
+                    </Link>
+                  )}
                 </div>
               </div>
             ))}

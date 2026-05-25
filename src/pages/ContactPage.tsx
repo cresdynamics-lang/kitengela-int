@@ -236,13 +236,13 @@ export function ContactPage() {
         </div>
       </section>
 
-      {/* Map Section (Optional) */}
+      {/* Map Section */}
       <section className="h-96 bg-gray-100">
         <iframe
           width="100%"
           height="100%"
           frameBorder="0"
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.8047244169995!2d36.7673!3d-1.3521!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMcKwMjEnMDcuNiJTIDM2wrA0NicwMC44IkU!5e0!3m2!1sen!2ske!4v1234567890"
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d127641.18956977797!2d36.87707421113543!3d-1.5037920197415175!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182f7c00e6559cb5%3A0x2904fc4ce0f96898!2sKitengela!5e0!3m2!1sen!2ske!4v1716654210000!5m2!1sen!2ske"
           allowFullScreen={true}
           loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"

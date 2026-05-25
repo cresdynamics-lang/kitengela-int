@@ -74,6 +74,7 @@ export default function Header() {
               { name: 'Home', path: '/' },
               { name: 'Who We Are', path: '/about' },
               { name: 'Join Us', path: '/services' },
+              { name: 'Discipleship', path: '/discipleship' },
               { name: 'Leadership', path: '/leadership' },
               { name: 'Give', path: '/give' },
             ].map((item) => (

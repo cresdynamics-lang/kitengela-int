@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
 import { publicApi } from '@/lib/api'
 import styles from './Services.module.css'
 
@@ -36,6 +38,10 @@ export default function Services({ services }: ServicesProps) {
       image: '/sunday-services.jpeg',
       description: 'Main Sunday celebration service with worship, Word, and ministry.',
       cta: 'Join Sunday Service',
+      time: 'Every Sunday | 9:30 AM - 1:00 PM',
+      location: 'VOSH Kitengela Main Sanctuary',
+      expect: 'Dynamic Praise & Worship, Prophetic Ministry, and Life-Transforming Word.',
+      who: "Open to Everyone (Children's Church available)"
     },
     {
       id: 'wednesday',
@@ -43,6 +49,10 @@ export default function Services({ services }: ServicesProps) {
       image: '/midweek-wed.jpeg',
       description: 'Midweek online prayer gathering to seek God together.',
       cta: 'Join Wednesday Prayers',
+      time: 'Every Wednesday | 8:00 PM - 9:30 PM',
+      location: 'Online (Zoom / YouTube Live)',
+      expect: 'Deep Intercession, Testimonies, and Corporate Prayer.',
+      who: 'Open to Everyone'
     },
     {
       id: 'friday',
@@ -50,6 +60,10 @@ export default function Services({ services }: ServicesProps) {
       image: '/midweek-fri.jpeg',
       description: 'Friday night encounter in worship, intercession, and the Word.',
       cta: 'Join Friday Night',
+      time: 'Every Friday | 5:30 PM - 7:30 PM',
+      location: 'VOSH Kitengela Main Sanctuary',
+      expect: "Extended Worship, Deliverance, and Encountering God's Presence.",
+      who: 'Youth, Young Adults & Everyone Hungry for God'
     },
     {
       id: 'biblestudy',
@@ -57,6 +71,10 @@ export default function Services({ services }: ServicesProps) {
       image: '/bible-study.jpeg',
       description: 'Grow deeper in Scripture before the main Sunday services.',
       cta: 'Join Bible Study',
+      time: 'Every Sunday | 8:30 AM - 9:30 PM',
+      location: 'VOSH Kitengela Main Sanctuary',
+      expect: 'In-depth Scripture Exploration, Q&A, and Foundation Building.',
+      who: 'New Believers and Growing Disciples'
     },
   ]
 
@@ -157,30 +175,40 @@ export default function Services({ services }: ServicesProps) {
         <p className={styles.sectionSubtitle}>Join us for worship, prayer, and fellowship throughout the week</p>
 
         <div className={styles.featuredGrid}>
-          {effectiveFeaturedCards.map((card) => (
-            <div key={card.id} className={styles.featuredCard}>
+          {effectiveFeaturedCards.map((card, index) => (
+            <motion.div 
+              key={card.id} 
+              className={styles.featuredCard}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.6, delay: index * 0.1 }}
+            >
               <div className={styles.featuredImageWrap}>
                 <img src={card.image} alt={card.title} className={styles.featuredImage} />
               </div>
               <div className={styles.featuredContent}>
                 <h3 className={styles.featuredTitle}>{card.title}</h3>
                 <p className={styles.featuredDescription}>{card.description}</p>
-                <a 
-                  href={card.href} 
-                  target={card.target} 
-                  rel={card.rel} 
-                  className={styles.featuredButton}
-                  onClick={(e) => {
-                    if (card.href === '/services') {
-                      e.preventDefault();
-                      alert(`The live link for ${card.title} has not been updated yet. Please check back later!`);
-                    }
-                  }}
-                >
-                  {card.cta}
-                </a>
+                {card.href === '/services' ? (
+                  <Link 
+                    to={`/services/${card.id}`}
+                    className={styles.featuredButton}
+                  >
+                    {card.cta} <span>→</span>
+                  </Link>
+                ) : (
+                  <a 
+                    href={card.href} 
+                    target={card.target} 
+                    rel={card.rel} 
+                    className={styles.featuredButton}
+                  >
+                    {card.cta} <span>→</span>
+                  </a>
+                )}
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
         
