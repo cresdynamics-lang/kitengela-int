@@ -7,17 +7,19 @@
 .hero {
   text-align: center;
   padding: 3rem 0;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  background: linear-gradient(135deg, #050505 0%, #111111 100%);
   color: white;
   margin-bottom: 3rem;
-  border-radius: 8px;
+  border-radius: var(--radius);
+  border: 1px solid rgba(59, 130, 246, 0.2);
 }
 
 .title {
   font-size: 3rem;
-  font-weight: 700;
+  font-weight: 900;
   margin-bottom: 1rem;
-  color: #FFD700;
+  color: var(--foreground);
+  text-transform: uppercase;
 }
 
 .subtitle {
@@ -29,9 +31,10 @@
 .carouselSection {
   margin-bottom: 3rem;
   padding: 1rem;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background: var(--primary-light);
+  border-radius: var(--radius);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .leadersGrid {
@@ -45,11 +48,12 @@
 }
 
 .leaderCard {
-  background: white;
-  border-radius: 8px;
+  background: var(--primary-light);
+  border-radius: var(--radius);
   overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
   text-decoration: none;
   color: inherit;
   display: flex;
@@ -58,7 +62,8 @@
 
 .leaderCard:hover {
   transform: translateY(-5px);
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.2);
+  border-color: var(--accent);
 }
 
 .imageContainer {
@@ -66,7 +71,7 @@
   aspect-ratio: 1;
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  background: linear-gradient(135deg, #050505 0%, #111111 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -85,13 +90,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  background: linear-gradient(135deg, #050505 0%, #111111 100%);
 }
 
 .placeholderText {
   font-size: 5rem;
-  font-weight: 700;
-  color: #FFD700;
+  font-weight: 900;
+  color: var(--accent);
 }
 
 .leaderInfo {
@@ -103,35 +108,38 @@
 
 .leaderName {
   font-size: 1.5rem;
-  font-weight: 700;
-  color: #1a1a2e;
+  font-weight: 800;
+  color: var(--foreground);
   margin-bottom: 0.5rem;
 }
 
 .leaderTitle {
   font-size: 1rem;
-  color: #DC143C;
-  font-weight: 600;
+  color: var(--accent);
+  font-weight: 700;
   margin-bottom: 1rem;
 }
 
 .leaderBio {
   font-size: 0.95rem;
   line-height: 1.6;
-  color: #2C2C2C;
+  color: #cbd5e1;
   margin-bottom: 1rem;
   flex: 1;
 }
 
 .readMore {
-  color: #1a1a2e;
-  font-weight: 600;
+  color: var(--accent-light);
+  font-weight: 800;
   font-size: 0.9rem;
   margin-top: auto;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: color 0.3s ease;
 }
 
 .leaderCard:hover .readMore {
-  color: #DC143C;
+  color: var(--accent);
 }
 
 .loading,

@@ -321,6 +321,119 @@ app.get('/api/public/leaders', async (_req, res) => {
   }
 })
 
+// ── Admin: Leaders CRUD + photo upload ──────────────────────────────────────
+
+app.get('/api/admin/leaders', async (req, res) => {
+  const admin = await getAdminFromToken(req.headers.authorization)
+  if (!admin) return res.status(401).json({ error: 'Unauthorized' })
+  try {
+    const rows = await dbQuery<any>('leaders', { order: [{ column: 'order_index' }] })
+    res.json({ success: true, data: rows })
+  } catch (e: any) {
+    console.error('GET admin/leaders:', e.message)
+    const msg = e.message?.includes('leaders')
+      ? 'Leaders table missing. Run supabase-leaders.sql in Supabase SQL Editor.'
+      : e.message || 'Failed to fetch leaders'
+    res.status(500).json({ success: false, error: msg })
+  }
+})
+
+app.post('/api/admin/leaders', upload.single('photo'), async (req, res) => {
+  const admin = await getAdminFromToken(req.headers.authorization)
+  if (!admin) return res.status(401).json({ success: false, error: 'Unauthorized' })
+  try {
+    const body = req.body || {}
+    if (!body.name?.trim() || !body.title?.trim()) {
+      return res.status(400).json({ success: false, error: 'Name and title are required' })
+    }
+    let photoUrl: string = body.photoUrl || ''
+
+    // Upload photo to Supabase if a file was attached
+    if (req.file && isSupabaseConfigured) {
+      const supabase = getSupabaseAdmin()
+      await ensurePhotoBucket(supabase)
+      const fileName = `leaders/${Date.now()}-${req.file.originalname}`
+      const { error: uploadError } = await supabase.storage
+        .from(PHOTO_BUCKET)
+        .upload(fileName, req.file.buffer, { contentType: req.file.mimetype, upsert: true })
+      if (uploadError) throw uploadError
+      const { data: urlData } = supabase.storage.from(PHOTO_BUCKET).getPublicUrl(fileName)
+      photoUrl = urlData.publicUrl
+    }
+
+    const row = await dbInsert<any>('leaders', {
+      name: body.name,
+      title: body.title,
+      bio: body.bio ?? null,
+      photo_url: photoUrl || null,
+      facebook_url: body.facebookUrl ?? null,
+      instagram_url: body.instagramUrl ?? null,
+      twitter_url: body.twitterUrl ?? null,
+      order_index: typeof body.orderIndex === 'string' ? parseInt(body.orderIndex) || 0 : (body.orderIndex ?? 0),
+      updated_by: admin.id,
+    })
+    res.json({ success: true, data: row })
+  } catch (e: any) {
+    console.error('POST admin/leaders:', e.message)
+    res.status(500).json({ success: false, error: e.message || 'Failed to create leader' })
+  }
+})
+
+app.put('/api/admin/leaders/:id', upload.single('photo'), async (req, res) => {
+  const admin = await getAdminFromToken(req.headers.authorization)
+  if (!admin) return res.status(401).json({ success: false, error: 'Unauthorized' })
+  try {
+    const body = req.body || {}
+    if (!body.name?.trim() || !body.title?.trim()) {
+      return res.status(400).json({ success: false, error: 'Name and title are required' })
+    }
+    let photoUrl: string = body.photoUrl || ''
+
+    if (req.file && isSupabaseConfigured) {
+      const supabase = getSupabaseAdmin()
+      await ensurePhotoBucket(supabase)
+      const fileName = `leaders/${Date.now()}-${req.file.originalname}`
+      const { error: uploadError } = await supabase.storage
+        .from(PHOTO_BUCKET)
+        .upload(fileName, req.file.buffer, { contentType: req.file.mimetype, upsert: true })
+      if (uploadError) throw uploadError
+      const { data: urlData } = supabase.storage.from(PHOTO_BUCKET).getPublicUrl(fileName)
+      photoUrl = urlData.publicUrl
+    }
+
+    const updatePayload: Record<string, any> = {
+      name: body.name,
+      title: body.title,
+      bio: body.bio ?? null,
+      facebook_url: body.facebookUrl ?? null,
+      instagram_url: body.instagramUrl ?? null,
+      twitter_url: body.twitterUrl ?? null,
+      order_index: typeof body.orderIndex === 'string' ? parseInt(body.orderIndex) || 0 : (body.orderIndex ?? 0),
+      updated_at: new Date().toISOString(),
+      updated_by: admin.id,
+    }
+    if (photoUrl) updatePayload.photo_url = photoUrl
+
+    const row = await dbUpdate<any>('leaders', req.params.id, updatePayload)
+    res.json({ success: true, data: row })
+  } catch (e: any) {
+    console.error('PUT admin/leaders:', e.message)
+    res.status(500).json({ success: false, error: e.message || 'Failed to update leader' })
+  }
+})
+
+app.delete('/api/admin/leaders/:id', async (req, res) => {
+  const admin = await getAdminFromToken(req.headers.authorization)
+  if (!admin) return res.status(401).json({ success: false, error: 'Unauthorized' })
+  try {
+    await dbDelete('leaders', req.params.id)
+    res.json({ success: true })
+  } catch (e: any) {
+    console.error('DELETE admin/leaders:', e.message)
+    res.status(500).json({ success: false, error: 'Failed to delete leader' })
+  }
+})
+
 app.get('/api/public/links', async (_req, res) => {
   try {
     const rows = await dbQuery<any>('update_links', {

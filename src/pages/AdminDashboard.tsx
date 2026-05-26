@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { adminApi } from '@/lib/api'
+import { prefetchAdminTabChunk, warmAdminTabData } from '@/lib/adminPrefetch'
 import {
   clearAdminSession,
   getAdminActiveTab,
@@ -8,6 +8,7 @@ import {
   getAdminUser,
   setAdminActiveTab,
 } from '@/lib/adminSession'
+import { adminTabs, type TabKey } from './adminTabs'
 import styles from './AdminDashboard.module.css'
 
 const Programs = lazy(() => import('@/components/admin/Programs'))
@@ -18,19 +19,7 @@ const LiveStreamAdmin = lazy(() => import('@/components/admin/LiveStream'))
 const PhotoManager = lazy(() => import('@/components/admin/PhotoManager')) as React.LazyExoticComponent<any>
 const PhotoCarouselManager = lazy(() => import('@/components/admin/PhotoCarouselManager')) as React.LazyExoticComponent<any>
 const TestimonialManager = lazy(() => import('@/components/admin/TestimonialManager'))
-
-type TabKey = 'programs' | 'events' | 'live' | 'sermons' | 'links' | 'admins' | 'photos' | 'carousel-manager' | 'testimonials'
-const tabs: { key: TabKey; label: string }[] = [
-  { key: 'programs', label: 'Programs' },
-  { key: 'events', label: 'Events' },
-  { key: 'live', label: 'Live Stream' },
-  { key: 'sermons', label: 'Sermons' },
-  { key: 'links', label: 'Links' },
-  { key: 'admins', label: 'Admin Rights' },
-  { key: 'photos', label: 'Photos' },
-  { key: 'carousel-manager', label: 'Carousels' },
-  { key: 'testimonials', label: 'Testimonials' },
-]
+const LeadersManager = lazy(() => import('@/components/admin/LeadersManager'))
 
 export default function AdminDashboard() {
   const navigate = useNavigate()
@@ -47,23 +36,9 @@ export default function AdminDashboard() {
       return
     }
 
-    // Warm common data in the background to make tab switching instant.
-    void Promise.allSettled([
-      adminApi.getLive(token),
-      adminApi.getSermons(token),
-      adminApi.getPrograms(token),
-      adminApi.getUpdateLinks(token),
-    ])
-
-    // Warm lazy chunks in the background.
-    void Promise.allSettled([
-      import('@/components/admin/LiveStream'),
-      import('@/components/admin/MassSermons'),
-      import('@/components/admin/Programs'),
-      import('@/components/admin/UpdateLinks'),
-      import('@/components/admin/AdminRights'),
-    ])
-  }, [navigate, admin])
+    void prefetchAdminTabChunk(activeTab)
+    void warmAdminTabData(activeTab, token)
+  }, [navigate, admin, activeTab])
 
   useEffect(() => {
     setAdminActiveTab(activeTab)
@@ -100,10 +75,16 @@ export default function AdminDashboard() {
       <div className={styles.workspace}>
         {isNavOpen && <button className={styles.backdrop} onClick={() => setIsNavOpen(false)} aria-label="Close menu overlay" />}
         <nav className={`${styles.tabs} ${!isNavOpen ? styles.tabsHidden : ''}`}>
-          {tabs.map((tabItem) => (
+          {adminTabs.map((tabItem) => (
             <button
               key={tabItem.key}
               className={`${styles.tab} ${activeTab === tabItem.key ? styles.active : ''}`}
+              onMouseEnter={() => {
+                void prefetchAdminTabChunk(tabItem.key)
+              }}
+              onFocus={() => {
+                void prefetchAdminTabChunk(tabItem.key)
+              }}
               onClick={() => {
                 setActiveTab(tabItem.key)
                 setIsNavOpen(false)
@@ -123,6 +104,7 @@ export default function AdminDashboard() {
             {activeTab === 'admins' && <AdminRights />}
             {activeTab === 'photos' && <PhotoManager />}
             {activeTab === 'carousel-manager' && <PhotoCarouselManager />}
+            {activeTab === 'leaders' && <LeadersManager />}
             {activeTab === 'testimonials' && <TestimonialManager />}
           </Suspense>
         </main>

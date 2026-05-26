@@ -44,8 +44,22 @@ const churchActivitiesCarouselImages = [
 ]
 
 export default function Services() {
+  const fallbackThursdayProgram: Program = {
+    id: 'thursday-online-connect',
+    title: 'Thursday Online Connect',
+    day: 'Thursday',
+    startTime: '8:30 PM',
+    endTime: '9:30 PM',
+    venue: 'Online (Google Meet)',
+    description: 'Online Connect Fellowship every Thursday 8:30 PM - 9:30 PM on Google Meet.',
+    contacts: [],
+    posterImageUrl: null,
+  }
+
   const [programs, setPrograms] = useState<Program[]>([])
-  const [groupedPrograms, setGroupedPrograms] = useState<Record<string, Program[]>>({})
+  const [groupedPrograms, setGroupedPrograms] = useState<Record<string, Program[]>>({
+    Thursday: [fallbackThursdayProgram],
+  })
   const [loading, setLoading] = useState(true)
   const [serviceCards, setServiceCards] = useState<ServiceCard[]>([])
   const [servicesCarousel, setServicesCarousel] = useState(churchActivitiesCarouselImages)
@@ -73,6 +87,13 @@ export default function Services() {
             if (!grouped[p.day]) grouped[p.day] = []
             grouped[p.day].push(p)
           })
+
+          // Ensure the requested Thursday Online Connect is visible even if
+          // weekly programs were not fully populated in the database.
+          if (!grouped['Thursday'] || grouped['Thursday'].length === 0) {
+            grouped['Thursday'] = [fallbackThursdayProgram]
+          }
+
           setGroupedPrograms(grouped)
         }
 

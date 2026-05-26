@@ -11,10 +11,39 @@ import { supabase } from '@/lib/supabase'
 import styles from './Home.module.css'
 
 const heroImages = [
-  { id: 0, title: "Welcome to Kitengela", image: "/Carousel1.jpg", description: "#House_Of_Solutions", verse: "I was glad when they said to me, 'Let us go to the house of the LORD!' - Psalm 122:1" },
-  { id: 1, title: "Manifesting Christ in Our Community", image: "/Carousel2.jpg", description: "We are a House of Solutions, reaching out with love and power in Kitengela." },
-  { id: 2, title: "Experience Supernatural Worship", image: "/carousel3.jpeg", description: "Join us this Sunday along Baraka Road for a time of refreshment and miracles." },
+  {
+    id: 0,
+    title: 'Welcome to Kitengela',
+    image: '/Carousel1.jpg',
+    description: '#House_Of_Solutions',
+    scripture: {
+      text: "I was glad when they said to me, 'Let us go to the house of the LORD!'",
+      reference: 'Psalm 122:1',
+    },
+  },
+  {
+    id: 1,
+    title: 'Manifesting Christ in Our Community',
+    image: '/Carousel2.jpg',
+    description: 'We are a House of Solutions, reaching out with love and power in Kitengela.',
+    scripture: {
+      text: 'Let your light shine before others, that they may see your good deeds and glorify your Father in heaven.',
+      reference: 'Matthew 5:16',
+    },
+  },
+  {
+    id: 2,
+    title: 'Experience Supernatural Worship',
+    image: '/carousel3.jpeg',
+    description: 'Join us this Sunday along Baraka Road for a time of refreshment and miracles.',
+    scripture: {
+      text: 'Worship the LORD with gladness; come before him with joyful songs.',
+      reference: 'Psalm 100:2',
+    },
+  },
 ]
+
+const heroScriptures = heroImages.map((slide) => slide.scripture!)
 
 const foundationImages = [
   "/whatsapp-12.jpeg",
@@ -118,10 +147,15 @@ export default function Home() {
           if (heroPhotos.length > 0) {
             const dynamicHero = heroPhotos.map((p, i) => ({
               id: p.id,
-              title: i === 0 ? "Welcome to Kitengela" : i === 1 ? "Manifesting Christ in Our Community" : "Experience Supernatural Worship",
+              title: i === 0 ? 'Welcome to Kitengela' : i === 1 ? 'Manifesting Christ in Our Community' : 'Experience Supernatural Worship',
               image: p.url,
-              description: i === 0 ? "#House_Of_Solutions - Transforming lives through the pure Word and building strong faith for our community." : i === 1 ? "We are a House of Solutions, reaching out with love and power in Kitengela." : "Join us this Sunday along Baraka Road for a time of refreshment and miracles.",
-              verse: i === 0 ? "I was glad when they said to me, 'Let us go to the house of the LORD!' - Psalm 122:1" : undefined
+              description:
+                i === 0
+                  ? '#House_Of_Solutions — Transforming lives through the pure Word and building strong faith for our community.'
+                  : i === 1
+                    ? 'We are a House of Solutions, reaching out with love and power in Kitengela.'
+                    : 'Join us this Sunday along Baraka Road for a time of refreshment and miracles.',
+              scripture: heroScriptures[i] ?? heroScriptures[0],
             }))
             // Do not merge with fallbacks. Only use admin-selected images.
             setHeroImagesState(dynamicHero)

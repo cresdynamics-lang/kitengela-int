@@ -4,17 +4,18 @@
   width: 100%;
   padding: 1rem 0;
   z-index: 1000;
-  background: var(--background); /* Pure White */
-  border-bottom: 2px solid var(--accent);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  background: var(--background); /* Pitch Black */
+  border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   transition: all 0.3s ease;
 }
 
 .headerScrolled {
   padding: 0.75rem 0;
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(5, 5, 5, 0.95);
   backdrop-filter: blur(10px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border-bottom: 1px solid rgba(59, 130, 246, 0.4);
+  box-shadow: 0 10px 30px rgba(59, 130, 246, 0.1);
 }
 
 .container {
@@ -81,17 +82,17 @@
 .navLink {
   font-size: 0.9375rem;
   font-weight: 700;
-  color: var(--primary); /* Dark Text */
-  opacity: 0.8;
+  color: #a3a3a3; /* Light Gray */
   transition: all 0.2s ease;
   position: relative;
   text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 
 .navLink:hover, .activeLink {
-  opacity: 1;
-  color: var(--accent);
-  transform: translateY(-1px);
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
 }
 
 .activeLink::after {
@@ -102,25 +103,26 @@
   right: 0;
   height: 2px;
   background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
 }
 
 .planVisitBtn {
   background: var(--accent);
   color: white;
   padding: 0.875rem 1.75rem;
-  border-radius: 0;
+  border-radius: var(--radius);
   font-weight: 800;
   font-size: 0.875rem;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
   text-decoration: none;
   text-transform: uppercase;
 }
 
 .planVisitBtn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
-  background: var(--primary);
+  box-shadow: 0 0 25px rgba(59, 130, 246, 0.8);
+  background: var(--accent-light);
 }
 
 .liveButton {

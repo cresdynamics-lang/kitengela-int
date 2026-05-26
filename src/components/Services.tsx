@@ -5,7 +5,7 @@ import { publicApi } from '@/lib/api'
 import styles from './Services.module.css'
 
 interface Service {
-  id: number
+  id: string | number
   name: string
   time: string
   day: string
@@ -31,6 +31,23 @@ interface ServicesProps {
 export default function Services({ services }: ServicesProps) {
   const [massCards, setMassCards] = useState<MassCard[]>([])
   const [adminLinks, setAdminLinks] = useState<any[]>([])
+
+  // When Home cannot load weekly programs quickly (or returns none),
+  // show at least the requested Thursday Online Connect info.
+  const fallbackServices: Service[] = [
+    {
+      id: 'thursday-online-connect',
+      name: 'Thursday Online Connect',
+      day: 'Thursday',
+      time: '8:30 PM - 9:30 PM',
+      description:
+        'Online Connect Fellowship every Thursday 8:30 PM - 9:30 PM on Google Meet.',
+      platform: 'Google Meet',
+      venue: 'Online (Google Meet)',
+    },
+  ]
+
+  const effectiveServices = services && services.length > 0 ? services : fallbackServices
   const featuredCards = [
     {
       id: 'sunday',
@@ -123,7 +140,7 @@ export default function Services({ services }: ServicesProps) {
       (card.id === 'biblestudy' && link.description?.toLowerCase().includes('bible'))
     )
 
-    const matchingService = services?.find(s => 
+    const matchingService = effectiveServices?.find(s => 
       (s.description && s.description.toLowerCase().includes(card.cta.toLowerCase())) ||
       (s.name && s.name.toLowerCase().includes(card.title.toLowerCase())) ||
       (card.id === 'sunday' && s.name?.toLowerCase().includes('sunday') && !s.name?.toLowerCase().includes('bible')) ||
@@ -212,9 +229,9 @@ export default function Services({ services }: ServicesProps) {
           ))}
         </div>
         
-        {services && services.length > 0 ? (
+        {effectiveServices && effectiveServices.length > 0 ? (
           <div className={styles.servicesGrid}>
-            {services.map((service) => (
+            {effectiveServices.map((service) => (
               <div key={service.id} className={styles.serviceCard}>
                 <div className={styles.serviceHeader}>
                   <h3 className={styles.serviceName}>{service.name}</h3>

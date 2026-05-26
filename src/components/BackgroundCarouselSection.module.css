@@ -46,19 +46,19 @@
 
 /* Overlay Variants */
 .overlay_navy {
-  background: rgba(10, 20, 30, 0.5); /* Classic Dark Overlay */
+  background: linear-gradient(to right, rgba(5, 5, 5, 1) 0%, rgba(5, 5, 5, 0.6) 100%);
 }
 
 .overlay_gold {
-  background: rgba(30, 25, 10, 0.5); /* Warm Dark Overlay */
+  background: linear-gradient(to left, rgba(5, 5, 5, 1) 0%, rgba(5, 5, 5, 0.6) 100%);
 }
 
 .overlay_indigo {
-  background: rgba(15, 15, 40, 0.5); /* Deep Indigo Overlay */
+  background: linear-gradient(to top, rgba(5, 5, 5, 1) 0%, rgba(5, 5, 5, 0.5) 100%);
 }
 
 .overlay_dark {
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(5, 5, 5, 0.85);
 }
 
 .container {
@@ -100,11 +100,13 @@
 
 .title {
   font-family: var(--font-heading);
-  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-size: clamp(3rem, 7vw, 5rem);
   font-weight: 900;
-  line-height: 1.1;
+  line-height: 1;
   margin-bottom: 2rem;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  text-shadow: 0 10px 20px rgba(0,0,0,0.5);
 }
 
 .description {
@@ -131,22 +133,21 @@
 .btnPremium {
   display: inline-block;
   background: var(--accent);
-  color: var(--foreground);
+  color: #fff;
   padding: 1.25rem 2.5rem;
-  border-radius: 0;
-  font-weight: 800;
+  border-radius: var(--radius);
+  font-weight: 900;
   font-size: 0.9375rem;
   text-transform: uppercase;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.2em;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 10px 30px rgba(212, 175, 55, 0.2);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
 }
 
 .btnPremium:hover {
-  transform: translateY(-3px);
-  background: var(--primary);
-  color: white;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  transform: translateY(-3px) scale(1.02);
+  background: var(--accent-light);
+  box-shadow: 0 0 40px rgba(59, 130, 246, 0.8);
 }
 
 @media (max-width: 1024px) {

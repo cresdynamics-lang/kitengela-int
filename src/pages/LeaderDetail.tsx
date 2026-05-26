@@ -3,7 +3,61 @@ import { useParams, Link } from 'react-router-dom'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { publicApi } from '@/lib/api'
+import { findLeaderByRouteId, normalizeLeaders, type PublicLeader } from '@/lib/leaders'
 import styles from './LeaderDetail.module.css'
+
+function GenericLeaderProfile({ leader }: { leader: PublicLeader }) {
+  const socials = [
+    { label: 'Facebook', url: leader.facebookUrl },
+    { label: 'Instagram', url: leader.instagramUrl },
+    { label: 'X (Twitter)', url: leader.twitterUrl },
+  ].filter((s) => s.url)
+
+  return (
+    <main>
+      <Header />
+      <div className={styles.container}>
+        <Link to="/leadership" className={styles.backLink}>
+          ← Back to Leadership
+        </Link>
+        <div className={styles.hero}>
+          <div className={styles.leaderHeader}>
+            {leader.imageUrl ? (
+              <img src={leader.imageUrl} alt={leader.name} className={styles.leaderImage} />
+            ) : (
+              <div className={styles.placeholderImage}>
+                <span>{leader.name.charAt(0)}</span>
+              </div>
+            )}
+            <div className={styles.leaderInfo}>
+              <h1 className={styles.leaderName}>{leader.name}</h1>
+              <p className={styles.leaderTitle}>{leader.title}</p>
+            </div>
+          </div>
+        </div>
+        {leader.bio && (
+          <section className={styles.section}>
+            <h2 className={styles.sectionTitle}>About</h2>
+            <p className={styles.bio}>{leader.bio}</p>
+          </section>
+        )}
+        {socials.length > 0 && (
+          <section className={styles.section}>
+            <h2 className={styles.sectionTitle}>Connect</h2>
+            <div className={styles.socialLinks}>
+              {socials.map((s) => (
+                <a key={s.label} href={s.url!} target="_blank" rel="noopener noreferrer" className={styles.socialLink}>
+                  {s.label}
+                </a>
+              ))}
+            </div>
+          </section>
+        )}
+      </div>
+      <Footer />
+    </main>
+  )
+}
 
 const EVANS_IMAGES = [
   '/Rev.Evans1.jpeg',
@@ -21,39 +75,74 @@ const NANCY_IMAGES = [
   '/sermon-notes.jpg'
 ]
 
-const FALLBACK: Record<string, { name: string; title: string; bio: string; imageUrl: string }> = {
-  'evans-kochoo': { name: 'Rev. Evans O. Kochoo', title: 'Senior Pastor', bio: '', imageUrl: '/Rev.Evans1.jpeg' },
-  'pastor-nancy-sai': {
-    name: 'Pastor Nancy Sai',
-    title: 'Assistant Pastor',
-    bio: 'Pastor Nancy Sai serves as the Assistant Pastor at Kitengela VOSH International Church. She is passionate about advancing God\'s Kingdom through sound teaching, servant leadership, and community impact. With a heart for people and excellence in ministry, Pastor Sai is committed to nurturing spiritual growth and empowering believers to fulfill their God-given purpose.',
-    imageUrl: '/PastorNancySai.jpeg'
-  }
-}
-
 export default function LeaderDetail() {
   const { id } = useParams<{ id: string }>()
-  const [leader, setLeader] = useState<{ name: string; title: string; bio: string; imageUrl: string } | null>(null)
+  const [leader, setLeader] = useState<PublicLeader | null>(null)
+  const [source, setSource] = useState<'api' | 'legacy' | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fallback = id ? FALLBACK[id] : null
-    if (fallback) {
-      setLeader(fallback)
+    if (!id) {
       setLoading(false)
       return
     }
-    publicApi.getLeaders().then((r) => {
-      if (r.success && Array.isArray(r.data)) {
-        const found = (r.data as any[]).find((l) => l.id === id)
-        if (found) setLeader({ name: found.name, title: found.title, bio: found.bio || '', imageUrl: found.imageUrl || '' })
-        else if (id && FALLBACK[id]) setLeader(FALLBACK[id])
-      } else if (id && FALLBACK[id]) setLeader(FALLBACK[id])
-    }).catch(() => { if (id && FALLBACK[id]) setLeader(FALLBACK[id]) }).finally(() => setLoading(false))
+
+    setLeader(null)
+    setSource(null)
+    setLoading(true)
+
+    publicApi
+      .getLeaders()
+      .then((r) => {
+        const list = normalizeLeaders(r.data)
+        const found = findLeaderByRouteId(list, id)
+        if (found) {
+          setLeader(found)
+          setSource('api')
+          return
+        }
+        if (id === 'evans-kochoo' || id === 'pastor-nancy-sai' || id === '1') {
+          setSource('legacy')
+        }
+      })
+      .catch(() => {
+        if (id === 'evans-kochoo' || id === 'pastor-nancy-sai' || id === '1') {
+          setSource('legacy')
+        }
+      })
+      .finally(() => setLoading(false))
   }, [id])
 
-  if (loading) return <main><Header /><div className={styles.loading}>Loading...</div><Footer /></main>
-  if (!leader) return <main><Header /><div className={styles.container}><div className={styles.notFound}><h1>Leader Not Found</h1><Link to="/leadership" className={styles.backLink}>← Back to Leadership</Link></div></div><Footer /></main>
+  if (loading) {
+    return (
+      <main>
+        <Header />
+        <div className={styles.loading}>Loading...</div>
+        <Footer />
+      </main>
+    )
+  }
+
+  if (source === 'api' && leader) {
+    return <GenericLeaderProfile leader={leader} />
+  }
+
+  if (!source) {
+    return (
+      <main>
+        <Header />
+        <div className={styles.container}>
+          <div className={styles.notFound}>
+            <h1>Leader Not Found</h1>
+            <Link to="/leadership" className={styles.backLink}>
+              ← Back to Leadership
+            </Link>
+          </div>
+        </div>
+        <Footer />
+      </main>
+    )
+  }
 
   if (id === 'evans-kochoo' || id === '1') {
     return (
@@ -256,23 +345,5 @@ export default function LeaderDetail() {
     )
   }
 
-  return (
-    <main>
-      <Header />
-      <div className={styles.container}>
-        <Link to="/leadership" className={styles.backLink}>← Back to Leadership</Link>
-        <div className={styles.hero}>
-          <div className={styles.leaderHeader}>
-            <img src={leader.imageUrl} alt={leader.name} className={styles.leaderImage} />
-            <div className={styles.leaderInfo}>
-              <h1 className={styles.leaderName}>{leader.name}</h1>
-              <p className={styles.leaderTitle}>{leader.title}</p>
-            </div>
-          </div>
-        </div>
-        {leader.bio && <section className={styles.section}><h2 className={styles.sectionTitle}>About</h2><p className={styles.bio}>{leader.bio}</p></section>}
-      </div>
-      <Footer />
-    </main>
-  )
+  return null
 }

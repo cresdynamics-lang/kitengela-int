@@ -2,7 +2,9 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styles from './AdminLogin.module.css'
 import { adminApi } from '@/lib/api'
-import { setAdminSession } from '@/lib/adminSession'
+import { prefetchAdminTabChunk, warmAdminTabData } from '@/lib/adminPrefetch'
+import { getAdminActiveTab, setAdminSession } from '@/lib/adminSession'
+import type { TabKey } from './adminTabs'
 
 export default function AdminLogin() {
   const navigate = useNavigate()
@@ -20,13 +22,10 @@ export default function AdminLogin() {
         const token = response.data.token
         setAdminSession(token, response.data.admin)
 
-        // Warm commonly opened admin tabs while navigating.
-        void Promise.allSettled([
-          adminApi.getSermons(token),
-          adminApi.getPrograms(token),
-          adminApi.getUpdateLinks(token),
-          adminApi.getLive(token),
-        ])
+        const nextTab = getAdminActiveTab<TabKey>('live')
+        void import('./AdminDashboard')
+        void prefetchAdminTabChunk(nextTab)
+        void warmAdminTabData(nextTab, token)
 
         navigate('/admin/dashboard')
       } else {

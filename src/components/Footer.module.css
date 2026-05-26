@@ -3,7 +3,8 @@
   color: white;
   padding: 40px 0 20px;
   font-size: 0.95rem;
-  border-top: 4px solid var(--accent); /* Sharp accent border */
+  border-top: 1px solid rgba(59, 130, 246, 0.4);
+  box-shadow: 0 -10px 30px rgba(59, 130, 246, 0.1);
 }
 
 @media (min-width: 769px) {
@@ -133,9 +134,10 @@
 }
 
 .footerLinks a:hover {
-  color: var(--accent);
+  color: #ffffff;
   transform: translateX(4px);
   display: inline-block;
+  text-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
 }
 
 .footerValues {
@@ -181,8 +183,9 @@
 }
 
 .phoneLink:hover {
-  color: var(--accent-light);
-  text-decoration: underline;
+  color: #ffffff;
+  text-decoration: none;
+  text-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
 }
 
 .whatsappLink {

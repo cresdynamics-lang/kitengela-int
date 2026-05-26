@@ -5,16 +5,16 @@
 @tailwind utilities;
 
 :root {
-  --primary: #1a1a1a; /* Deep Charcoal */
-  --primary-light: #2d2d2d; 
-  --accent: #d4af37; /* Metallic Gold */
-  --accent-light: #f3e5ab; /* Soft Vanilla */
-  --gold-gradient: linear-gradient(135deg, #d4af37 0%, #e6c86a 100%);
-  --background: #ffffff; /* Pristine White */
-  --foreground: #111111; /* Almost Black */
-  --muted: #f8f9fa;
-  --muted-foreground: #555555; /* Slate Gray */
-  --radius: 0px; /* Perfectly sharp rectangular corners */
+  --primary: #050505; /* Pitch Black */
+  --primary-light: #111111; 
+  --accent: #3b82f6; /* Electric Blue */
+  --accent-light: #60a5fa; /* Soft Neon */
+  --gold-gradient: linear-gradient(135deg, #3b82f6 0%, #0ea5e9 100%);
+  --background: #050505; /* Pitch Black */
+  --foreground: #ffffff; /* Pure White */
+  --muted: #0a0a0a;
+  --muted-foreground: #a3a3a3; /* Light Gray */
+  --radius: 4px; /* Slight edge rounding */
 }
 
 @layer base {
@@ -45,26 +45,26 @@
 
 @layer components {
   .hero-glass {
-    @apply bg-primary text-white p-10 border-0 rounded-none;
+    @apply bg-primary text-white p-10 border-0 rounded-[var(--radius)];
   }
   
   .glass-card {
-    @apply bg-white border border-gray-100 shadow-xl rounded-none;
+    @apply bg-[var(--primary-light)] border border-gray-800 shadow-[0_10px_30px_rgba(59,130,246,0.05)] rounded-[var(--radius)];
   }
 
   .btn-premium {
-    @apply relative overflow-hidden px-10 py-4 bg-[var(--primary)] text-white font-bold rounded-none uppercase tracking-widest
-    transition-all duration-300 hover:bg-[var(--primary-light)] active:scale-95 shadow-md;
+    @apply relative overflow-hidden px-10 py-4 bg-[var(--accent)] text-white font-black rounded-[var(--radius)] uppercase tracking-[0.2em]
+    transition-all duration-300 hover:bg-[var(--accent-light)] active:scale-95 shadow-[0_0_20px_rgba(59,130,246,0.4)];
   }
 
   .btn-gold {
-    @apply relative overflow-hidden px-10 py-4 bg-[var(--accent)] text-black font-bold rounded-none uppercase tracking-widest
-    transition-all duration-300 hover:bg-[var(--accent-light)] hover:-translate-y-0.5 active:scale-95 shadow-[0_10px_30px_rgba(212,175,55,0.2)];
+    @apply relative overflow-hidden px-10 py-4 bg-[var(--accent)] text-white font-black rounded-[var(--radius)] uppercase tracking-[0.2em]
+    transition-all duration-300 hover:bg-white hover:text-black hover:-translate-y-0.5 active:scale-95 shadow-[0_0_30px_rgba(59,130,246,0.3)];
   }
 
   .btn-outline-gold {
-    @apply px-10 py-4 border-2 border-white text-white font-bold rounded-none uppercase tracking-widest
-    hover:bg-white hover:text-primary transition-all duration-300;
+    @apply px-10 py-4 border-2 border-[var(--accent)] text-white font-black rounded-[var(--radius)] uppercase tracking-[0.2em]
+    hover:bg-[var(--accent)] hover:shadow-[0_0_20px_rgba(59,130,246,0.5)] transition-all duration-300;
   }
 
   .premium-shadow {
@@ -92,11 +92,11 @@
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-slate-50;
+  @apply bg-[#050505];
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-slate-300 rounded-full border-2 border-slate-50;
+  @apply bg-gray-800 rounded-full border-2 border-[#050505];
 }
 
 ::-webkit-scrollbar-thumb:hover {

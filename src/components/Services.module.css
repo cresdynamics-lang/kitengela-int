@@ -60,15 +60,16 @@
 
 .featuredCard {
   position: relative;
-  border-radius: 16px;
+  border-radius: var(--radius);
   overflow: hidden;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   min-height: 320px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s ease;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s ease, border-color 0.4s ease;
   group: true;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 /* First card spans 8 columns, others span 4. Mobile handles this differently */
@@ -79,7 +80,8 @@
 
 .featuredCard:hover {
   transform: translateY(-8px) scale(1.01);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+  border-color: rgba(59, 130, 246, 0.5);
 }
 
 .featuredImageWrap {
@@ -331,16 +333,18 @@
 .emptyState {
   text-align: center;
   padding: 2rem;
-  background: white;
+  background: linear-gradient(135deg, rgba(26, 46, 74, 0.96) 0%, rgba(26, 46, 74, 0.86) 55%, rgba(201, 168, 76, 0.22) 100%);
   border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   margin-top: 2rem;
+  border: 1px solid rgba(201, 168, 76, 0.35);
 }
 
 .emptyState p {
   font-size: 1.2rem;
-  color: #666;
+  color: rgba(255, 255, 255, 0.92);
   margin: 0;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
 }
 
 @media (max-width: 768px) {

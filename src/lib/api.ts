@@ -8,6 +8,7 @@ const API_URL = VITE_API_URL.replace(/\/api\/?$/, '')
 const PUBLIC_CACHE_TTL_MS = 30_000
 const ADMIN_CACHE_TTL_MS = 5 * 60_000
 const REQUEST_TIMEOUT_MS = 25_000
+const ADMIN_REQUEST_TIMEOUT_MS = 10_000
 
 function normalizeRequestError(error: unknown, endpoint: string): Error {
   const rawMessage =
@@ -66,6 +67,18 @@ function writeCache<T>(key: string, value: { success: boolean; data: T }) {
     window.sessionStorage.setItem(key, JSON.stringify({ ts: Date.now(), value }))
   } catch {
     // Ignore cache write errors
+  }
+}
+
+/** Clear cached public GET responses (e.g. after admin edits leaders). */
+export function invalidatePublicEndpoints(endpoints: string[]) {
+  try {
+    if (typeof window === 'undefined') return
+    endpoints.forEach((endpoint) => {
+      window.sessionStorage.removeItem(`api-cache:public:${endpoint}`)
+    })
+  } catch {
+    // ignore
   }
 }
 
@@ -186,6 +199,7 @@ export const publicApi = {
 async function fetchApiWithAuth<T>(endpoint: string, token: string, options: RequestInit = {}): Promise<{ success: boolean; data: T }> {
   const method = (options.method || 'GET').toUpperCase()
   const cacheKey = `api-cache:admin:${token}:${endpoint}`
+  const timeoutMs = method === 'GET' ? ADMIN_REQUEST_TIMEOUT_MS : REQUEST_TIMEOUT_MS
   try {
     if (method === 'GET') {
       const cached = readCache<T>(cacheKey, ADMIN_CACHE_TTL_MS)
@@ -202,10 +216,23 @@ async function fetchApiWithAuth<T>(endpoint: string, token: string, options: Req
       headers['Content-Type'] = 'application/json'
     }
 
-    const response = await fetchWithTimeout(`${API_URL}${endpoint}`, {
-      ...options,
-      headers,
-    })
+    const controller = new AbortController()
+    const timer = globalThis.setTimeout(
+      () => controller.abort(`timeout:${timeoutMs}`),
+      timeoutMs,
+    )
+    let response: Response
+    try {
+      response = await fetch(`${API_URL}${endpoint}`, {
+        ...options,
+        headers,
+        signal: controller.signal,
+      })
+    } catch (error) {
+      throw normalizeRequestError(error, endpoint)
+    } finally {
+      globalThis.clearTimeout(timer)
+    }
     const contentType = response.headers.get('content-type')
     if (!response.ok) {
       if (contentType?.includes('application/json')) {
@@ -380,6 +407,31 @@ export const adminApi = {
     return fetchApiWithAuth(`/api/admin/photos/${id}/category`, token, {
       method: 'PATCH',
       body: JSON.stringify({ category }),
+    })
+  },
+
+  // Leaders management
+  async getLeadersAdmin(token: string) {
+    return fetchApiWithAuth('/api/admin/leaders', token)
+  },
+
+  async createLeader(token: string, formData: FormData) {
+    return fetchApiWithAuth('/api/admin/leaders', token, {
+      method: 'POST',
+      body: formData,
+    })
+  },
+
+  async updateLeader(token: string, id: string, formData: FormData) {
+    return fetchApiWithAuth(`/api/admin/leaders/${id}`, token, {
+      method: 'PUT',
+      body: formData,
+    })
+  },
+
+  async deleteLeader(token: string, id: string) {
+    return fetchApiWithAuth(`/api/admin/leaders/${id}`, token, {
+      method: 'DELETE',
     })
   },
 

@@ -1,16 +1,37 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import ScriptureQuote from '@/components/ScriptureQuote'
 import styles from './Carousel.module.css'
 
-interface CarouselImage {
+export interface CarouselScripture {
+  text: string
+  reference: string
+}
+
+export interface CarouselImage {
   id: number
   title: string
   image: string
   description: string
+  /** Bible verse + chapter reference shown with the slide slogan */
+  scripture?: CarouselScripture
+  /** @deprecated Use `scripture` instead */
   verse?: string
   phoneNumbers?: string[]
   location?: string
   services?: string[]
+}
+
+function resolveScripture(item: CarouselImage): CarouselScripture | null {
+  if (item.scripture?.text && item.scripture?.reference) {
+    return item.scripture
+  }
+  if (!item.verse) return null
+  const match = item.verse.match(/^(.+?)\s*[-–—]\s*([A-Za-z0-9\s:]+)$/)
+  if (match) {
+    return { text: match[1].trim().replace(/^["']|["']$/g, ''), reference: match[2].trim() }
+  }
+  return { text: item.verse, reference: '' }
 }
 
 interface CarouselProps {
@@ -66,6 +87,7 @@ export default function Carousel({ images, hideDivider = false }: CarouselProps)
   }
 
   const currentItem = images[index]
+  const scripture = resolveScripture(currentItem)
 
   return (
     <div className={`${styles.container} ${hideDivider ? styles.noDivider : ''}`}>
@@ -86,24 +108,6 @@ export default function Carousel({ images, hideDivider = false }: CarouselProps)
 
           <div className={styles.contentContainer}>
             <div className={styles.contentInner}>
-              {currentItem.verse && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3, duration: 0.6 }}
-                  className={styles.verseBadge}
-                  style={{
-                    color: 'var(--gold-gradient, #ffd700)',
-                    fontStyle: 'italic',
-                    fontSize: '1.2rem',
-                    marginBottom: '1rem',
-                    fontWeight: 500,
-                    textShadow: '0 2px 4px rgba(0,0,0,0.5)'
-                  }}
-                >
-                  "{currentItem.verse}"
-                </motion.div>
-              )}
               <motion.h2
                 initial={{ opacity: 0, y: 30, scale: 0.9 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -127,6 +131,21 @@ export default function Carousel({ images, hideDivider = false }: CarouselProps)
               >
                 {currentItem.description}
               </motion.p>
+
+              {scripture && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.75, duration: 0.6 }}
+                  className={styles.scriptureWrap}
+                >
+                  <ScriptureQuote
+                    text={scripture.text}
+                    reference={scripture.reference}
+                    variant="dark"
+                  />
+                </motion.div>
+              )}
               
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
