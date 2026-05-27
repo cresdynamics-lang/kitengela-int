@@ -15,6 +15,8 @@ interface Service {
   platform?: string
   venue?: string
   url?: string
+  linkUrl?: string
+  link_url?: string
 }
 
 interface MassCard {
@@ -162,12 +164,9 @@ export default function Services({ services }: ServicesProps) {
          finalDescription = matchingLink.description;
       }
     } else if (matchingService) {
-      if (matchingService.venue?.startsWith('http')) {
-        finalHref = matchingService.venue;
-        target = '_blank';
-        rel = 'noopener noreferrer';
-      } else if (matchingService.url?.startsWith('http')) {
-        finalHref = matchingService.url;
+      const serviceLink = matchingService.linkUrl || matchingService.link_url || matchingService.url
+      if (serviceLink?.startsWith('http')) {
+        finalHref = serviceLink;
         target = '_blank';
         rel = 'noopener noreferrer';
       }

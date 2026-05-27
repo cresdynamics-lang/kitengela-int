@@ -39,6 +39,7 @@ model Program {
   venue         String
   contacts      String[] @default([])
   posterImageUrl String?
+  linkUrl       String?
   description   String?
   isActive      Boolean  @default(true)
   orderIndex    Int      @default(0)

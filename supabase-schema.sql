@@ -42,6 +42,7 @@ CREATE TABLE programs (
   venue            TEXT NOT NULL,
   contacts         TEXT[] DEFAULT '{}',
   poster_image_url TEXT,
+  link_url         TEXT,
   description      TEXT,
   is_active        BOOLEAN NOT NULL DEFAULT true,
   order_index      INTEGER NOT NULL DEFAULT 0,

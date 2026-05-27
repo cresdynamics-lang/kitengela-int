@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { BookOpen, Users, Compass, Sprout } from 'lucide-react';
@@ -89,7 +90,7 @@ export default function Discipleship() {
           </div>
           
           <div className={styles.scriptureBlock} style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.1)', borderLeft: '4px solid var(--accent)' }}>
-            <p className={styles.scriptureText} style={{ color: 'white' }}>
+            <p className={styles.scriptureText} style={{ color: '#bfdbfe' }}>
               "Therefore go and make disciples of all nations, baptizing them in the name of the Father and of the Son and of the Holy Spirit, and teaching them to obey everything I have commanded you."
             </p>
             <p className={styles.scriptureRef}>- Matthew 28:19-20</p>
@@ -191,13 +192,24 @@ export default function Discipleship() {
       </section>
 
       {/* Sign Up CTA */}
-      <section className={styles.formSection} style={{ padding: '6rem 0' }}>
+      <section className={styles.formSection}>
         <div className={styles.container}>
           <div className={styles.formWrap}>
-            <h2 className={styles.formTitle}>Ready to take the next step?</h2>
-            <p className={styles.formSubtitle}>Sign up for our next round of Foundation Classes or join a Life Group today.</p>
-            <div style={{ textAlign: 'center' }}>
-              <button className={styles.submitBtn}>Sign Up Now</button>
+            <div className={styles.ctaCopy}>
+              <span className={styles.ctaKicker}>Your Growth Path Starts Here</span>
+              <h2 className={styles.formTitle}>Ready to take the next step?</h2>
+              <p className={styles.formSubtitle}>
+                Choose a discipleship pathway and we will help you connect with the right class,
+                group, or mentor for your current season.
+              </p>
+            </div>
+            <div className={styles.ctaPanel}>
+              <div className={styles.ctaSteps}>
+                <span>Foundation Classes</span>
+                <span>Life Group</span>
+                <span>Mentorship</span>
+              </div>
+              <Link to="/services" className={styles.submitBtn}>Start My Journey</Link>
             </div>
           </div>
         </div>

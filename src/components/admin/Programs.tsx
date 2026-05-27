@@ -8,13 +8,20 @@ interface Program {
   title: string
   day: string
   startTime: string
+  start_time?: string
   endTime: string
+  end_time?: string
   venue: string
   contacts: string[]
   description: string | null
   posterImageUrl: string | null
+  poster_image_url?: string | null
+  linkUrl?: string | null
+  link_url?: string | null
   isActive: boolean
+  is_active?: boolean
   orderIndex: number
+  order_index?: number
 }
 
 export default function Programs() {
@@ -31,6 +38,7 @@ export default function Programs() {
     contacts: '',
     description: '',
     posterImageUrl: '',
+    linkUrl: '',
     isActive: true,
     orderIndex: 0,
   })
@@ -65,6 +73,7 @@ export default function Programs() {
         ...formData,
         contacts: formData.contacts.split(',').map((c) => c.trim()).filter((c) => c),
         posterImageUrl: formData.posterImageUrl || null,
+        linkUrl: formData.linkUrl || null,
         description: formData.description || null,
       }
 
@@ -90,14 +99,15 @@ export default function Programs() {
     setFormData({
       title: program.title,
       day: program.day,
-      startTime: program.startTime,
-      endTime: program.endTime,
+      startTime: program.startTime || program.start_time || '',
+      endTime: program.endTime || program.end_time || '',
       venue: program.venue,
       contacts: contacts,
       description: program.description || '',
-      posterImageUrl: program.posterImageUrl || '',
-      isActive: program.isActive,
-      orderIndex: program.orderIndex,
+      posterImageUrl: program.posterImageUrl || program.poster_image_url || '',
+      linkUrl: program.linkUrl || program.link_url || '',
+      isActive: program.isActive ?? program.is_active ?? true,
+      orderIndex: program.orderIndex ?? program.order_index ?? 0,
     })
     setEditingId(program.id)
     setShowForm(true)
@@ -127,6 +137,7 @@ export default function Programs() {
       contacts: '',
       description: '',
       posterImageUrl: '',
+      linkUrl: '',
       isActive: true,
       orderIndex: 0,
     })
@@ -222,6 +233,15 @@ export default function Programs() {
                 />
               </div>
               <div className={styles.formGroup}>
+                <label>Service Link URL (Optional)</label>
+                <input
+                  type="url"
+                  value={formData.linkUrl}
+                  onChange={(e) => setFormData({ ...formData, linkUrl: e.target.value })}
+                  placeholder="https://meet.google.com/... or https://youtube.com/..."
+                />
+              </div>
+              <div className={styles.formGroup}>
                 <label>Brief Description</label>
                 <textarea
                   value={formData.description}
@@ -280,11 +300,11 @@ export default function Programs() {
                 <tr key={program.id}>
                   <td>{program.title}</td>
                   <td>{program.day}</td>
-                  <td>{program.startTime} - {program.endTime}</td>
+                  <td>{program.startTime || program.start_time} - {program.endTime || program.end_time}</td>
                   <td>{program.venue}</td>
                   <td>
-                    <span className={program.isActive ? styles.active : styles.inactive}>
-                      {program.isActive ? 'Active' : 'Hidden'}
+                    <span className={(program.isActive ?? program.is_active) ? styles.active : styles.inactive}>
+                      {(program.isActive ?? program.is_active) ? 'Active' : 'Hidden'}
                     </span>
                   </td>
                   <td>

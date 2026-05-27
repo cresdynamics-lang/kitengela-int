@@ -24,6 +24,7 @@ export const createProgramSchema = z.object({
   venue: z.string().min(1),
   contacts: z.array(z.string()),
   posterImageUrl: z.string().url().nullable(),
+  linkUrl: z.string().url().nullable().optional(),
   description: z.string().nullable(),
   isActive: z.boolean().default(true),
   orderIndex: z.number().int().default(0),

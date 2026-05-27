@@ -37,9 +37,10 @@ function resolveScripture(item: CarouselImage): CarouselScripture | null {
 interface CarouselProps {
   images: CarouselImage[]
   hideDivider?: boolean
+  variant?: 'fullscreen' | 'split'
 }
 
-export default function Carousel({ images, hideDivider = false }: CarouselProps) {
+export default function Carousel({ images, hideDivider = false, variant = 'fullscreen' }: CarouselProps) {
   const [index, setIndex] = useState(0)
   const [direction, setDirection] = useState(0)
 
@@ -90,7 +91,7 @@ export default function Carousel({ images, hideDivider = false }: CarouselProps)
   const scripture = resolveScripture(currentItem)
 
   return (
-    <div className={`${styles.container} ${hideDivider ? styles.noDivider : ''}`}>
+    <div className={`${styles.container} ${variant === 'split' ? styles.splitContainer : ''} ${hideDivider ? styles.noDivider : ''}`}>
       <AnimatePresence initial={false} custom={direction}>
         <motion.div
           key={index}
@@ -106,7 +107,7 @@ export default function Carousel({ images, hideDivider = false }: CarouselProps)
             <div className={styles.overlay} />
           </div>
 
-          <div className={styles.contentContainer}>
+          {variant !== 'split' && <div className={styles.contentContainer}>
             <div className={styles.contentInner}>
               <motion.h2
                 initial={{ opacity: 0, y: 30, scale: 0.9 }}
@@ -167,7 +168,7 @@ export default function Carousel({ images, hideDivider = false }: CarouselProps)
                 )}
               </motion.div>
             </div>
-          </div>
+          </div>}
         </motion.div>
       </AnimatePresence>
 

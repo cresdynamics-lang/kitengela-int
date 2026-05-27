@@ -27,10 +27,10 @@
   display: inline-block;
   font-family: var(--font-body);
   font-size: 0.8125rem;
-  font-weight: 600;
+  font-weight: 800;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--accent-light);
   margin-bottom: 0.75rem;
 }
 
@@ -63,11 +63,12 @@
 }
 
 .scriptureText {
-  font-family: var(--font-heading);
+  font-family: Georgia, 'Times New Roman', serif;
   font-size: 1.25rem;
   font-style: italic;
   line-height: 1.65;
   margin: 0 0 1rem;
+  letter-spacing: 0.01em;
 }
 
 .scriptureRef {
@@ -196,6 +197,12 @@
   margin: 0;
 }
 
+.stepText em {
+  font-family: Georgia, 'Times New Roman', serif;
+  color: var(--accent);
+  font-weight: 700;
+}
+
 /* Testimonies */
 .testimonialsGrid {
   display: grid;
@@ -224,7 +231,7 @@
   font-size: 1rem;
   font-style: italic;
   line-height: 1.7;
-  color: var(--foreground);
+  color: var(--accent);
   margin: 0 0 1.25rem;
 }
 
@@ -239,41 +246,103 @@
 .testimonialRole {
   font-family: var(--font-body);
   font-size: 0.8125rem;
-  color: var(--muted-foreground);
+  color: #60a5fa;
   margin: 0.25rem 0 0;
 }
 
 /* Join form */
 .formSection {
-  background: var(--primary);
+  position: relative;
+  overflow: hidden;
+  padding: 6rem 0;
+  background:
+    radial-gradient(circle at 88% 15%, rgba(59, 130, 246, 0.28), transparent 22rem),
+    linear-gradient(135deg, #050505 0%, #101010 58%, #050505 100%);
   color: #ffffff;
 }
 
+.formSection::before {
+  content: '';
+  position: absolute;
+  inset: 1.5rem;
+  border: 1px solid rgba(96, 165, 250, 0.14);
+  pointer-events: none;
+}
+
 .formWrap {
-  max-width: 560px;
+  position: relative;
+  max-width: 980px;
   margin: 0 auto;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(201, 168, 76, 0.35);
-  border-radius: calc(var(--radius) + 0.25rem);
-  padding: 2.5rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+  gap: 2rem;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(96, 165, 250, 0.22);
+  border-radius: 8px;
+  padding: 3rem;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
+}
+
+.ctaKicker {
+  display: inline-flex;
+  color: #93c5fd;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin-bottom: 0.9rem;
 }
 
 .formTitle {
   font-family: var(--font-heading);
-  font-size: 1.75rem;
-  font-weight: 700;
-  text-align: center;
-  margin: 0 0 0.5rem;
+  font-size: clamp(2rem, 4vw, 3.4rem);
+  line-height: 1.04;
+  font-weight: 900;
+  text-align: left;
+  margin: 0 0 1rem;
   color: #ffffff;
+  text-transform: uppercase;
 }
 
 .formSubtitle {
   font-family: var(--font-body);
-  font-size: 0.975rem;
-  text-align: center;
-  line-height: 1.6;
+  font-size: 1.05rem;
+  text-align: left;
+  line-height: 1.75;
   color: rgba(255, 255, 255, 0.85);
-  margin: 0 0 2rem;
+  margin: 0;
+  max-width: 620px;
+}
+
+.ctaPanel {
+  display: grid;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  border-radius: 8px;
+  background: rgba(5, 5, 5, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ctaSteps {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.ctaSteps span {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #dbeafe;
+  font-weight: 800;
+}
+
+.ctaSteps span::before {
+  content: '';
+  width: 0.65rem;
+  height: 0.65rem;
+  background: var(--accent);
+  box-shadow: 0 0 18px rgba(59, 130, 246, 0.8);
 }
 
 .form {
@@ -310,22 +379,28 @@
 }
 
 .submitBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-family: var(--font-body);
-  font-size: 1rem;
-  font-weight: 600;
-  padding: 0.9rem 1.5rem;
+  font-size: 0.92rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 1rem 1.5rem;
   border: none;
-  border-radius: 999px;
+  border-radius: var(--radius);
   cursor: pointer;
-  background: var(--gold-gradient);
+  background: var(--accent);
   color: #ffffff;
+  text-decoration: none;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  margin-top: 0.5rem;
+  margin-top: 0;
 }
 
 .submitBtn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(201, 168, 76, 0.4);
+  box-shadow: 0 14px 30px rgba(59, 130, 246, 0.36);
 }
 
 .submitBtn:disabled {
@@ -380,6 +455,16 @@
   }
 
   .formWrap {
+    grid-template-columns: 1fr;
     padding: 1.75rem 1.25rem;
+  }
+
+  .formSection::before {
+    inset: 0.75rem;
+  }
+
+  .formTitle,
+  .formSubtitle {
+    text-align: left;
   }
 }

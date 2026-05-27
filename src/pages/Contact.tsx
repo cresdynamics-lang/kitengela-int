@@ -10,7 +10,7 @@ export default function Contact() {
       <PageHeader 
         title="Contact Us" 
         subtitle="Plan Your Visit to VOSH Kitengela"
-        backgroundImage="/Carousel2.jpg"
+        backgroundImage="/whatsapp-11.jpeg"
       />
       <ContactSection />
       <Footer />

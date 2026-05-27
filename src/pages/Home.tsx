@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
 import Carousel from '@/components/Carousel'
 import Header from '@/components/Header'
 import Services from '@/components/Services'
 import CoreValues from '@/components/CoreValues'
 import Footer from '@/components/Footer'
-import BackgroundCarouselSection from '@/components/BackgroundCarouselSection'
 import { publicApi } from '@/lib/api'
 import { supabase } from '@/lib/supabase'
 import styles from './Home.module.css'
@@ -96,6 +96,58 @@ void SYSTEM_IMAGES
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: 'easeOut' } }
+}
+
+const carouselSectionCopy = [
+  {
+    badge: 'Our Foundation',
+    title: 'Rooted in the Word, Rising in Spirit',
+    description:
+      'VOSH Church International Kitengela is built on the apostolic mandate to disseminate the pure Gospel of Jesus Christ. We are a house of spiritual solutions where miracles are matched with sound teaching.',
+    scripture:
+      'Built on the foundation of the apostles and prophets, with Christ Jesus himself as the chief cornerstone. - Ephesians 2:20',
+    ctaText: 'Discover Our Roots',
+    ctaLink: '/about',
+  },
+  {
+    badge: 'Community Reach',
+    title: 'Love Beyond Our Walls',
+    description:
+      'Our mission extends to the streets of Kitengela and beyond. Through outreach programs, we bring hope, healing, and the tangible love of Christ to those who need it most.',
+    scripture:
+      'Therefore go and make disciples of all nations. - Matthew 28:19',
+    ctaText: 'Our Mission In Action',
+    ctaLink: '/outreach',
+  },
+  {
+    badge: 'House of Prayer',
+    title: 'Experience the Supernatural',
+    description:
+      'Join our vibrant community of believers as we lift our voices in prayer and worship. Experience refreshment, healing, and divine encounters in the presence of God.',
+    scripture:
+      'For my house will be called a house of prayer for all nations. - Isaiah 56:7',
+    ctaText: 'View Service Times',
+    ctaLink: '/services',
+  },
+  {
+    badge: 'Generous Living',
+    title: 'Partnering for Transformation',
+    description:
+      'Your support enables us to reach more lives with the Gospel and impact our community through tangible acts of love. Partner with us to build the kingdom of God together.',
+    scripture:
+      'God loves a cheerful giver. - 2 Corinthians 9:7',
+    ctaText: 'Ways to Give',
+    ctaLink: '/give',
+  },
+]
+
+function toCarouselImages(images: string[], title: string, description: string) {
+  return images.map((image, index) => ({
+    id: index,
+    title,
+    image,
+    description,
+  }))
 }
 
 export default function Home() {
@@ -205,11 +257,13 @@ export default function Home() {
           setServices((r.data as any[]).map((p) => ({
             id: p.id,
             name: p.title || p.name || '',
-            time: p.startTime && p.endTime ? `${p.startTime} - ${p.endTime}` : p.startTime || p.time || '',
+            time: (p.startTime || p.start_time) && (p.endTime || p.end_time)
+              ? `${p.startTime || p.start_time} - ${p.endTime || p.end_time}`
+              : p.startTime || p.start_time || p.time || '',
             day: p.day || '',
             description: p.description || '',
             venue: p.venue || '',
-            url: p.url || p.linkUrl || p.venue || ''
+            url: p.url || p.linkUrl || p.link_url || ''
           })))
         }
       }).catch(err => console.warn('Programs fetch failed or timed out:', err)),
@@ -235,62 +289,59 @@ export default function Home() {
   return (
     <main className={styles.main}>
       <Header />
-      <Carousel images={heroImagesState} />
+      <section className={styles.hero}>
+        <div className={styles.container}>
+          <div className={styles.heroGrid}>
+            <motion.div variants={fadeUp} initial="hidden" animate="visible" className={styles.heroCopy}>
+              <h1 className={styles.heroTitle}>Welcome to the House of Solutions</h1>
+              <p className={styles.heroText}>
+                VOSH Church International Kitengela is a Christ-centered family built on the Word,
+                prayer, worship, and community transformation.
+              </p>
+              <div className={styles.heroActions}>
+                <Link to="/contact" className={styles.primaryButton}>Plan Your Visit</Link>
+                <Link to="/services" className={styles.secondaryButton}>Service Times</Link>
+              </div>
+              <div className={styles.heroStats}>
+                <div><strong>Sunday</strong><span>9:30 AM</span></div>
+                <div><strong>Kitengela</strong><span>Baraka Road</span></div>
+                <div><strong>Mission</strong><span>Manifesting Christ</span></div>
+              </div>
+            </motion.div>
+            <motion.div variants={fadeUp} initial="hidden" animate="visible" className={styles.heroMedia}>
+              <Carousel images={heroImagesState} variant="split" hideDivider />
+            </motion.div>
+          </div>
+        </div>
+      </section>
 
-      {/* 1. Our Foundation (Left Aligned) */}
-      <BackgroundCarouselSection
-        images={foundationImagesState}
-        badge="Our Foundation"
-        title="Rooted in the Word, Rising in Spirit"
-        description="VOSH Church International Kitengela is built on the apostolic mandate to disseminate the pure Gospel of Jesus Christ. We are a house of spiritual solutions where miracles are matched with sound teaching."
-        scripture="Built on the foundation of the apostles and prophets, with Christ Jesus himself as the chief cornerstone. - Ephesians 2:20"
-        ctaText="Discover Our Roots"
-        ctaLink="/about"
-        alignment="left"
-        overlayVariant="navy"
-      />
+      <section className={styles.carouselStorySection}>
+        <div className={styles.container}>
+          {[
+            { copy: carouselSectionCopy[0], images: foundationImagesState },
+            { copy: carouselSectionCopy[1], images: reachImagesState },
+            { copy: carouselSectionCopy[2], images: prayerImagesState },
+            { copy: carouselSectionCopy[3], images: givingImagesState },
+          ].map(({ copy, images }) => (
+            <div className={styles.carouselStory} key={copy.badge}>
+              <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className={styles.carouselStoryCopy}>
+                <h2 className={styles.title}>{copy.title}</h2>
+                <p>{copy.description}</p>
+                <blockquote>{copy.scripture}</blockquote>
+                <Link to={copy.ctaLink} className={styles.primaryButton}>{copy.ctaText}</Link>
+              </motion.div>
+              <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className={styles.carouselStoryMedia}>
+                <Carousel
+                  images={toCarouselImages(images, copy.title, copy.description)}
+                  variant="split"
+                  hideDivider
+                />
+              </motion.div>
+            </div>
+          ))}
+        </div>
+      </section>
 
-      {/* 2. Community Reach (Left Aligned) */}
-      <BackgroundCarouselSection
-        images={reachImagesState}
-        badge="Community Reach"
-        title="Love Beyond Our Walls"
-        description="Our mission extends to the streets of Kitengela and beyond. Through our outreach programs, we bring hope, healing, and the tangible love of Christ to those who need it most."
-        scripture="Therefore go and make disciples of all nations, baptizing them in the name of the Father and of the Son and of the Holy Spirit. - Matthew 28:19"
-        ctaText="Our Mission In Action"
-        ctaLink="/outreach"
-        alignment="left"
-        overlayVariant="gold"
-      />
-
-      {/* 3. House of Prayer (Center Aligned) */}
-      <BackgroundCarouselSection
-        images={prayerImagesState}
-        badge="House of Prayer"
-        title="Experience the Supernatural"
-        description="Join our vibrant community of believers as we lift our voices in prayer and worship. Experience a time of refreshment, healing, and divine encounters in the presence of God."
-        scripture="For my house will be called a house of prayer for all nations. - Isaiah 56:7"
-        ctaText="View Service Times"
-        ctaLink="/services"
-        alignment="center"
-        overlayVariant="indigo"
-      />
-
-      {/* 4. Generous Living (Left Aligned) */}
-      <BackgroundCarouselSection
-        images={givingImagesState}
-        badge="Generous Living"
-        title="Partnering for Transformation"
-        description="Your support enables us to reach more lives with the Gospel and impact our community through tangible acts of love. Partner with us today to build the kingdom of God together."
-        scripture="Each of you should give what you have decided in your heart to give, not reluctantly or under compulsion, for God loves a cheerful giver. - 2 Corinthians 9:7"
-        ctaText="Ways to Give"
-        ctaLink="/give"
-        alignment="left"
-        overlayVariant="dark"
-        hideDivider={true}
-      />
-
-      {/* 5. Services Grid */}
       <div id="services">
         {loading ? <div className={styles.container} style={{ padding: '80px 20px', textAlign: 'center' }}>Loading services...</div> : <Services services={services} />}
       </div>
@@ -299,7 +350,6 @@ export default function Home() {
       <section className={`${styles.section} ${styles.mediaSection}`}>
         <div className={styles.container}>
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} style={{ textAlign: 'center', marginBottom: '4rem' }}>
-            <span className={styles.badge}>In Pictures</span>
             <h2 className={styles.title}>Life at VOSH Kitengela</h2>
           </motion.div>
         </div>

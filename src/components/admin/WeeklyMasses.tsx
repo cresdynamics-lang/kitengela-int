@@ -14,6 +14,7 @@ interface WeeklyMass {
   date: string
   time: string
   location: string
+  link_url?: string | null
   speaker: string
   notes: string
 }
@@ -32,6 +33,7 @@ export default function WeeklyMasses() {
     date: '',
     time: '',
     location: '',
+    link_url: '',
     speaker: '',
     notes: ''
   })
@@ -47,7 +49,7 @@ export default function WeeklyMasses() {
 
       const response = await adminApi.getPrograms(token)
       if (response.success && Array.isArray(response.data)) {
-        const programs = response.data as { id: string; title?: string; description?: string; day?: string; startTime?: string; venue?: string }[]
+        const programs = response.data as { id: string; title?: string; description?: string; day?: string; startTime?: string; start_time?: string; venue?: string; link_url?: string | null }[]
         setMasses(programs.map((p) => ({
           id: p.id,
           week_start_date: new Date().toISOString().split('T')[0],
@@ -56,8 +58,9 @@ export default function WeeklyMasses() {
           description: p.description ?? '',
           service_type: p.day ?? '',
           date: new Date().toISOString().split('T')[0],
-          time: p.startTime ?? '',
+          time: p.startTime ?? p.start_time ?? '',
           location: p.venue ?? '',
+          link_url: p.link_url ?? '',
           speaker: '',
           notes: '',
         })))
@@ -83,6 +86,7 @@ export default function WeeklyMasses() {
         venue: formData.location,
         contacts: [],
         description: formData.description,
+        linkUrl: formData.link_url || null,
         isActive: true,
         orderIndex: 0,
       }
@@ -110,6 +114,7 @@ export default function WeeklyMasses() {
       date: mass.date,
       time: mass.time,
       location: mass.location || '',
+      link_url: mass.link_url || '',
       speaker: mass.speaker || '',
       notes: mass.notes || ''
     })
@@ -141,6 +146,7 @@ export default function WeeklyMasses() {
       date: '',
       time: '',
       location: '',
+      link_url: '',
       speaker: '',
       notes: ''
     })
@@ -228,6 +234,15 @@ export default function WeeklyMasses() {
                   type="text"
                   value={formData.location}
                   onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label>Service Link URL (Optional)</label>
+                <input
+                  type="url"
+                  value={formData.link_url}
+                  onChange={(e) => setFormData({ ...formData, link_url: e.target.value })}
+                  placeholder="https://meet.google.com/... or https://youtube.com/..."
                 />
               </div>
               <div className={styles.formGroup}>
