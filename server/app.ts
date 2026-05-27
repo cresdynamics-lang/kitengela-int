@@ -8,13 +8,14 @@ import multer from 'multer'
 import path from 'path'
 import bcrypt from 'bcryptjs'
 import { z } from 'zod'
-import { getSupabaseAdmin, isSupabaseConfigured } from './supabase.js'
+import { getSupabaseAdmin, hasServiceRoleKey, isSupabaseConfigured } from './supabase.js'
 
 console.log('API Server Starting...')
 console.log('NODE_ENV:', process.env.NODE_ENV)
 console.log('VERCEL:', process.env.VERCEL)
 console.log('SUPABASE_URL configured:', !!process.env.SUPABASE_URL)
-console.log('SUPABASE_SERVICE_ROLE_KEY configured:', !!process.env.SUPABASE_SERVICE_ROLE_KEY)
+console.log('SUPABASE_SERVICE_ROLE_KEY configured:', hasServiceRoleKey)
+console.log('ADMIN_USERNAME configured:', !!process.env.ADMIN_USERNAME)
 console.log('isSupabaseConfigured:', isSupabaseConfigured)
 
 const loginSchema = z.object({
@@ -84,7 +85,7 @@ const normalizeIdentifier = (value: string | undefined) => (value || '').trim().
 const getEnvAdmin = () => {
   const username = normalizeIdentifier(process.env.ADMIN_USERNAME)
   const email = normalizeIdentifier(process.env.ADMIN_EMAIL)
-  const password = process.env.ADMIN_PASSWORD || ''
+  const password = (process.env.ADMIN_PASSWORD || '').trim()
   if (!username || !password) return null
   return {
     id: ENV_ADMIN_TOKEN,
@@ -207,9 +208,12 @@ const parseContacts = (value: unknown): string[] => {
 
 app.get('/api/debug', async (_req, res) => {
   const envStatus = {
-    SUPABASE_URL: !!process.env.SUPABASE_URL,
-    SUPABASE_SERVICE_ROLE_KEY: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-    SUPABASE_ANON_KEY: !!process.env.SUPABASE_ANON_KEY,
+    SUPABASE_URL: !!(process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL),
+    SUPABASE_SERVICE_ROLE_KEY: hasServiceRoleKey,
+    SUPABASE_ANON_KEY: !!(process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY),
+    ADMIN_USERNAME: !!process.env.ADMIN_USERNAME,
+    ADMIN_PASSWORD: !!process.env.ADMIN_PASSWORD,
+    envAdminConfigured: !!getEnvAdmin(),
     DATABASE_URL: !!process.env.DATABASE_URL,
     isSupabaseConfigured,
     nodeEnv: process.env.NODE_ENV,
@@ -485,7 +489,7 @@ app.post('/api/admin/login', async (req, res) => {
 
     if (
       envAdmin &&
-      body.password === envAdmin.password &&
+      body.password.trim() === envAdmin.password &&
       (normalizedLogin === envAdmin.username || normalizedLogin === envAdmin.email)
     ) {
       console.log('Login successful with env admin')
@@ -504,19 +508,40 @@ app.post('/api/admin/login', async (req, res) => {
       })
     }
 
-    if (isSupabaseConfigured) {
+    if (isSupabaseConfigured && hasServiceRoleKey) {
       try {
-        const safeLogin = normalizedLogin.replace(/"/g, '').replace(/,/g, '')
-        const admins = await dbQuery<any>('admins', {
-          filter: (q: any) => q.or(`username.eq.${safeLogin},email.eq.${safeLogin}`),
-          limit: 1,
-        })
-        const admin = admins[0]
+        const sb = getSupabaseAdmin()
+        const { data: byUsername, error: userErr } = await sb
+          .from('admins')
+          .select('*')
+          .eq('username', normalizedLogin)
+          .maybeSingle()
+        if (userErr) throw new Error(userErr.message)
+
+        let admin = byUsername
+        if (!admin) {
+          const { data: byEmail, error: emailErr } = await sb
+            .from('admins')
+            .select('*')
+            .eq('email', normalizedLogin)
+            .maybeSingle()
+          if (emailErr) throw new Error(emailErr.message)
+          admin = byEmail
+        }
+
         if (!admin) {
           console.warn(`Login failed: no admin found for "${normalizedLogin}"`)
           return res.status(401).json({ success: false, error: 'Invalid credentials' })
         }
-        const isValid = await bcrypt.compare(body.password, admin.password_hash)
+        const hash = admin.password_hash as string
+        if (!hash?.startsWith('$2')) {
+          console.error(`Admin "${normalizedLogin}" has unsupported password hash format`)
+          return res.status(503).json({
+            success: false,
+            error: 'Account password must be reset (bcrypt hash required).',
+          })
+        }
+        const isValid = await bcrypt.compare(body.password, hash)
         if (!isValid) {
           console.warn(`Login failed: invalid password for "${normalizedLogin}"`)
           return res.status(401).json({ success: false, error: 'Invalid credentials' })
@@ -543,7 +568,20 @@ app.post('/api/admin/login', async (req, res) => {
       }
     }
 
-    return res.status(401).json({ success: false, error: 'Invalid credentials' })
+    if (isSupabaseConfigured && !hasServiceRoleKey) {
+      console.warn('Login failed: SUPABASE_SERVICE_ROLE_KEY is not set (anon key cannot read admins)')
+      return res.status(503).json({
+        success: false,
+        error:
+          'Server auth is misconfigured. Add SUPABASE_SERVICE_ROLE_KEY or ADMIN_USERNAME and ADMIN_PASSWORD in Vercel.',
+      })
+    }
+
+    return res.status(401).json({
+      success: false,
+      error:
+        'Invalid credentials. On Vercel, set ADMIN_USERNAME and ADMIN_PASSWORD, or add an admin row in Supabase.',
+    })
   } catch (err: any) {
     if (err?.name === 'ZodError') {
       return res.status(400).json({ success: false, error: 'Username and password are required.' })

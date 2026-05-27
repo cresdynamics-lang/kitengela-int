@@ -8,12 +8,15 @@ dotenv.config()
 
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.SUPABASE_URL || ''
+const supabaseUrl =
+  process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || ''
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-const anonKey = process.env.SUPABASE_ANON_KEY || ''
+const anonKey =
+  process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || ''
 
-// Use service_role if available, otherwise fall back to anon
+// Prefer service_role (bypasses RLS). Anon key cannot read the admins table.
 const effectiveKey = serviceRoleKey || anonKey
+export const hasServiceRoleKey = !!serviceRoleKey
 
 let _client: ReturnType<typeof createClient> | null = null
 

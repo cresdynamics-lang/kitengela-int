@@ -2,7 +2,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import dotenv from 'dotenv'
 import { PrismaClient } from '@prisma/client'
-import { hash } from 'argon2'
+import bcrypt from 'bcryptjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 dotenv.config({ path: path.join(__dirname, '.env') })
@@ -16,7 +16,7 @@ async function createAdmin() {
   const fullName = 'Super Admin'
 
   try {
-    const passwordHash = await hash(password)
+    const passwordHash = await bcrypt.hash(password, 12)
 
     const admin = await prisma.admin.upsert({
       where: { username },
