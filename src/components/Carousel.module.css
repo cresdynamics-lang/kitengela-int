@@ -11,7 +11,7 @@
   height: clamp(360px, 48vw, 560px);
   min-height: 0;
   border-radius: 8px;
-  background: var(--primary-light);
+  background: #ececec;
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
 }
 
@@ -25,12 +25,17 @@
 }
 
 .splitContainer .overlay {
-  background: linear-gradient(
-    to bottom,
-    rgba(5, 5, 5, 0.05) 0%,
-    rgba(5, 5, 5, 0.12) 48%,
-    rgba(5, 5, 5, 0.62) 100%
-  );
+  background: transparent;
+  pointer-events: none;
+}
+
+.splitContainer .imageWrapper {
+  background: #ececec;
+}
+
+.splitContainer .image {
+  object-fit: contain;
+  object-position: center;
 }
 
 .splitContainer .navBtn {
