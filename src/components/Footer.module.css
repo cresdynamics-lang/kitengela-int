@@ -163,6 +163,19 @@
   transition: color 0.3s ease;
 }
 
+.locationSupportGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.locationBlock, .supportBlock {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
 .giveLink:hover {
   color: var(--accent-light);
   text-decoration: underline;
@@ -348,6 +361,19 @@
     grid-column: span 1;
     text-align: center;
     align-items: center;
+  }
+
+  .locationSupportGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    width: 100%;
+    align-items: start;
+  }
+
+  .locationBlock, .supportBlock {
+    text-align: left;
+    align-items: flex-start;
   }
 
   .footerTitle {
