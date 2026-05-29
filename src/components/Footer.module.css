@@ -29,42 +29,6 @@
   text-align: left;
 }
 
-@media (max-width: 1024px) {
-  .footerGrid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 2.5rem;
-  }
-}
-
-@media (max-width: 640px) {
-  .footer {
-    padding: 1.5rem 0 1rem;
-  }
-  
-  .footerGrid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem 1rem;
-    text-align: left;
-  }
-  
-  .footerSection {
-    text-align: left;
-    align-items: flex-start;
-  }
-
-  .footerSection:nth-child(1) {
-    grid-column: span 2;
-    text-align: center;
-    align-items: center;
-  }
-
-  .footerSection:nth-child(4) {
-    grid-column: span 2;
-    text-align: center;
-    align-items: center;
-  }
-}
-
 .footerTitle {
   font-family: var(--font-heading);
   font-size: 1.25rem;
@@ -315,25 +279,16 @@
   text-decoration: underline;
 }
 
+@media (max-width: 1024px) {
+  .footerGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2.5rem;
+  }
+}
+
 @media (max-width: 768px) {
-  .footerContent {
-    grid-template-columns: 1fr;
-    gap: 2rem;
-  }
-
-  /* Quick Links, Contact, Location in one row on small screens */
-  .footerRow {
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 1rem;
-    min-width: 0;
-  }
-
-  .footerRow .footerSection {
-    min-width: 0;
-  }
-
   .footer {
-    padding: 40px 0 20px;
+    padding: 30px 0 20px;
   }
 
   .footerTitle {
@@ -345,44 +300,85 @@
   }
 }
 
+@media (max-width: 640px) {
+  .footer {
+    padding: 1.5rem 0 1rem;
+  }
+  
+  .footerGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem 1rem;
+    text-align: left;
+  }
+  
+  .footerSection {
+    text-align: left;
+    align-items: flex-start;
+  }
+
+  .footerSection:nth-child(1) {
+    grid-column: span 2;
+    text-align: center;
+    align-items: center;
+  }
+
+  .footerSection:nth-child(4) {
+    grid-column: span 2;
+    text-align: center;
+    align-items: center;
+  }
+}
+
 @media (max-width: 480px) {
   .footer {
-    padding: 1rem 0 0.75rem;
+    padding: 1.5rem 0 1rem;
   }
 
   .footerGrid {
-    gap: 1.25rem 0.5rem;
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+    text-align: center;
+  }
+
+  .footerSection,
+  .footerSection:nth-child(1),
+  .footerSection:nth-child(2),
+  .footerSection:nth-child(3),
+  .footerSection:nth-child(4) {
+    grid-column: span 1;
+    text-align: center;
+    align-items: center;
   }
 
   .footerTitle {
-    font-size: 1.05rem;
+    font-size: 1.15rem;
   }
 
   .footerDescription,
   .footerText {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
   }
 
   .footerHeading {
-    font-size: 0.95rem;
+    font-size: 1rem;
   }
 
   .slogan {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
   }
 
   .copyright,
   .hashtags {
-    font-size: 0.75rem;
+    font-size: 0.8rem;
   }
 
   .poweredBy {
-    font-size: 0.7rem;
-    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    margin-top: 0.75rem;
   }
 
   .phoneLink {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
   }
 
   .socialIcons {
