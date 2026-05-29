@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { prefetchAdminTabChunk, warmAdminTabData } from '@/lib/adminPrefetch'
+import { prefetchAdminTabChunk } from '@/lib/adminPrefetch'
 import {
   clearAdminSession,
   getAdminActiveTab,
@@ -37,9 +37,6 @@ export default function AdminDashboard() {
     }
 
     void prefetchAdminTabChunk(activeTab)
-    if (activeTab !== 'live') {
-      void warmAdminTabData(activeTab, token)
-    }
   }, [navigate, token, activeTab])
 
   useEffect(() => {

@@ -6,7 +6,6 @@ const VITE_API_URL = (typeof import.meta !== 'undefined' && import.meta.env?.VIT
 // If the URL ends with /api, remove it because endpoints already start with /api
 const API_URL = VITE_API_URL.replace(/\/api\/?$/, '')
 const PUBLIC_CACHE_TTL_MS = 30_000
-const ADMIN_CACHE_TTL_MS = 5 * 60_000
 const REQUEST_TIMEOUT_MS = 25_000
 const ADMIN_REQUEST_TIMEOUT_MS = 10_000
 
@@ -70,9 +69,9 @@ function writeCache<T>(key: string, value: { success: boolean; data: T }) {
   }
 }
 
-/** Read cached admin GET response (e.g. after login prefetch). */
-export function peekAdminCache<T>(token: string, endpoint: string) {
-  return readCacheAnyAge<T>(`api-cache:admin:${token}:${endpoint}`)
+/** Clear all cached admin API responses (call on login/logout). */
+export function clearAdminApiCache() {
+  clearCacheByPrefix('api-cache:admin:')
 }
 
 /** Clear cached public GET responses (e.g. after admin edits leaders). */
@@ -203,14 +202,8 @@ export const publicApi = {
 
 async function fetchApiWithAuth<T>(endpoint: string, token: string, options: RequestInit = {}): Promise<{ success: boolean; data: T }> {
   const method = (options.method || 'GET').toUpperCase()
-  const cacheKey = `api-cache:admin:${token}:${endpoint}`
   const timeoutMs = method === 'GET' ? ADMIN_REQUEST_TIMEOUT_MS : REQUEST_TIMEOUT_MS
   try {
-    if (method === 'GET') {
-      const cached = readCache<T>(cacheKey, ADMIN_CACHE_TTL_MS)
-      if (cached) return cached
-    }
-
     const isFormData = options.body instanceof FormData
     const headers: Record<string, string> = {
       'Authorization': `Bearer ${token}`,
@@ -250,18 +243,11 @@ async function fetchApiWithAuth<T>(endpoint: string, token: string, options: Req
       throw new Error('Invalid response format')
     }
     const data = await response.json()
-    if (method === 'GET') {
-      writeCache(cacheKey, data)
-    } else {
-      clearCacheByPrefix(`api-cache:admin:${token}:`)
+    if (method !== 'GET') {
       clearCacheByPrefix('api-cache:public:/api/public/')
     }
     return data
   } catch (error) {
-    if (method === 'GET') {
-      const stale = readCacheAnyAge<T>(cacheKey)
-      if (stale) return stale
-    }
     const normalized = normalizeRequestError(error, endpoint)
     console.error(`Error fetching ${endpoint}:`, normalized)
     throw normalized

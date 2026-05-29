@@ -1,3 +1,5 @@
+import { clearAdminApiCache } from './api'
+
 const TOKEN_KEY = 'adminToken'
 const ADMIN_KEY = 'admin'
 const ACTIVE_TAB_KEY = 'adminActiveTab'
@@ -25,11 +27,13 @@ export function getAdminUser(): AdminSessionUser | null {
 }
 
 export function setAdminSession(token: string, admin: AdminSessionUser) {
+  clearAdminApiCache()
   localStorage.setItem(TOKEN_KEY, token)
   localStorage.setItem(ADMIN_KEY, JSON.stringify(admin))
 }
 
 export function clearAdminSession() {
+  clearAdminApiCache()
   localStorage.removeItem(TOKEN_KEY)
   localStorage.removeItem(ADMIN_KEY)
   localStorage.removeItem(ACTIVE_TAB_KEY)

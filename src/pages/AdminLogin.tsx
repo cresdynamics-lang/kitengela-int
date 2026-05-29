@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styles from './AdminLogin.module.css'
 import { adminApi } from '@/lib/api'
-import { prefetchAdminTabChunk, warmAdminTabData } from '@/lib/adminPrefetch'
+import { prefetchAdminTabChunk } from '@/lib/adminPrefetch'
 import { getAdminActiveTab, setAdminSession } from '@/lib/adminSession'
 import type { TabKey } from './adminTabs'
 
@@ -23,10 +23,7 @@ export default function AdminLogin() {
         setAdminSession(token, response.data.admin)
 
         const nextTab = getAdminActiveTab<TabKey>('live')
-        await Promise.all([
-          prefetchAdminTabChunk(nextTab),
-          warmAdminTabData(nextTab, token),
-        ])
+        await prefetchAdminTabChunk(nextTab)
 
         navigate('/admin/dashboard')
       } else {
@@ -46,7 +43,7 @@ export default function AdminLogin() {
           <h1>VOSH CHURCH</h1>
           <p>Admin Dashboard</p>
         </div>
-        <form onSubmit={handleSubmit} className={styles.form}>
+        <form onSubmit={handleSubmit} className={styles.form} autoComplete="off">
           {error && <div className={styles.error}>{error}</div>}
           <div className={styles.inputGroup}>
             <label htmlFor="username">Username or Email</label>

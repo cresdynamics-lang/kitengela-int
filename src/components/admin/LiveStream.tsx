@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import styles from './admin.module.css'
-import { adminApi, peekAdminCache } from '@/lib/api'
+import { adminApi } from '@/lib/api'
 import { getAdminToken } from '@/lib/adminSession'
 
 interface LiveStream {
@@ -30,12 +30,7 @@ function linksFromLiveData(data: LiveStream | null | undefined) {
 export default function LiveStreamAdmin() {
   const [refreshing, setRefreshing] = useState(false)
   const [saving, setSaving] = useState(false)
-  const [links, setLinks] = useState(() => {
-    const token = getAdminToken()
-    if (!token) return linksFromLiveData(null)
-    const cached = peekAdminCache<LiveStream>(token, '/api/admin/live')
-    return linksFromLiveData(cached?.data)
-  })
+  const [links, setLinks] = useState(() => linksFromLiveData(null))
 
   useEffect(() => {
     void fetchLiveStream()
