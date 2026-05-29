@@ -364,16 +364,24 @@
   }
 
   .locationSupportGrid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
     gap: 1rem;
     width: 100%;
-    align-items: start;
+    align-items: flex-start;
   }
 
-  .locationBlock, .supportBlock {
+  .locationBlock {
+    flex: 1;
     text-align: left;
     align-items: flex-start;
+  }
+
+  .supportBlock {
+    flex: 1;
+    text-align: right;
+    align-items: flex-end;
   }
 
   .footerTitle {
