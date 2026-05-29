@@ -514,7 +514,7 @@ app.post('/api/admin/login', async (req, res) => {
         const { data: byUsername, error: userErr } = await sb
           .from('admins')
           .select('*')
-          .eq('username', normalizedLogin)
+          .ilike('username', normalizedLogin)
           .maybeSingle()
         if (userErr) throw new Error(userErr.message)
 
@@ -523,7 +523,7 @@ app.post('/api/admin/login', async (req, res) => {
           const { data: byEmail, error: emailErr } = await sb
             .from('admins')
             .select('*')
-            .eq('email', normalizedLogin)
+            .ilike('email', normalizedLogin)
             .maybeSingle()
           if (emailErr) throw new Error(emailErr.message)
           admin = byEmail

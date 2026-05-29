@@ -16,7 +16,9 @@ if (!supabaseUrl || !supabaseKey) {
   );
 }
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+export const supabase = createClient(supabaseUrl, supabaseKey, {
+  realtime: { disabled: true },
+});
 
 export async function uploadFile(bucket: string, file: File, path: string) {
   try {

@@ -21,6 +21,7 @@
 
 .loginBox {
   background: white;
+  color: #0f172a;
   border-radius: 1.5rem;
   padding: 3.5rem;
   width: 100%;
@@ -44,7 +45,7 @@
 }
 
 .logoSection p {
-  color: var(--muted-foreground);
+  color: #64748b;
   font-size: 1rem;
   font-weight: 500;
 }
@@ -76,6 +77,13 @@
   font-size: 1rem;
   transition: all 0.2s ease;
   font-family: inherit;
+  color: #0f172a;
+  background: #ffffff;
+  caret-color: #0f172a;
+}
+
+.inputGroup input::placeholder {
+  color: #94a3b8;
 }
 
 .inputGroup input:focus {

@@ -7,7 +7,6 @@ import Services from '@/components/Services'
 import CoreValues from '@/components/CoreValues'
 import Footer from '@/components/Footer'
 import { publicApi } from '@/lib/api'
-import { supabase } from '@/lib/supabase'
 import styles from './Home.module.css'
 
 const heroImages = [
@@ -243,17 +242,9 @@ export default function Home() {
       }
     }
 
-    // Timeout mechanism: fail fast if Supabase takes too long (e.g. 1500ms)
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('API Timeout')), 1500)
-    )
-
-    Promise.all([
-      Promise.race([
-        publicApi.getWeeklyPrograms(),
-        timeoutPromise
-      ]).then((r: any) => {
-        if (r && r.success && Array.isArray(r.data)) {
+    Promise.allSettled([
+      publicApi.getWeeklyPrograms().then((r) => {
+        if (r?.success && Array.isArray(r.data)) {
           setServices((r.data as any[]).map((p) => ({
             id: p.id,
             name: p.title || p.name || '',
@@ -263,27 +254,20 @@ export default function Home() {
             day: p.day || '',
             description: p.description || '',
             venue: p.venue || '',
-            url: p.url || p.linkUrl || p.link_url || ''
+            url: p.url || p.linkUrl || p.link_url || '',
           })))
         }
-      }).catch(err => console.warn('Programs fetch failed or timed out:', err)),
-      Promise.race([
-        fetchGallery(),
-        timeoutPromise
-      ]).catch(err => console.warn('Gallery fetch failed or timed out:', err))
-    ]).finally(() => setLoading(false))
-
-    // Real-time updates subscription
-    const channel = supabase
-      .channel('public:photos')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'photos' }, () => {
-        fetchGallery()
-      })
-      .subscribe()
-
-    return () => {
-      supabase.removeChannel(channel)
-    }
+      }),
+      fetchGallery(),
+    ]).then((results) => {
+      const [programsResult, galleryResult] = results
+      if (programsResult.status === 'rejected') {
+        console.warn('Programs fetch failed:', programsResult.reason)
+      }
+      if (galleryResult.status === 'rejected') {
+        console.warn('Gallery fetch failed:', galleryResult.reason)
+      }
+    }).finally(() => setLoading(false))
   }, [])
 
   return (

@@ -12,7 +12,8 @@ const pageVariants = {
   },
   out: { 
     opacity: 0, 
-    y: -15 
+    y: -15,
+    pointerEvents: 'none' as const,
   }
 }
 

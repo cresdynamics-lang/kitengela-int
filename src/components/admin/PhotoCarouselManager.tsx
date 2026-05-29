@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react'
 import PhotoManager from './PhotoManager'
 import styles from './PhotoCarouselManager.module.css'
-import { supabase } from '@/lib/supabase'
-
 interface CarouselPhoto {
   id: string
   url: string
@@ -53,17 +51,6 @@ export default function PhotoCarouselManager() {
     }
 
     fetchPhotos()
-
-    const channel = supabase
-      .channel('carousel:photos')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'photos' }, () => {
-        fetchPhotos()
-      })
-      .subscribe()
-
-    return () => {
-      supabase.removeChannel(channel)
-    }
   }, [])
 
   const handleRemoveFromCarousel = (photoId: string) => {
