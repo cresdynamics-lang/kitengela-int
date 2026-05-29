@@ -258,6 +258,36 @@
 
 @media (max-width: 768px) {
   .container {
-    height: 80vh;
+    height: min(80vh, 520px);
+    min-height: 0;
+  }
+
+  .splitContainer {
+    height: clamp(220px, 52vw, 360px);
+  }
+
+  .contentContainer {
+    padding: 0 1rem;
+    padding-top: 4rem;
+  }
+
+  .title {
+    font-size: clamp(1.75rem, 8vw, 2.5rem);
+  }
+
+  .description {
+    font-size: 1rem;
+  }
+
+  .prev {
+    left: 0.5rem;
+  }
+
+  .next {
+    right: 0.5rem;
+  }
+
+  .indicators {
+    bottom: 1rem;
   }
 }

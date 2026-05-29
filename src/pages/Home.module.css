@@ -1,5 +1,6 @@
 .main {
   min-height: 100vh;
+  overflow-x: clip;
 }
 
 .hero {
@@ -11,7 +12,7 @@
 
 .heroGrid {
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(420px, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 4rem;
   align-items: center;
 }
@@ -328,7 +329,7 @@
 
 .carouselStory {
   display: grid;
-  grid-template-columns: minmax(0, 0.86fr) minmax(420px, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 4rem;
   align-items: center;
   padding: 5rem 0;
@@ -426,7 +427,8 @@
 }
 
 .marqueeContainer {
-  width: 100vw;
+  width: 100%;
+  max-width: 100%;
   overflow: hidden;
   position: relative;
   padding: 2rem 0;
@@ -560,5 +562,49 @@
     position: static;
     transform: none;
     width: 100%;
+  }
+
+  .heroActions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .primaryButton,
+  .secondaryButton {
+    width: 100%;
+    text-align: center;
+  }
+
+  .stepCard {
+    padding: 2rem 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .heroTitle {
+    font-size: 2rem;
+    line-height: 1.05;
+  }
+
+  .heroText {
+    font-size: 1rem;
+  }
+
+  .heroStats {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .marqueeItem {
+    width: 220px;
+    height: 160px;
+  }
+
+  .carouselStoryCopy blockquote {
+    font-size: 0.95rem;
+  }
+
+  .sectionIntro .title {
+    font-size: 1.75rem;
   }
 }

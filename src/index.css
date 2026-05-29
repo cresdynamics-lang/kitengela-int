@@ -20,11 +20,14 @@
 @layer base {
   html {
     @apply scroll-smooth;
+    overflow-x: clip;
   }
 
   body {
     @apply font-inter bg-[var(--background)] text-[var(--foreground)] antialiased;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    overflow-x: clip;
+    -webkit-text-size-adjust: 100%;
   }
 
   h1, h2, h3, h4, h5, h6 {

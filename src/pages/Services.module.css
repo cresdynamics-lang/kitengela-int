@@ -204,15 +204,47 @@
 }
 
 @media (max-width: 768px) {
+  .container {
+    padding: 1.5rem 1rem;
+  }
+
   .title {
     font-size: 2rem;
   }
 
+  .subtitle {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .carouselSection {
+    padding: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .carouselTitle {
+    font-size: 1.5rem;
+  }
+
   .featuredGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
   }
 
   .programsGrid {
     grid-template-columns: 1fr;
+  }
+
+  .programCard {
+    overflow: hidden;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 1.65rem;
+  }
+
+  .dayTitle {
+    font-size: 1.5rem;
   }
 }
