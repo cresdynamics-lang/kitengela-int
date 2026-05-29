@@ -70,6 +70,11 @@ function writeCache<T>(key: string, value: { success: boolean; data: T }) {
   }
 }
 
+/** Read cached admin GET response (e.g. after login prefetch). */
+export function peekAdminCache<T>(token: string, endpoint: string) {
+  return readCacheAnyAge<T>(`api-cache:admin:${token}:${endpoint}`)
+}
+
 /** Clear cached public GET responses (e.g. after admin edits leaders). */
 export function invalidatePublicEndpoints(endpoints: string[]) {
   try {

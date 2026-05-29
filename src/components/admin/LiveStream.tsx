@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import styles from './admin.module.css'
-import { adminApi } from '@/lib/api'
+import { adminApi, peekAdminCache } from '@/lib/api'
 import { getAdminToken } from '@/lib/adminSession'
 
 interface LiveStream {
@@ -19,37 +19,42 @@ function detectPlatformFromUrl(url: string): 'youtube' | 'facebook' | 'googlemee
   return ''
 }
 
+function linksFromLiveData(data: LiveStream | null | undefined) {
+  return {
+    youtube: data?.youtubeLiveUrl || '',
+    facebook: data?.facebookLiveUrl || '',
+    googlemeet: data?.googleMeetUrl || '',
+  }
+}
+
 export default function LiveStreamAdmin() {
-  const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
   const [saving, setSaving] = useState(false)
-  const [links, setLinks] = useState({
-    youtube: '',
-    facebook: '',
-    googlemeet: ''
+  const [links, setLinks] = useState(() => {
+    const token = getAdminToken()
+    if (!token) return linksFromLiveData(null)
+    const cached = peekAdminCache<LiveStream>(token, '/api/admin/live')
+    return linksFromLiveData(cached?.data)
   })
 
   useEffect(() => {
-    fetchLiveStream()
+    void fetchLiveStream()
   }, [])
 
   const fetchLiveStream = async () => {
-    try {
-      const token = getAdminToken()
-      if (!token) return
+    const token = getAdminToken()
+    if (!token) return
 
+    setRefreshing(true)
+    try {
       const response = await adminApi.getLive(token)
       if (response.success && response.data) {
-        const data = response.data as LiveStream
-        setLinks({
-          youtube: data.youtubeLiveUrl || '',
-          facebook: data.facebookLiveUrl || '',
-          googlemeet: data.googleMeetUrl || ''
-        })
+        setLinks(linksFromLiveData(response.data as LiveStream))
       }
     } catch (error) {
       console.error('Error fetching live stream:', error)
     } finally {
-      setLoading(false)
+      setRefreshing(false)
     }
   }
 
@@ -79,14 +84,13 @@ export default function LiveStreamAdmin() {
     }
   }
 
-  if (loading) return <div className={styles.loading}>Loading...</div>
-
   return (
     <div className={styles.container}>
       <div className={styles.header}>
         <h2>Live Stream Control</h2>
         <p className={styles.subtitle}>
           Updating this link will automatically update all &quot;Join Us Live&quot; buttons on the website.
+          {refreshing ? ' Syncing…' : ''}
         </p>
       </div>
 

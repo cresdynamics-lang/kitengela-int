@@ -14,8 +14,7 @@ const Give = lazy(() => import('./pages/Give'))
 const Contact = lazy(() => import('./pages/Contact'))
 const Discipleship = lazy(() => import('./pages/Discipleship'))
 import AdminLogin from './pages/AdminLogin'
-
-const AdminDashboard = lazy(() => import('./pages/AdminDashboard'))
+import AdminDashboard from './pages/AdminDashboard'
 
 function PublicFallback() {
   return (

@@ -23,9 +23,10 @@ export default function AdminLogin() {
         setAdminSession(token, response.data.admin)
 
         const nextTab = getAdminActiveTab<TabKey>('live')
-        void import('./AdminDashboard')
-        void prefetchAdminTabChunk(nextTab)
-        void warmAdminTabData(nextTab, token)
+        await Promise.all([
+          prefetchAdminTabChunk(nextTab),
+          warmAdminTabData(nextTab, token),
+        ])
 
         navigate('/admin/dashboard')
       } else {

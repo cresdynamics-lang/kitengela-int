@@ -10,12 +10,12 @@ import {
 } from '@/lib/adminSession'
 import { adminTabs, type TabKey } from './adminTabs'
 import styles from './AdminDashboard.module.css'
+import LiveStreamAdmin from '@/components/admin/LiveStream'
 
 const Programs = lazy(() => import('@/components/admin/Programs'))
 const MassSermons = lazy(() => import('@/components/admin/MassSermons'))
 const UpdateLinks = lazy(() => import('@/components/admin/UpdateLinks'))
 const AdminRights = lazy(() => import('@/components/admin/AdminRights'))
-const LiveStreamAdmin = lazy(() => import('@/components/admin/LiveStream'))
 const PhotoManager = lazy(() => import('@/components/admin/PhotoManager')) as React.LazyExoticComponent<any>
 const PhotoCarouselManager = lazy(() => import('@/components/admin/PhotoCarouselManager')) as React.LazyExoticComponent<any>
 const TestimonialManager = lazy(() => import('@/components/admin/TestimonialManager'))
@@ -28,17 +28,19 @@ export default function AdminDashboard() {
   })
   const [isNavOpen, setIsNavOpen] = useState(false)
   const [admin] = useState<any>(() => getAdminUser())
+  const token = getAdminToken()
 
   useEffect(() => {
-    const token = getAdminToken()
-    if (!token || !admin) {
+    if (!token) {
       navigate('/admin/login')
       return
     }
 
     void prefetchAdminTabChunk(activeTab)
-    void warmAdminTabData(activeTab, token)
-  }, [navigate, admin, activeTab])
+    if (activeTab !== 'live') {
+      void warmAdminTabData(activeTab, token)
+    }
+  }, [navigate, token, activeTab])
 
   useEffect(() => {
     setAdminActiveTab(activeTab)
@@ -49,7 +51,7 @@ export default function AdminDashboard() {
     navigate('/')
   }
 
-  if (!admin) return <div className={styles.loading}>Loading...</div>
+  if (!token) return null
 
   return (
     <div className={styles.dashboard}>
@@ -67,7 +69,7 @@ export default function AdminDashboard() {
             <h1>Admin Dashboard</h1>
           </div>
           <div className={styles.userInfo}>
-            <span>Welcome, {admin.username}</span>
+            <span>Welcome, {admin?.username ?? 'Admin'}</span>
             <button onClick={handleLogout} className={styles.logoutButton}>Logout</button>
           </div>
         </div>
@@ -95,18 +97,21 @@ export default function AdminDashboard() {
           ))}
         </nav>
         <main className={styles.content}>
-          <Suspense fallback={<div className={styles.tabLoading}>Loading section...</div>}>
-            {activeTab === 'programs' && <Programs />}
-            {activeTab === 'events' && <div>Events management coming soon</div>}
-            {activeTab === 'live' && <LiveStreamAdmin />}
-            {activeTab === 'sermons' && <MassSermons />}
-            {activeTab === 'links' && <UpdateLinks />}
-            {activeTab === 'admins' && <AdminRights />}
-            {activeTab === 'photos' && <PhotoManager />}
-            {activeTab === 'carousel-manager' && <PhotoCarouselManager />}
-            {activeTab === 'leaders' && <LeadersManager />}
-            {activeTab === 'testimonials' && <TestimonialManager />}
-          </Suspense>
+          {activeTab === 'live' ? (
+            <LiveStreamAdmin />
+          ) : (
+            <Suspense fallback={<div className={styles.tabLoading}>Loading section...</div>}>
+              {activeTab === 'programs' && <Programs />}
+              {activeTab === 'events' && <div>Events management coming soon</div>}
+              {activeTab === 'sermons' && <MassSermons />}
+              {activeTab === 'links' && <UpdateLinks />}
+              {activeTab === 'admins' && <AdminRights />}
+              {activeTab === 'photos' && <PhotoManager />}
+              {activeTab === 'carousel-manager' && <PhotoCarouselManager />}
+              {activeTab === 'leaders' && <LeadersManager />}
+              {activeTab === 'testimonials' && <TestimonialManager />}
+            </Suspense>
+          )}
         </main>
       </div>
     </div>
