@@ -16,13 +16,13 @@ export default function Footer() {
       <div className={styles.container}>
         <div className={styles.footerGrid}>
           {/* Branding */}
-          <div className={styles.footerSection}>
+          <div className={`${styles.footerSection} ${styles.brandSection}`}>
             <h3 className={styles.footerTitle}>Voice Of Salvation And Healing Church Int&apos;l</h3>
             <p className={styles.footerDescription}>KITENGELA</p>
             <p className={styles.slogan}><strong>House of Solutions</strong> - <strong>Manifesting Christ</strong></p>
           </div>
           {/* Quick Links */}
-          <div className={styles.footerSection}>
+          <div className={`${styles.footerSection} ${styles.linksSection}`}>
             <h4 className={styles.footerHeading}>Quick Links</h4>
             <ul className={styles.footerLinks}>
               <li><Link to="/">Home</Link></li>
@@ -34,7 +34,7 @@ export default function Footer() {
             </ul>
           </div>
           {/* Contact */}
-          <div className={styles.footerSection}>
+          <div className={`${styles.footerSection} ${styles.contactSection}`}>
             <h4 className={styles.footerHeading}>Contact</h4>
             <div className={styles.phoneNumbers}>
               {phoneNumbers.map((phone, idx) => (
@@ -48,20 +48,26 @@ export default function Footer() {
               </a>
             </p>
           </div>
-          {/* Location, Support, Social */}
-          <div className={styles.footerSection}>
+          {/* Location */}
+          <div className={`${styles.footerSection} ${styles.locationSection}`}>
             <h4 className={styles.footerHeading}>Location</h4>
             <p className={styles.footerText}>
               Kitengela, Kenya<br />
               Along Baraka Road / Treewa Road<br />
               Next to Balozi Junior Academy
             </p>
-            <h4 className={styles.footerHeading} style={{marginTop: '0.3rem'}}>Give & Support</h4>
+          </div>
+          {/* Give & Support */}
+          <div className={`${styles.footerSection} ${styles.supportSection}`}>
+            <h4 className={styles.footerHeading}>Give & Support</h4>
             <p className={styles.footerText}>
               <strong>M-Pesa Paybill:</strong> 400222<br />
               <strong>Account:</strong> 1756443#offering/tithe
             </p>
             <Link to="/give" className={styles.giveLink}>Learn More -&gt;</Link>
+          </div>
+          {/* Socials */}
+          <div className={`${styles.footerSection} ${styles.socialSection}`}>
             <div className={styles.socialLinks}>
               <div className={styles.socialIcons}>
                 <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" className={styles.socialIcon} aria-label="Facebook">

@@ -16,10 +16,21 @@
 .footerGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
+  grid-template-areas:
+    "brand links contact location"
+    "brand links contact support"
+    "brand links contact social";
   gap: 2rem;
   width: 100%;
   align-items: start;
 }
+
+.brandSection { grid-area: brand; }
+.linksSection { grid-area: links; }
+.contactSection { grid-area: contact; }
+.locationSection { grid-area: location; }
+.supportSection { grid-area: support; }
+.socialSection { grid-area: social; margin-top: -0.5rem; }
 
 .footerSection {
   display: flex;
@@ -295,6 +306,12 @@
 @media (max-width: 1024px) {
   .footerGrid {
     grid-template-columns: repeat(2, 1fr);
+    grid-template-areas:
+      "brand links"
+      "brand contact"
+      "brand location"
+      "brand support"
+      "brand social";
     gap: 2.5rem;
   }
 }
@@ -320,25 +337,28 @@
   
   .footerGrid {
     grid-template-columns: repeat(2, 1fr);
+    grid-template-areas:
+      "brand brand"
+      "links contact"
+      "location support"
+      "social social";
     gap: 1.5rem 1rem;
     text-align: left;
   }
   
-  .footerSection {
+  .brandSection, .socialSection {
+    text-align: center;
+    align-items: center;
+  }
+
+  .linksSection, .locationSection {
     text-align: left;
     align-items: flex-start;
   }
 
-  .footerSection:nth-child(1) {
-    grid-column: span 2;
-    text-align: center;
-    align-items: center;
-  }
-
-  .footerSection:nth-child(4) {
-    grid-column: span 2;
-    text-align: center;
-    align-items: center;
+  .contactSection, .supportSection {
+    text-align: right;
+    align-items: flex-end;
   }
 }
 
@@ -348,38 +368,26 @@
   }
 
   .footerGrid {
-    grid-template-columns: 1fr;
-    gap: 1.75rem;
-    text-align: center;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "brand brand"
+      "links contact"
+      "location support"
+      "social social";
+    gap: 1.75rem 1rem;
   }
 
-  .footerSection,
-  .footerSection:nth-child(1),
-  .footerSection:nth-child(2),
-  .footerSection:nth-child(3),
-  .footerSection:nth-child(4) {
-    grid-column: span 1;
+  .brandSection, .socialSection {
     text-align: center;
     align-items: center;
   }
 
-  .locationSupportGrid {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    gap: 1rem;
-    width: 100%;
-    align-items: flex-start;
-  }
-
-  .locationBlock {
-    flex: 1;
+  .linksSection, .locationSection {
     text-align: left;
     align-items: flex-start;
   }
 
-  .supportBlock {
-    flex: 1;
+  .contactSection, .supportSection {
     text-align: right;
     align-items: flex-end;
   }
