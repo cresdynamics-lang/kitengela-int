@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
+import SeoHead from './components/SeoHead'
 import PageTransition from './components/PageTransition'
 import { ROUTES, LEGACY_SERVICE_SLUGS } from './lib/routes'
 
@@ -67,7 +68,9 @@ export default function App() {
   }
 
   return (
-    <AnimatePresence mode="wait">
+    <>
+      <SeoHead />
+      <AnimatePresence mode="wait">
       <Suspense fallback={<PublicFallback />}>
         <Routes location={location} key={location.pathname} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <Route path="/" element={<PageTransition><Home /></PageTransition>} />
@@ -94,5 +97,6 @@ export default function App() {
         </Routes>
       </Suspense>
     </AnimatePresence>
+    </>
   )
 }

@@ -23,7 +23,7 @@ export const DEFAULT_HOME_HERO_SLIDES: HeroSlide[] = [
   {
     id: 'house-of-solutions',
     image: '/rev-side-picture.jpeg',
-    label: 'HOUSE OF SOLUTIONS',
+    label: 'VOSH CHURCH KITENGELA',
     headline: 'Rooted in the Word, Rising in Spirit',
     scriptureText: 'Built on the foundation of the apostles and prophets, with Christ Jesus Himself as the chief cornerstone.',
     scriptureRef: 'Ephesians 2:20',

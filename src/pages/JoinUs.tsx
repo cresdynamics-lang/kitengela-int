@@ -149,7 +149,7 @@ export default function JoinUs() {
       <section className={styles.hero} style={{ backgroundImage: `url(${heroImage})` }}>
         <div className={styles.heroOverlay} />
         <div className={styles.heroInner}>
-          <h1 className={styles.heroTitle}>Join Us</h1>
+          <h1 className={styles.heroTitle}>Visit VOSH Church in Kitengela</h1>
           <p className={styles.heroTagline}>
             Whether this is your first time hearing about VOSH Kitengela or your first time
             visiting — we&apos;re glad you&apos;re here.

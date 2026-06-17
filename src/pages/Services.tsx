@@ -89,7 +89,7 @@ export default function Services() {
       <section className={styles.hero} style={{ backgroundImage: `url(${heroImage})` }}>
         <div className={styles.heroOverlay} />
         <div className={styles.heroInner}>
-          <h1 className={styles.heroTitle}>Our Services &amp; Programs</h1>
+          <h1 className={styles.heroTitle}>Church Services in Kitengela</h1>
           <p className={styles.heroTagline}>
             Join us for worship, prayer, and fellowship throughout the week.
           </p>

@@ -16,7 +16,7 @@ export default function Footer() {
       <div className={styles.container}>
         <div className={styles.topRow}>
           <div className={styles.brandBlock}>
-            <img src="/logo/church-logo.jpeg" alt="VOSH Church" className={styles.footerLogo} />
+            <img src="/logo/church-logo.jpeg" alt="VOSH Church International Kitengela" className={styles.footerLogo} />
             <div>
               <h3 className={styles.brandName}>
                 Voice Of Salvation And Healing Church International — Kitengela

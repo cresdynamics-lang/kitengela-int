@@ -270,11 +270,11 @@ export default function Home() {
       <section className={styles.welcome}>
         <div className={styles.container}>
           <ScrollReveal>
-            <h2 className={styles.welcomeTitle}>Welcome to the House of Solutions</h2>
+            <h2 className={styles.welcomeTitle}>Welcome to VOSH Church International Kitengela</h2>
             <p className={styles.welcomeText}>
-              VOSH Church International Kitengela is a Christ-centered family built on the Word,
+              A Spirit-filled Pentecostal church in Kitengela, Kenya — a Christ-centered family built on the Word,
               prayer, worship, and community transformation. Whether you&apos;re seeking healing,
-              answers, or simply a place to belong — you have found a home here.
+              answers, or simply a place to belong along Baraka Road — you have found a home here.
             </p>
           </ScrollReveal>
         </div>

@@ -58,7 +58,7 @@ export default function Header() {
             <Link to={ROUTES.home} className={styles.logoLink} onClick={closeMenu}>
               <img
                 src="/logo/church-logo.jpeg"
-                alt="VOSH Church Logo"
+                alt="VOSH Church International Kitengela logo"
                 className={styles.logo}
               />
               <div className={styles.logoText}>
