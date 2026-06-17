@@ -1,6 +1,0 @@
-import{c as d}from"./trash-2-5_1kZ2F5.js";/**
- * @license lucide-react v0.344.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */const U=d("Upload",[["path",{d:"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4",key:"ih7n3h"}],["polyline",{points:"17 8 12 3 7 8",key:"t8dd8p"}],["line",{x1:"12",x2:"12",y1:"3",y2:"15",key:"widbto"}]]),h=1920,p=.82,u=250*1024;function g(e){return new Promise((t,a)=>{const n=URL.createObjectURL(e),o=new Image;o.onload=()=>{URL.revokeObjectURL(n),t(o)},o.onerror=()=>{URL.revokeObjectURL(n),a(new Error("Failed to load image for compression"))},o.src=n})}function w(e){return!e.type.startsWith("image/")||e.type==="image/gif"||e.type==="image/svg+xml"||e.size<u}async function b(e){if(typeof window>"u"||w(e))return e;const t=await g(e),a=Math.min(1,h/Math.max(t.width,t.height)),n=Math.max(1,Math.round(t.width*a)),o=Math.max(1,Math.round(t.height*a)),r=document.createElement("canvas");r.width=n,r.height=o;const s=r.getContext("2d");if(!s)return e;s.drawImage(t,0,0,n,o);const i=await new Promise(m=>r.toBlob(m,"image/webp",p));if(!i||i.size>=e.size)return e;const c=e.name.replace(/\.[^/.]+$/,"");return new File([i],`${c}.webp`,{type:"image/webp",lastModified:Date.now()})}export{U,b as c};

@@ -116,7 +116,9 @@ export default function MassSermons() {
 
   const handleEdit = (sermon: MassSermon) => {
     const sermonDate = new Date(sermon.date)
-    const formattedDate = sermonDate.toISOString().split('T')[0]
+    const formattedDate = Number.isNaN(sermonDate.getTime())
+      ? ''
+      : sermonDate.toISOString().split('T')[0]
     const thumbnailUrl = sermon.thumbnailUrl || ''
     
     setFormData({
@@ -319,7 +321,12 @@ export default function MassSermons() {
                 <tr key={sermon.id}>
                   <td>{sermon.title}</td>
                   <td>{sermon.speaker || '-'}</td>
-                  <td>{new Date(sermon.date).toLocaleDateString()}</td>
+                  <td>
+                    {(() => {
+                      const d = new Date(sermon.date)
+                      return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString()
+                    })()}
+                  </td>
                   <td>{sermon.views || 0}</td>
                   <td>
                     <button onClick={() => handleEdit(sermon)} className={styles.editButton}>Edit</button>

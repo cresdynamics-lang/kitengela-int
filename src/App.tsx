@@ -35,27 +35,40 @@ function PublicFallback() {
   )
 }
 
-function AdminFallback() {
-  return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      Loading admin…
-    </div>
-  )
-}
-
 function LegacyServiceRedirect({ legacySlug }: { legacySlug: string }) {
   const target = LEGACY_SERVICE_SLUGS[legacySlug]
   if (!target) return <Navigate to={ROUTES.services} replace />
   return <Navigate to={`${ROUTES.services}/${target}`} replace />
 }
 
+function AdminRoutes() {
+  return (
+    <Routes future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <Route path="/admin" element={<Navigate to={ROUTES.admin.login} replace />} />
+      <Route path="/admin/login" element={<AdminLogin />} />
+      <Route path="/login" element={<Navigate to={ROUTES.admin.login} replace />} />
+      <Route path="/admin/dashboard" element={<Navigate to={ROUTES.admin.liveSessions} replace />} />
+      <Route path={ROUTES.admin.liveSessions} element={<AdminShell><AdminLiveSessions /></AdminShell>} />
+      <Route path={ROUTES.admin.services} element={<AdminShell><AdminServicesPage /></AdminShell>} />
+      <Route path={ROUTES.admin.announcements} element={<AdminShell><AdminAnnouncements /></AdminShell>} />
+      <Route path={ROUTES.admin.leadership} element={<AdminShell><AdminLeadershipPage /></AdminShell>} />
+      <Route path={ROUTES.admin.giveSettings} element={<AdminShell><AdminGiveSettings /></AdminShell>} />
+    </Routes>
+  )
+}
+
 export default function App() {
   const location = useLocation()
-  const isAdminRoute = location.pathname.startsWith('/admin') || location.pathname === '/login'
+  const isAdminArea =
+    location.pathname.startsWith('/admin') || location.pathname === '/login'
+
+  if (isAdminArea) {
+    return <AdminRoutes />
+  }
 
   return (
     <AnimatePresence mode="wait">
-      <Suspense fallback={isAdminRoute ? <AdminFallback /> : <PublicFallback />}>
+      <Suspense fallback={<PublicFallback />}>
         <Routes location={location} key={location.pathname} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <Route path="/" element={<PageTransition><Home /></PageTransition>} />
           <Route path="/who-we-are" element={<PageTransition><WhoWeAre /></PageTransition>} />
@@ -78,16 +91,6 @@ export default function App() {
           {Object.keys(LEGACY_SERVICE_SLUGS).map((slug) => (
             <Route key={slug} path={`/services/${slug}`} element={<LegacyServiceRedirect legacySlug={slug} />} />
           ))}
-
-          <Route path="/admin" element={<Navigate to={ROUTES.admin.login} replace />} />
-          <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/login" element={<Navigate to={ROUTES.admin.login} replace />} />
-          <Route path="/admin/dashboard" element={<Navigate to={ROUTES.admin.liveSessions} replace />} />
-          <Route path={ROUTES.admin.liveSessions} element={<AdminShell><AdminLiveSessions /></AdminShell>} />
-          <Route path={ROUTES.admin.services} element={<AdminShell><AdminServicesPage /></AdminShell>} />
-          <Route path={ROUTES.admin.announcements} element={<AdminShell><AdminAnnouncements /></AdminShell>} />
-          <Route path={ROUTES.admin.leadership} element={<AdminShell><AdminLeadershipPage /></AdminShell>} />
-          <Route path={ROUTES.admin.giveSettings} element={<AdminShell><AdminGiveSettings /></AdminShell>} />
         </Routes>
       </Suspense>
     </AnimatePresence>
