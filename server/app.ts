@@ -2,13 +2,13 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 import crypto from 'crypto'
+import fs from 'fs'
 import express from 'express'
 import cors from 'cors'
 import multer from 'multer'
 import path from 'path'
 import bcrypt from 'bcryptjs'
 import { z } from 'zod'
-import sharp from 'sharp'
 import { getSupabaseAdmin, hasServiceRoleKey, isSupabaseConfigured } from './supabase.js'
 
 console.log('API Server Starting...')
@@ -74,19 +74,25 @@ async function optimizeUploadImage(file: Express.Multer.File) {
   const isSupportedRaster = /image\/(jpeg|jpg|png|webp)/i.test(file.mimetype)
   if (!isSupportedRaster) return file
 
-  const optimizedBuffer = await sharp(file.buffer)
-    .rotate()
-    .resize(IMAGE_MAX_DIMENSION, IMAGE_MAX_DIMENSION, { fit: 'inside', withoutEnlargement: true })
-    .webp({ quality: IMAGE_QUALITY, effort: 4 })
-    .toBuffer()
+  try {
+    const { default: sharp } = await import('sharp')
+    const optimizedBuffer = await sharp(file.buffer)
+      .rotate()
+      .resize(IMAGE_MAX_DIMENSION, IMAGE_MAX_DIMENSION, { fit: 'inside', withoutEnlargement: true })
+      .webp({ quality: IMAGE_QUALITY, effort: 4 })
+      .toBuffer()
 
-  const parsedName = path.parse(file.originalname)
-  return {
-    ...file,
-    buffer: optimizedBuffer,
-    size: optimizedBuffer.length,
-    mimetype: 'image/webp',
-    originalname: `${parsedName.name}.webp`,
+    const parsedName = path.parse(file.originalname)
+    return {
+      ...file,
+      buffer: optimizedBuffer,
+      size: optimizedBuffer.length,
+      mimetype: 'image/webp',
+      originalname: `${parsedName.name}.webp`,
+    }
+  } catch (err) {
+    console.warn('sharp unavailable, uploading original image:', err)
+    return file
   }
 }
 
@@ -753,7 +759,14 @@ app.post('/api/admin/login', async (req, res) => {
           .maybeSingle()
         if (userErr) throw new Error(userErr.message)
 
-        let admin = byUsername
+        let admin = byUsername as {
+          id: string
+          username: string
+          email: string
+          role: string
+          password_hash: string
+          is_super_admin: boolean
+        } | null
         if (!admin) {
           const { data: byEmail, error: emailErr } = await sb
             .from('admins')
@@ -761,7 +774,7 @@ app.post('/api/admin/login', async (req, res) => {
             .ilike('email', normalizedLogin)
             .maybeSingle()
           if (emailErr) throw new Error(emailErr.message)
-          admin = byEmail
+          admin = byEmail as typeof admin
         }
 
         if (!admin) {
@@ -1137,8 +1150,7 @@ app.post('/api/admin/photos', upload.single('photo'), async (req, res) => {
     } catch (storageErr: any) {
       console.warn('Supabase upload failed, falling back to local storage:', storageErr.message)
       
-      // Local fallback
-      const fs = require('fs')
+      // Local fallback (not available on Vercel serverless — uploads should use Supabase)
       const uploadsDir = path.join(process.cwd(), 'public', 'uploads')
       if (!fs.existsSync(uploadsDir)) {
         fs.mkdirSync(uploadsDir, { recursive: true })
