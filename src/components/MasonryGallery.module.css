@@ -1,0 +1,82 @@
+.grid {
+  columns: 3;
+  column-gap: 1rem;
+}
+
+.item {
+  break-inside: avoid;
+  margin-bottom: 1rem;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  display: block;
+  width: 100%;
+  background: none;
+}
+
+.image {
+  width: 100%;
+  display: block;
+  transition: transform 0.35s ease;
+}
+
+.item:hover .image {
+  transform: scale(1.05);
+}
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(11, 31, 58, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem;
+}
+
+.lightboxImg {
+  max-width: min(900px, 90vw);
+  max-height: 85vh;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.close {
+  position: absolute;
+  top: 1rem;
+  right: 1.25rem;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 2.5rem;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.lbNav {
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid var(--gold, #D4A017);
+  color: #fff;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  font-size: 1.75rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+@media (max-width: 900px) {
+  .grid {
+    columns: 2;
+  }
+}
+
+@media (max-width: 560px) {
+  .grid {
+    columns: 1;
+  }
+}

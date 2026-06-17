@@ -1,122 +1,91 @@
 import { Link } from 'react-router-dom'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import PageHeader from '@/components/PageHeader'
 import ScrollReveal from '@/components/ScrollReveal'
-import Carousel from '@/components/Carousel'
-import styles from './Outreach.module.css'
+import MasonryGallery from '@/components/MasonryGallery'
+import ScripturePulse from '@/components/ScripturePulse'
+import { getVersesByTheme } from '@/lib/scripture'
+import { ROUTES } from '@/lib/routes'
+import styles from './MinistryPage.module.css'
 
-const outreachCarouselImages = [
-  { id: 1, title: "Community Outreach", image: "/outreach-1.jpeg", description: "Reaching out to our community with the love of Christ and practical help" },
-  { id: 2, title: "Mission Work", image: "/outreach-2.jpeg", description: "Taking the Gospel beyond our walls to transform lives" },
-  { id: 3, title: "Mission & Vision", image: "/mission-vision.jpeg", description: "Fulfilling our mandate to manifest Christ in Kitengela and beyond" },
-  { id: 4, title: "Unity in Service", image: "/unity.jpg", description: "Working together in unity to serve our community" },
-  { id: 5, title: "Heart for Mission", image: "/prayer-heart.jpg", description: "A heart committed to prayer and outreach" },
-  { id: 6, title: "Community Impact", image: "/outreach-1.jpeg", description: "Making a positive impact in our community" },
-  { id: 7, title: "Prayer & Service", image: "/whatsapp-9.jpeg", description: "Combining prayer with practical service" },
-  { id: 8, title: "Transforming Lives", image: "/outreach-2.jpeg", description: "Transforming lives through the Gospel and service" }
+const PROJECTS = [
+  { title: 'Community Care', desc: 'Practical support for families in need across Kitengela.' },
+  { title: 'Evangelism & Crusades', desc: 'Taking the Gospel beyond our walls to neighborhoods and regions.' },
+  { title: 'School & Campus Ministry', desc: 'Partnering with institutions to reach the next generation.' },
+  { title: 'Humanitarian Outreach', desc: 'Tangible acts of love that demonstrate Christ to our community.' },
 ]
 
-const outreachActivities = [
-  {
-    id: 1,
-    title: "Community Food Drives",
-    description: "Regular food distribution programs to support needy families in Kitengela",
-    image: "/whatsapp-1.jpeg"
-  },
-  {
-    id: 2,
-    title: "Medical Camps",
-    description: "Free medical check-ups and health services for the community",
-    image: "/whatsapp-2.jpeg"
-  },
-  {
-    id: 3,
-    title: "Youth Mentorship",
-    description: "Mentoring young people to discover their purpose and potential",
-    image: "/whatsapp-3.jpeg"
-  },
-  {
-    id: 4,
-    title: "Prayer Walks",
-    description: "Community prayer walks covering every street in Kitengela",
-    image: "/whatsapp-5.jpeg"
-  },
-  {
-    id: 5,
-    title: "School Support",
-    description: "Supporting local schools with educational materials and mentorship",
-    image: "/whatsapp-7.jpeg"
-  },
-  {
-    id: 6,
-    title: "Family Counseling",
-    description: "Providing biblical counseling and support for families",
-    image: "/whatsapp-10.jpeg"
-  }
+const OUTREACH_IMAGES = [
+  '/outreach-1.jpeg',
+  '/outreach-2.jpeg',
+  '/evans-activity-1.jpg',
+  '/evans-activity-2.jpg',
+  '/whatsapp-7.jpeg',
+  '/church-praying.jpg',
 ]
 
 export default function Outreach() {
   return (
-    <main>
+    <main className={styles.page}>
       <Header />
-      <PageHeader 
-        title="Outreach & Mission" 
-        subtitle="Love Beyond Our Walls"
-        backgroundImage="/outreach-1.jpeg"
-      />
-      <div className={styles.container}>
-        <ScrollReveal direction="right">
-          <section className={styles.carouselSection}>
-            <h2 className={styles.sectionTitle}>Our Mission in Action</h2>
-            <Carousel images={outreachCarouselImages} />
-          </section>
-        </ScrollReveal>
+      <section className={styles.hero} style={{ backgroundImage: 'url(/outreach-1.jpeg)' }}>
+        <div className={styles.heroOverlay} />
+        <div className={styles.heroInner}>
+          <h1 className={styles.heroTitle}>Outreach</h1>
+          <p className={styles.heroTagline}>
+            Love beyond our walls — reaching Kitengela and beyond with the Gospel and acts of compassion.
+          </p>
+          <blockquote className={styles.heroScripture}>
+            &ldquo;Whatever you did for the least of these, you did for Me.&rdquo;
+            <cite>— Matthew 25:40</cite>
+          </blockquote>
+        </div>
+      </section>
 
-        <ScrollReveal direction="left">
-          <section className={styles.missionSection}>
-            <h2 className={styles.sectionTitle}>Our Mission</h2>
-            <p className={styles.text}>
-              At VOSH Church International Kitengela, we are committed to being a house of solutions not just within our walls, 
-              but in our community. Through various outreach programs, we demonstrate the love of Christ in practical ways, 
-              meeting both spiritual and physical needs.
-            </p>
-          </section>
-        </ScrollReveal>
+      <section className={styles.section}>
+        <div className={styles.container}>
+          <h2 className={styles.sectionTitle}>Our Mission in Action</h2>
+          <p className={styles.bodyText}>
+            VOSH Kitengela exists not only to gather believers but to send them. Our outreach ministry
+            carries hope, healing, and the love of Christ into streets, schools, and communities —
+            because transformation must move beyond the sanctuary.
+          </p>
+        </div>
+      </section>
 
-        <ScrollReveal direction="right">
-          <section className={styles.activitiesSection}>
-            <h2 className={styles.sectionTitle}>Outreach Activities</h2>
-            <div className={styles.activitiesGrid}>
-              {outreachActivities.map((activity) => (
-                <div key={activity.id} className={styles.activityCard}>
-                  <div className={styles.activityImageContainer}>
-                    <img src={activity.image} alt={activity.title} className={styles.activityImage} />
-                  </div>
-                  <div className={styles.activityContent}>
-                    <h3 className={styles.activityTitle}>{activity.title}</h3>
-                    <p className={activity.description}>{activity.description}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        </ScrollReveal>
+      <section className={`${styles.section} ${styles.sectionAlt}`}>
+        <div className={styles.container}>
+          <h2 className={styles.sectionTitle}>Ongoing Projects</h2>
+          <div className={styles.cardGrid}>
+            {PROJECTS.map((p) => (
+              <ScrollReveal key={p.title}>
+                <article className={styles.card}>
+                  <h3>{p.title}</h3>
+                  <p>{p.desc}</p>
+                </article>
+              </ScrollReveal>
+            ))}
+          </div>
+        </div>
+      </section>
 
-        <ScrollReveal direction="left">
-          <section className={styles.getInvolvedSection}>
-            <h2 className={styles.sectionTitle}>Get Involved</h2>
-            <p className={styles.text}>
-              Join us in making a difference! Whether through volunteering, donations, or prayer, 
-              you can be part of our outreach mission.
-            </p>
-            <div className={styles.ctaButtons}>
-              <Link to="/contact" className={styles.primaryButton}>Contact Us to Volunteer</Link>
-              <Link to="/give" className={styles.secondaryButton}>Support Our Mission</Link>
-            </div>
-          </section>
-        </ScrollReveal>
-      </div>
+      <ScripturePulse verses={getVersesByTheme('community')} backgroundImage="/outreach-2.jpeg" />
+
+      <section className={styles.section}>
+        <div className={styles.container}>
+          <h2 className={styles.sectionTitle}>Outreach in Pictures</h2>
+          <MasonryGallery images={OUTREACH_IMAGES} altPrefix="Outreach" />
+        </div>
+      </section>
+
+      <section className={styles.ctaSection}>
+        <div className={styles.container}>
+          <h2 className={styles.ctaTitle}>Partner with us in outreach</h2>
+          <Link to={`${ROUTES.joinUs}#contact-form`} className={styles.ctaBtn}>
+            Get Involved →
+          </Link>
+        </div>
+      </section>
       <Footer />
     </main>
   )

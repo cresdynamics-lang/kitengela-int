@@ -8,6 +8,7 @@ import multer from 'multer'
 import path from 'path'
 import bcrypt from 'bcryptjs'
 import { z } from 'zod'
+import sharp from 'sharp'
 import { getSupabaseAdmin, hasServiceRoleKey, isSupabaseConfigured } from './supabase.js'
 
 console.log('API Server Starting...')
@@ -65,6 +66,29 @@ const upload = multer({
 
 const ENV_ADMIN_TOKEN = 'env-admin-token'
 const PHOTO_BUCKET = 'church-gallery'
+
+const IMAGE_MAX_DIMENSION = 1920
+const IMAGE_QUALITY = 80
+
+async function optimizeUploadImage(file: Express.Multer.File) {
+  const isSupportedRaster = /image\/(jpeg|jpg|png|webp)/i.test(file.mimetype)
+  if (!isSupportedRaster) return file
+
+  const optimizedBuffer = await sharp(file.buffer)
+    .rotate()
+    .resize(IMAGE_MAX_DIMENSION, IMAGE_MAX_DIMENSION, { fit: 'inside', withoutEnlargement: true })
+    .webp({ quality: IMAGE_QUALITY, effort: 4 })
+    .toBuffer()
+
+  const parsedName = path.parse(file.originalname)
+  return {
+    ...file,
+    buffer: optimizedBuffer,
+    size: optimizedBuffer.length,
+    mimetype: 'image/webp',
+    originalname: `${parsedName.name}.webp`,
+  }
+}
 
 async function ensurePhotoBucket(supabase: ReturnType<typeof getSupabaseAdmin>) {
   const { data: bucket, error } = await supabase.storage.getBucket(PHOTO_BUCKET)
@@ -232,6 +256,7 @@ app.get('/api/debug', async (_req, res) => {
 app.get('/api/public/photos', async (_req, res) => {
   try {
     const photos = await dbQuery<any>('photos', { order: [{ column: 'upload_date', ascending: false }] })
+    res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=120')
     res.json({ success: true, data: photos })
   } catch (e: any) {
     console.error('GET public/photos:', e.message)
@@ -318,10 +343,27 @@ app.get('/api/public/sermons/source', async (_req, res) => {
 app.get('/api/public/leaders', async (_req, res) => {
   try {
     const rows = await dbQuery<any>('leaders', { order: [{ column: 'order_index' }] })
+    res.setHeader('Cache-Control', 'public, max-age=120, stale-while-revalidate=300')
     res.json({ success: true, data: rows })
   } catch (e: any) {
     console.error('GET leaders:', e.message)
     res.json({ success: true, data: [] })
+  }
+})
+
+app.get('/api/public/photos/leadership-hero', async (_req, res) => {
+  try {
+    const rows = await dbQuery<any>('photos', {
+      select: 'id,url,category,upload_date',
+      eq: [['category', 'leadership']],
+      order: [{ column: 'upload_date', ascending: false }],
+      limit: 1,
+    })
+    res.setHeader('Cache-Control', 'public, max-age=120, stale-while-revalidate=300')
+    res.json({ success: true, data: rows[0] || null })
+  } catch (e: any) {
+    console.error('GET public/photos/leadership-hero:', e.message)
+    res.json({ success: true, data: null })
   }
 })
 
@@ -354,12 +396,13 @@ app.post('/api/admin/leaders', upload.single('photo'), async (req, res) => {
 
     // Upload photo to Supabase if a file was attached
     if (req.file && isSupabaseConfigured) {
+      const optimizedFile = await optimizeUploadImage(req.file)
       const supabase = getSupabaseAdmin()
       await ensurePhotoBucket(supabase)
-      const fileName = `leaders/${Date.now()}-${req.file.originalname}`
+      const fileName = `leaders/${Date.now()}-${optimizedFile.originalname}`
       const { error: uploadError } = await supabase.storage
         .from(PHOTO_BUCKET)
-        .upload(fileName, req.file.buffer, { contentType: req.file.mimetype, upsert: true })
+        .upload(fileName, optimizedFile.buffer, { contentType: optimizedFile.mimetype, upsert: true })
       if (uploadError) throw uploadError
       const { data: urlData } = supabase.storage.from(PHOTO_BUCKET).getPublicUrl(fileName)
       photoUrl = urlData.publicUrl
@@ -394,12 +437,13 @@ app.put('/api/admin/leaders/:id', upload.single('photo'), async (req, res) => {
     let photoUrl: string = body.photoUrl || ''
 
     if (req.file && isSupabaseConfigured) {
+      const optimizedFile = await optimizeUploadImage(req.file)
       const supabase = getSupabaseAdmin()
       await ensurePhotoBucket(supabase)
-      const fileName = `leaders/${Date.now()}-${req.file.originalname}`
+      const fileName = `leaders/${Date.now()}-${optimizedFile.originalname}`
       const { error: uploadError } = await supabase.storage
         .from(PHOTO_BUCKET)
-        .upload(fileName, req.file.buffer, { contentType: req.file.mimetype, upsert: true })
+        .upload(fileName, optimizedFile.buffer, { contentType: optimizedFile.mimetype, upsert: true })
       if (uploadError) throw uploadError
       const { data: urlData } = supabase.storage.from(PHOTO_BUCKET).getPublicUrl(fileName)
       photoUrl = urlData.publicUrl
@@ -474,8 +518,169 @@ app.get('/api/public/events/upcoming', async (_req, res) => {
   }
 })
 
-app.post('/api/public/contact', async (_req, res) => {
-  res.json({ success: true, data: { message: 'Thank you for your message.' } })
+app.post('/api/public/contact', async (req, res) => {
+  const contactFormSchema = z.object({
+    name: z.string().min(1),
+    email: z.string().email(),
+    phone: z.string().optional(),
+    subject: z.string().min(1),
+    message: z.string().min(1),
+  })
+
+  try {
+    const body = contactFormSchema.parse(req.body || {})
+
+    try {
+      const { sendContactEmail } = await import('../src/lib/email')
+      await sendContactEmail(body)
+    } catch (emailErr: any) {
+      console.error('Contact email error:', emailErr?.message || emailErr)
+    }
+
+    if (isSupabaseConfigured && hasServiceRoleKey) {
+      try {
+        await dbInsert('visitor_requests', {
+          full_name: body.name,
+          phone: body.phone || 'Not provided',
+          email: body.email,
+          service: body.subject,
+          prayer_request: body.message,
+        })
+      } catch (dbErr: any) {
+        console.error('visitor_requests insert (contact):', dbErr?.message || dbErr)
+      }
+    }
+
+    res.json({
+      success: true,
+      data: { message: 'Thank you for your message. We will be in touch soon.' },
+    })
+  } catch (e: any) {
+    console.error('POST contact:', e.message)
+    res.status(400).json({ success: false, error: e.message || 'Invalid request' })
+  }
+})
+
+app.get('/api/public/give-settings', async (_req, res) => {
+  try {
+    const rows = await dbQuery<any>('give_settings', {
+      order: [{ column: 'updated_at', ascending: false }],
+      limit: 1,
+    })
+    res.json({ success: true, data: rows[0] || null })
+  } catch (e: any) {
+    console.error('GET give_settings:', e.message)
+    res.json({ success: true, data: null })
+  }
+})
+
+app.get('/api/public/carousel-slides', async (req, res) => {
+  const page = String(req.query.page || 'home')
+  try {
+    const rows = await dbQuery<any>('carousel_slides', {
+      eq: [['page', page], ['is_active', true]],
+      order: [{ column: 'display_order' }],
+    })
+    res.json({ success: true, data: rows })
+  } catch (e: any) {
+    console.error('GET carousel_slides:', e.message)
+    res.json({ success: true, data: [] })
+  }
+})
+
+app.get('/api/public/scripture-library', async (_req, res) => {
+  try {
+    const rows = await dbQuery<any>('scripture_library', {
+      eq: [['is_active', true]],
+    })
+    res.json({ success: true, data: rows })
+  } catch (e: any) {
+    console.error('GET scripture_library:', e.message)
+    res.json({ success: true, data: [] })
+  }
+})
+
+app.get('/api/public/generation-groups', async (_req, res) => {
+  try {
+    const rows = await dbQuery<any>('generation_groups', {
+      order: [{ column: 'display_order' }],
+    })
+    res.json({ success: true, data: rows })
+  } catch (e: any) {
+    console.error('GET generation_groups:', e.message)
+    res.json({ success: true, data: [] })
+  }
+})
+
+app.post('/api/public/prayer-request', async (req, res) => {
+  const prayerSchema = z.object({
+    name: z.string().min(1),
+    request: z.string().min(1),
+  })
+  try {
+    const body = prayerSchema.parse(req.body || {})
+    if (isSupabaseConfigured && hasServiceRoleKey) {
+      try {
+        await dbInsert('visitor_requests', {
+          full_name: body.name,
+          phone: 'Prayer Wall',
+          email: null,
+          service: 'Prayer Request',
+          prayer_request: body.request,
+        })
+      } catch (dbErr: any) {
+        console.error('prayer visitor_requests insert:', dbErr?.message || dbErr)
+      }
+    }
+    res.json({ success: true, data: { message: 'Your prayer request has been received.' } })
+  } catch (e: any) {
+    res.status(400).json({ success: false, error: e.message || 'Invalid request' })
+  }
+})
+
+app.post('/api/public/plan-visit', async (req, res) => {
+  const planVisitSchema = z.object({
+    fullName: z.string().min(1),
+    phone: z.string().min(1),
+    email: z.string().email().optional().or(z.literal('')),
+    service: z.string().min(1),
+    howDidYouHear: z.string().optional(),
+    prayerRequest: z.string().optional(),
+  })
+
+  try {
+    const body = planVisitSchema.parse(req.body || {})
+
+    try {
+      const { sendPlanVisitEmail } = await import('../src/lib/email')
+      await sendPlanVisitEmail(body)
+    } catch (emailErr: any) {
+      console.error('Plan visit email error:', emailErr?.message || emailErr)
+    }
+
+    if (isSupabaseConfigured && hasServiceRoleKey) {
+      try {
+        await dbInsert('visitor_requests', {
+          full_name: body.fullName,
+          phone: body.phone,
+          email: body.email || null,
+          service: body.service,
+          how_did_you_hear: body.howDidYouHear || null,
+          prayer_request: body.prayerRequest || null,
+        })
+      } catch (dbErr: any) {
+        console.error('visitor_requests insert error:', dbErr?.message || dbErr)
+      }
+    }
+
+    res.json({
+      success: true,
+      data: { message: 'Thank you! We will be in touch soon to welcome you.' },
+    })
+  } catch (e: any) {
+    console.error('POST plan-visit:', e.message)
+    res.status(400).json({ success: false, error: e.message || 'Invalid request' })
+  }
 })
 
 app.post('/api/admin/login', async (req, res) => {
@@ -877,7 +1082,8 @@ app.post('/api/admin/photos', upload.single('photo'), async (req, res) => {
       })
     }
 
-    const fileName = `${Date.now()}-${req.file.originalname}`
+    const optimizedFile = await optimizeUploadImage(req.file)
+    const fileName = `${Date.now()}-${optimizedFile.originalname}`
     const filePath = fileName
 
     let publicUrl = ''
@@ -889,8 +1095,8 @@ app.post('/api/admin/photos', upload.single('photo'), async (req, res) => {
 
       const { error: uploadError } = await supabase.storage
         .from(PHOTO_BUCKET)
-        .upload(filePath, req.file.buffer, {
-          contentType: req.file.mimetype,
+        .upload(filePath, optimizedFile.buffer, {
+          contentType: optimizedFile.mimetype,
           upsert: true,
         })
 
@@ -907,7 +1113,7 @@ app.post('/api/admin/photos', upload.single('photo'), async (req, res) => {
       if (!fs.existsSync(uploadsDir)) {
         fs.mkdirSync(uploadsDir, { recursive: true })
       }
-      fs.writeFileSync(path.join(uploadsDir, fileName), req.file.buffer)
+      fs.writeFileSync(path.join(uploadsDir, fileName), optimizedFile.buffer)
       publicUrl = `/uploads/${fileName}`
       isOfflineFallback = true
     }
@@ -915,9 +1121,9 @@ app.post('/api/admin/photos', upload.single('photo'), async (req, res) => {
     const newPhotoRecord = {
       id: crypto.randomUUID(),
       filename: fileName,
-      original_name: req.file.originalname,
+      original_name: optimizedFile.originalname,
       url: publicUrl,
-      size: req.file.size,
+      size: optimizedFile.size,
       category: req.body.category || 'general',
       upload_date: new Date().toISOString(),
       updated_by: admin.id,
@@ -1005,6 +1211,66 @@ app.get('/api/admin/admins', async (req, res) => {
   } catch (e: any) {
     console.error('GET admin/admins:', e.message)
     res.status(500).json({ success: false, error: 'Failed to fetch admins' })
+  }
+})
+
+app.get('/api/admin/give-settings', async (req, res) => {
+  const admin = await getAdminFromToken(req.headers.authorization)
+  if (!admin) return res.status(401).json({ error: 'Unauthorized' })
+  try {
+    const rows = await dbQuery<any>('give_settings', {
+      order: [{ column: 'updated_at', ascending: false }],
+      limit: 1,
+    })
+    res.json({ success: true, data: rows[0] || null })
+  } catch (e: any) {
+    console.error('GET admin/give-settings:', e.message)
+    res.status(500).json({ success: false, error: 'Failed to fetch give settings' })
+  }
+})
+
+app.put('/api/admin/give-settings', async (req, res) => {
+  const admin = await getAdminFromToken(req.headers.authorization)
+  if (!admin) return res.status(401).json({ error: 'Unauthorized' })
+
+  const giveSettingsSchema = z.object({
+    paybillNumber: z.string().min(1),
+    accountNumber: z.string().min(1),
+    accountSuffixes: z.array(z.string()).optional(),
+    bankName: z.string().optional(),
+    bankAccountName: z.string().optional(),
+    bankAccountNumber: z.string().optional(),
+    bankBranch: z.string().optional(),
+  })
+
+  try {
+    const body = giveSettingsSchema.parse(req.body || {})
+    const now = new Date().toISOString()
+    const record = {
+      paybill_number: body.paybillNumber,
+      account_number: body.accountNumber,
+      account_suffixes: body.accountSuffixes || ['#offering/tithe', '#missions', '#building'],
+      bank_name: body.bankName || null,
+      bank_account_name: body.bankAccountName || null,
+      bank_account_number: body.bankAccountNumber || null,
+      bank_branch: body.bankBranch || null,
+      updated_at: now,
+    }
+
+    const existing = await dbQuery<any>('give_settings', {
+      order: [{ column: 'updated_at', ascending: false }],
+      limit: 1,
+    })
+
+    const row =
+      existing[0]?.id
+        ? await dbUpdate<any>('give_settings', existing[0].id, record)
+        : await dbInsert<any>('give_settings', record)
+
+    res.json({ success: true, data: row })
+  } catch (e: any) {
+    console.error('PUT admin/give-settings:', e.message)
+    res.status(400).json({ success: false, error: e.message || 'Failed to save give settings' })
   }
 })
 

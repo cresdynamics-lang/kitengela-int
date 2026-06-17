@@ -97,6 +97,33 @@ export const loginSchema = z.object({
   password: z.string().min(6),
 })
 
+export const planVisitSchema = z.object({
+  fullName: z.string().min(1),
+  phone: z.string().min(1),
+  email: z.string().email().optional().or(z.literal('')),
+  service: z.string().min(1),
+  howDidYouHear: z.string().optional(),
+  prayerRequest: z.string().optional(),
+})
+
+export const contactFormSchema = z.object({
+  name: z.string().min(1),
+  email: z.string().email(),
+  phone: z.string().optional(),
+  subject: z.string().min(1),
+  message: z.string().min(1),
+})
+
+export const giveSettingsSchema = z.object({
+  paybillNumber: z.string().min(1),
+  accountNumber: z.string().min(1),
+  accountSuffixes: z.array(z.string()).default(['#offering/tithe', '#missions', '#building']),
+  bankName: z.string().optional(),
+  bankAccountName: z.string().optional(),
+  bankAccountNumber: z.string().optional(),
+  bankBranch: z.string().optional(),
+})
+
 export const createAdminSchema = z.object({
   username: z.string().min(3),
   email: z.string().email(),

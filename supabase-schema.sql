@@ -169,3 +169,70 @@ CREATE TABLE photos (
 );
 -- Enable Realtime for photos table
 ALTER PUBLICATION supabase_realtime ADD TABLE photos;
+
+-- 11. visitor_requests (Plan Your Visit form)
+CREATE TABLE IF NOT EXISTS visitor_requests (
+  id               TEXT PRIMARY KEY,
+  full_name        TEXT NOT NULL,
+  phone            TEXT NOT NULL,
+  email            TEXT,
+  service          TEXT NOT NULL,
+  how_did_you_hear TEXT,
+  prayer_request   TEXT,
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_visitor_requests_created_at ON visitor_requests (created_at DESC);
+
+-- 12. give_settings (M-Pesa / bank details for Give page)
+CREATE TABLE IF NOT EXISTS give_settings (
+  id                  TEXT PRIMARY KEY,
+  paybill_number      TEXT NOT NULL DEFAULT '400222',
+  account_number      TEXT NOT NULL DEFAULT '1756443',
+  account_suffixes    TEXT[] DEFAULT ARRAY['#offering/tithe', '#missions', '#building'],
+  bank_name           TEXT,
+  bank_account_name   TEXT,
+  bank_account_number TEXT,
+  bank_branch         TEXT,
+  created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at          TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- 13. carousel_slides
+CREATE TABLE IF NOT EXISTS carousel_slides (
+  id              TEXT PRIMARY KEY,
+  page            TEXT NOT NULL DEFAULT 'home',
+  image_url       TEXT NOT NULL,
+  label           TEXT,
+  headline        TEXT NOT NULL,
+  scripture_text  TEXT,
+  scripture_ref   TEXT,
+  cta_text        TEXT,
+  cta_link        TEXT,
+  display_order   INTEGER NOT NULL DEFAULT 0,
+  is_active       BOOLEAN NOT NULL DEFAULT true,
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- 14. scripture_library
+CREATE TABLE IF NOT EXISTS scripture_library (
+  id          TEXT PRIMARY KEY,
+  theme       TEXT NOT NULL,
+  verse_text  TEXT NOT NULL,
+  reference   TEXT NOT NULL,
+  is_active   BOOLEAN NOT NULL DEFAULT true,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- 15. generation_groups
+CREATE TABLE IF NOT EXISTS generation_groups (
+  id              TEXT PRIMARY KEY,
+  group_name      TEXT NOT NULL,
+  image_url       TEXT NOT NULL,
+  scripture_text  TEXT,
+  scripture_ref   TEXT,
+  display_order   INTEGER NOT NULL DEFAULT 0,
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { publicApi } from '@/lib/api'
+import { ROUTES, SERVICE_SLUGS, serviceDetailPath } from '@/lib/routes'
 import styles from './Services.module.css'
 
 interface Service {
@@ -52,7 +53,7 @@ export default function Services({ services }: ServicesProps) {
   const effectiveServices = services && services.length > 0 ? services : fallbackServices
   const featuredCards = [
     {
-      id: 'sunday',
+      id: SERVICE_SLUGS.sundayWorship,
       title: 'Sunday Worship Service',
       image: '/sunday-services.jpeg',
       description: 'Main Sunday celebration service with worship, Word, and ministry.',
@@ -60,10 +61,10 @@ export default function Services({ services }: ServicesProps) {
       time: 'Every Sunday | 9:30 AM - 1:00 PM',
       location: 'VOSH Kitengela Main Sanctuary',
       expect: 'Dynamic Praise & Worship, Prophetic Ministry, and Life-Transforming Word.',
-      who: "Open to Everyone (Children's Church available)"
+      who: "Open to Everyone (Children's Church available)",
     },
     {
-      id: 'wednesday',
+      id: SERVICE_SLUGS.wednesdayPrayers,
       title: 'Wednesday Online Prayers',
       image: '/midweek-wed.jpeg',
       description: 'Midweek online prayer gathering to seek God together.',
@@ -71,10 +72,10 @@ export default function Services({ services }: ServicesProps) {
       time: 'Every Wednesday | 8:00 PM - 9:30 PM',
       location: 'Online (Zoom / YouTube Live)',
       expect: 'Deep Intercession, Testimonies, and Corporate Prayer.',
-      who: 'Open to Everyone'
+      who: 'Open to Everyone',
     },
     {
-      id: 'friday',
+      id: SERVICE_SLUGS.fridayNight,
       title: 'Friday Night Service',
       image: '/midweek-fri.jpeg',
       description: 'Friday night encounter in worship, intercession, and the Word.',
@@ -82,18 +83,18 @@ export default function Services({ services }: ServicesProps) {
       time: 'Every Friday | 5:30 PM - 7:30 PM',
       location: 'VOSH Kitengela Main Sanctuary',
       expect: "Extended Worship, Deliverance, and Encountering God's Presence.",
-      who: 'Youth, Young Adults & Everyone Hungry for God'
+      who: 'Youth, Young Adults & Everyone Hungry for God',
     },
     {
-      id: 'biblestudy',
+      id: SERVICE_SLUGS.sundayBibleStudy,
       title: 'Sunday Bible Study',
       image: '/bible-study.jpeg',
       description: 'Grow deeper in Scripture before the main Sunday services.',
       cta: 'Join Bible Study',
-      time: 'Every Sunday | 8:30 AM - 9:30 PM',
+      time: 'Every Sunday | 8:30 AM - 9:30 AM',
       location: 'VOSH Kitengela Main Sanctuary',
       expect: 'In-depth Scripture Exploration, Q&A, and Foundation Building.',
-      who: 'New Believers and Growing Disciples'
+      who: 'New Believers and Growing Disciples',
     },
   ]
 
@@ -136,22 +137,22 @@ export default function Services({ services }: ServicesProps) {
     const matchingLink = adminLinks.find(link => 
       (link.description && link.description.toLowerCase().includes(card.cta.toLowerCase())) ||
       (link.title && link.title.toLowerCase().includes(card.title.toLowerCase())) ||
-      (card.id === 'sunday' && link.description?.toLowerCase().includes('sunday')) ||
-      (card.id === 'wednesday' && link.description?.toLowerCase().includes('wednesday')) ||
-      (card.id === 'friday' && link.description?.toLowerCase().includes('friday')) ||
-      (card.id === 'biblestudy' && link.description?.toLowerCase().includes('bible'))
+      (card.id === SERVICE_SLUGS.sundayWorship && link.description?.toLowerCase().includes('sunday')) ||
+      (card.id === SERVICE_SLUGS.wednesdayPrayers && link.description?.toLowerCase().includes('wednesday')) ||
+      (card.id === SERVICE_SLUGS.fridayNight && link.description?.toLowerCase().includes('friday')) ||
+      (card.id === SERVICE_SLUGS.sundayBibleStudy && link.description?.toLowerCase().includes('bible'))
     )
 
     const matchingService = effectiveServices?.find(s => 
       (s.description && s.description.toLowerCase().includes(card.cta.toLowerCase())) ||
       (s.name && s.name.toLowerCase().includes(card.title.toLowerCase())) ||
-      (card.id === 'sunday' && s.name?.toLowerCase().includes('sunday') && !s.name?.toLowerCase().includes('bible')) ||
-      (card.id === 'wednesday' && s.name?.toLowerCase().includes('wednesday')) ||
-      (card.id === 'friday' && s.name?.toLowerCase().includes('friday')) ||
-      (card.id === 'biblestudy' && s.name?.toLowerCase().includes('bible'))
+      (card.id === SERVICE_SLUGS.sundayWorship && s.name?.toLowerCase().includes('sunday') && !s.name?.toLowerCase().includes('bible')) ||
+      (card.id === SERVICE_SLUGS.wednesdayPrayers && s.name?.toLowerCase().includes('wednesday')) ||
+      (card.id === SERVICE_SLUGS.fridayNight && s.name?.toLowerCase().includes('friday')) ||
+      (card.id === SERVICE_SLUGS.sundayBibleStudy && s.name?.toLowerCase().includes('bible'))
     )
 
-    let finalHref = '/services';
+    let finalHref = ROUTES.services;
     let target = undefined;
     let rel = undefined;
     let finalDescription = card.description;
@@ -206,9 +207,9 @@ export default function Services({ services }: ServicesProps) {
               <div className={styles.featuredContent}>
                 <h3 className={styles.featuredTitle}>{card.title}</h3>
                 <p className={styles.featuredDescription}>{card.description}</p>
-                {card.href === '/services' ? (
+                {card.href === ROUTES.services ? (
                   <Link 
-                    to={`/services/${card.id}`}
+                    to={serviceDetailPath(card.id)}
                     className={styles.featuredButton}
                   >
                     {card.cta} <span>→</span>

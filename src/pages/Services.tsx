@@ -2,297 +2,210 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import PageHeader from '@/components/PageHeader'
+import LiveStatusBar from '@/components/LiveStatusBar'
+import LivePlayer from '@/components/LivePlayer'
 import ScrollReveal from '@/components/ScrollReveal'
-import Carousel from '@/components/Carousel'
 import { publicApi } from '@/lib/api'
+import { ROUTES } from '@/lib/routes'
+import { getLiveJoinUrl } from '@/lib/live'
+import { useLiveStatus } from '@/hooks/useLiveStatus'
+import {
+  WEEKLY_SERVICES,
+  mergeProgramIntoService,
+  resolveWeeklyServiceJoin,
+  type WeeklyService,
+} from '@/lib/servicesPage'
 import styles from './Services.module.css'
 
-interface Program {
-  id: string
-  title: string
-  day: string
-  startTime: string
-  endTime: string
-  venue: string
-  description: string | null
-  contacts: string | string[]
-  posterImageUrl: string | null
+function normalizePrograms(rows: unknown) {
+  if (!Array.isArray(rows)) return []
+  return rows.map((p: Record<string, unknown>) => ({
+    title: String(p.title ?? ''),
+    startTime: (p.startTime ?? p.start_time) as string | undefined,
+    start_time: p.start_time as string | undefined,
+    endTime: (p.endTime ?? p.end_time) as string | undefined,
+    end_time: p.end_time as string | undefined,
+    venue: String(p.venue ?? ''),
+    description: (p.description as string | null) ?? null,
+    url: (p.url ?? p.linkUrl ?? p.link_url) as string | undefined,
+    linkUrl: p.linkUrl as string | undefined,
+    link_url: p.link_url as string | undefined,
+  }))
 }
-
-interface ServiceCard {
-  id: string
-  title: string
-  description: string | null
-  thumbnailUrl: string | null
-  linkUrl: string | null
-  time?: string
-  location?: string
-  expect?: string
-  who?: string
-}
-
-const churchActivitiesCarouselImages = [
-  { id: 1, title: "Sunday Worship Experience", image: "/activities-1.jpg", description: "Join us every Sunday for powerful worship and life-changing messages" },
-  { id: 2, title: "Bible Study Sessions", image: "/activities-2.jpg", description: "Deep dive into God's Word and grow in your understanding of Scripture" },
-  { id: 3, title: "Corporate Prayer", image: "/activities-3.jpg", description: "Experience the power of corporate prayer and intercession" },
-  { id: 4, title: "Online Connect Fellowship", image: "/whatsapp-7.jpeg", description: "Join our Online Connect Fellowship every Thursday from 8:30 PM - 9:30 PM" },
-  { id: 5, title: "Men's Fellowship", image: "/whatsapp-8.jpeg", description: "Men gathering together to reclaim the divine mandate of manhood" },
-  { id: 6, title: "Our Core Values", image: "/whatsapp-9.jpeg", description: "Prayer, Stewardship, Holiness, Advocacy, and Unity form our foundation" },
-  { id: 7, title: "Praise & Worship", image: "/outreach-2.jpeg", description: "Celebrate God's goodness through vibrant praise and worship" },
-  { id: 8, title: "Midweek Refreshment", image: "/whatsapp-11.jpeg", description: "Midweek spiritual refreshment and fellowship" }
-]
 
 export default function Services() {
-  const fallbackThursdayProgram: Program = {
-    id: 'thursday-online-connect',
-    title: 'Thursday Online Connect',
-    day: 'Thursday',
-    startTime: '8:30 PM',
-    endTime: '9:30 PM',
-    venue: 'Online (Google Meet)',
-    description: 'Online Connect Fellowship every Thursday 8:30 PM - 9:30 PM on Google Meet.',
-    contacts: [],
-    posterImageUrl: null,
-  }
-
-  const [programs, setPrograms] = useState<Program[]>([])
-  const [groupedPrograms, setGroupedPrograms] = useState<Record<string, Program[]>>({
-    Thursday: [fallbackThursdayProgram],
-  })
+  const { live: liveRaw } = useLiveStatus()
+  const live = liveRaw
+  const [showPlayer, setShowPlayer] = useState(false)
+  const [heroImage, setHeroImage] = useState('/sunday-services.jpeg')
+  const [adminLinks, setAdminLinks] = useState<any[]>([])
+  const [programs, setPrograms] = useState<ReturnType<typeof normalizePrograms>>([])
+  const [services, setServices] = useState<WeeklyService[]>(WEEKLY_SERVICES)
   const [loading, setLoading] = useState(true)
-  const [serviceCards, setServiceCards] = useState<ServiceCard[]>([])
-  const [servicesCarousel, setServicesCarousel] = useState(churchActivitiesCarouselImages)
 
   useEffect(() => {
-    Promise.all([publicApi.getWeeklyPrograms(), publicApi.getSermons()])
-      .then(([programsRes, sermonsRes]) => {
-        if (programsRes.success && Array.isArray(programsRes.data)) {
-          const rawData = programsRes.data as any[]
-          const progData = rawData.map(p => ({
-            id: p.id,
-            title: p.title,
-            day: p.day,
-            startTime: p.startTime || p.start_time || '',
-            endTime: p.endTime || p.end_time || '',
-            venue: p.venue,
-            description: p.description,
-            contacts: p.contacts,
-            posterImageUrl: p.posterImageUrl || p.poster_image_url || null
-          })) as Program[]
-          
-          setPrograms(progData)
-          const grouped: Record<string, Program[]> = {}
-          progData.forEach((p) => {
-            if (!grouped[p.day]) grouped[p.day] = []
-            grouped[p.day].push(p)
-          })
-
-          // Ensure the requested Thursday Online Connect is visible even if
-          // weekly programs were not fully populated in the database.
-          if (!grouped['Thursday'] || grouped['Thursday'].length === 0) {
-            grouped['Thursday'] = [fallbackThursdayProgram]
-          }
-
-          setGroupedPrograms(grouped)
+    Promise.allSettled([
+      publicApi.getLinks().then((res) => {
+        if (res.success && Array.isArray(res.data)) setAdminLinks(res.data)
+      }),
+      publicApi.getWeeklyPrograms().then((res) => {
+        if (res.success && Array.isArray(res.data)) {
+          const normalized = normalizePrograms(res.data)
+          setPrograms(normalized)
+          setServices(
+            WEEKLY_SERVICES.map((s) => mergeProgramIntoService(s, normalized)).sort(
+              (a, b) => a.sortOrder - b.sortOrder,
+            ),
+          )
         }
-
-        if (sermonsRes.success && Array.isArray(sermonsRes.data)) {
-          const rawSermons = sermonsRes.data as any[]
-          const mapped = rawSermons
-            .filter(s => s && (s.date || s.createdAt))
-            .sort((a, b) => {
-              const dateA = new Date(a.date || a.createdAt).getTime()
-              const dateB = new Date(b.date || b.createdAt).getTime()
-              return dateB - dateA
-            })
-            .slice(0, 4)
-            .map((s) => ({
-              id: s.id,
-              title: s.title || 'Service',
-              description: s.description || null,
-              thumbnailUrl: s.thumbnailUrl || s.thumbnail_url || null,
-              linkUrl: s.videoUrl || s.video_url || s.audioUrl || s.audio_url || null,
-            }))
-          setServiceCards(mapped)
+      }),
+      publicApi.getPhotos().then((res) => {
+        if (res.success && Array.isArray(res.data)) {
+          const photo = (res.data as { category?: string; url?: string }[]).find(
+            (p) => p.category === 'services' && p.url,
+          )
+          if (photo?.url) setHeroImage(photo.url)
         }
-      })
-      .catch(err => {
-        console.error('Error fetching services data:', err)
-      })
-      .finally(() => setLoading(false))
-
-    // Fetch services page images
-    publicApi.getPhotos().then((res) => {
-      if (res.success && Array.isArray(res.data)) {
-        const photos = res.data as any[]
-        const servicesPhotos = photos.filter(p => p.category === 'services')
-        if (servicesPhotos.length > 0) {
-          const carouselImages = servicesPhotos.slice(0, 8).map((p, i) => ({
-            id: i + 1,
-            title: i === 0 ? "Sunday Worship Experience" : i === 1 ? "Bible Study Sessions" : i === 2 ? "Corporate Prayer" : i === 3 ? "Online Connect Fellowship" : i === 4 ? "Men's Fellowship" : i === 5 ? "Our Core Values" : i === 6 ? "Praise & Worship" : "Midweek Refreshment",
-            image: p.url,
-            description: "Join us for church activities"
-          }))
-          setServicesCarousel(carouselImages)
-        }
-      }
-    }).catch(() => {})
+      }),
+    ]).finally(() => setLoading(false))
   }, [])
 
-  const daysOrder = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+  const handleLiveJoin = () => {
+    const url = getLiveJoinUrl(live)
+    if (live?.youtubeLiveUrl) {
+      setShowPlayer(true)
+    } else if (url) {
+      window.open(url, '_blank', 'noopener,noreferrer')
+    }
+  }
 
-  const effectiveServiceCards: ServiceCard[] = serviceCards.length > 0
-      ? serviceCards
-      : [
-          {
-            id: 'sunday',
-            title: 'Sunday Worship Service',
-            description: 'Main Sunday celebration service with worship, Word, and ministry.',
-            thumbnailUrl: '/sunday-services.jpeg',
-            linkUrl: null,
-            time: 'Every Sunday | 9:30 AM - 1:00 PM',
-            location: 'VOSH Kitengela Main Sanctuary',
-            expect: 'Dynamic Praise & Worship, Prophetic Ministry, and Life-Transforming Word.',
-            who: "Open to Everyone (Children's Church available)"
-          },
-          {
-            id: 'thursday',
-            title: 'Thursday Online Connect',
-            description: 'Online Connect Fellowship every Thursday 8:30 PM - 9:30 PM on Google Meet.',
-            thumbnailUrl: '/online-connect.jpeg',
-            linkUrl: null,
-            time: 'Every Thursday | 8:30 PM - 9:30 PM',
-            location: 'Online (Google Meet)',
-            expect: 'Fellowship, Word, and Community Building.',
-            who: 'Open to Everyone'
-          },
-          {
-            id: 'friday',
-            title: 'Friday Night Service',
-            description: 'Friday night encounter in worship, intercession, and the Word.',
-            thumbnailUrl: '/midweek-fri.jpeg',
-            linkUrl: null,
-            time: 'Every Friday | 5:30 PM - 7:30 PM',
-            location: 'VOSH Kitengela Main Sanctuary',
-            expect: "Extended Worship, Deliverance, and Encountering God's Presence.",
-            who: 'Youth, Young Adults & Everyone Hungry for God'
-          },
-          {
-            id: 'biblestudy',
-            title: 'Sunday Bible Study',
-            description: 'Grow deeper in Scripture before the main Sunday services.',
-            thumbnailUrl: '/bible-study.jpeg',
-            linkUrl: null,
-            time: 'Every Sunday | 8:30 AM - 9:30 AM',
-            location: 'VOSH Kitengela Main Sanctuary',
-            expect: 'In-depth Scripture Exploration, Q&A, and Foundation Building.',
-            who: 'New Believers and Growing Disciples'
-          },
-        ]
+  const onlineLinks = adminLinks.filter((l) => l.url?.startsWith('http'))
 
   return (
-    <div>
+    <main className={styles.page}>
       <Header />
-      <PageHeader 
-        title="Services & Programs" 
-        subtitle="Spiritual Refreshment for Your Week"
-        backgroundImage="/sunday-services.jpeg"
-        hideDivider={true}
-      />
-      <div className={styles.container}>
-        <section className={styles.carouselSection}>
-          <h2 className={styles.carouselTitle}>Church Life & Activities</h2>
-            <Carousel images={servicesCarousel} hideDivider={true} />
-        </section>
-        <div className={styles.featuredGrid}>
-          {effectiveServiceCards.map((card) => (
-              <div key={card.id} className={styles.featuredCard}>
-                {card.thumbnailUrl && (
-                  <div className={styles.featuredImageWrap}>
-                    <img src={card.thumbnailUrl} alt={card.title} className={styles.featuredImage} />
-                  </div>
-                )}
-                <div className={styles.featuredContent}>
-                  <h2 className={styles.featuredTitle}>{card.title}</h2>
-                  {card.description && (
-                    <p className={styles.featuredDescription}>{card.description}</p>
-                  )}
-                  {card.linkUrl ? (
-                    <a
-                      href={card.linkUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={styles.featuredButton}
-                    >
-                      Open Stream
-                    </a>
-                  ) : (
-                    <Link
-                      to={`/services/${card.id}`}
-                      className={styles.featuredButton}
-                    >
-                      View Service Details
-                    </Link>
-                  )}
-                </div>
-              </div>
-            ))}
+
+      {/* SECTION 1 — Hero */}
+      <section className={styles.hero} style={{ backgroundImage: `url(${heroImage})` }}>
+        <div className={styles.heroOverlay} />
+        <div className={styles.heroInner}>
+          <h1 className={styles.heroTitle}>Our Services &amp; Programs</h1>
+          <p className={styles.heroTagline}>
+            Join us for worship, prayer, and fellowship throughout the week.
+          </p>
         </div>
-        {loading ? (
-          <div className={styles.loading}>Loading...</div>
-        ) : (
-            <div className={styles.programsContainer}>
-              {daysOrder.map((day) => {
-                const dayPrograms = groupedPrograms[day] || []
-                if (dayPrograms.length === 0) return null
+      </section>
+
+      {/* SECTION 2 — Live Status Banner */}
+      <LiveStatusBar live={live} onJoinLive={handleLiveJoin} />
+
+      {/* SECTION 3 — Weekly Schedule */}
+      <section className={styles.schedule}>
+        <div className={styles.container}>
+          {loading ? (
+            <p className={styles.loading}>Loading schedule…</p>
+          ) : (
+            <div className={styles.scheduleList}>
+              {services.map((service) => {
+                const join = resolveWeeklyServiceJoin(service, adminLinks, programs, live)
                 return (
-                  <div key={day} className={styles.daySection}>
-                    <h2 className={styles.dayTitle}>{day}</h2>
-                    <div className={styles.programsGrid}>
-                      {dayPrograms.map((program) => (
-                        <div key={program.id} className={styles.programCard}>
-                          {program.posterImageUrl && (
-                            <div className={styles.programPosterWrap}>
-                              <img src={program.posterImageUrl} alt={program.title} className={styles.programPoster} />
-                            </div>
-                          )}
-                          <h3 className={styles.programTitle}>{program.title}</h3>
-                          <div className={styles.programTime}>
-                            <span>{program.startTime} - {program.endTime}</span>
-                          </div>
-                          <div className={styles.programVenue}><strong>Venue:</strong> {program.venue}</div>
-                          {program.description && <p className={styles.programDescription}>{program.description}</p>}
-                          {program.contacts && (() => {
-                            try {
-                              let contacts: string[] = [];
-                              if (typeof program.contacts === 'string') {
-                                contacts = JSON.parse(program.contacts);
-                              } else if (Array.isArray(program.contacts)) {
-                                contacts = program.contacts;
-                              }
-                              return contacts.length > 0 ? (
-                                <div className={styles.programContacts}>
-                                  <strong>Contact:</strong>{' '}
-                                  {contacts.map((contact, idx) => (
-                                    <a key={idx} href={`tel:${contact.replace(/\s/g, '')}`} className={styles.contactLink}>{contact}</a>
-                                  ))}
-                                </div>
-                              ) : null
-                            } catch {
-                              return null
-                            }
-                          })()}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                  <ScrollReveal key={service.id}>
+                    <article className={styles.scheduleCard}>
+                      <h2 className={styles.scheduleTitle}>{service.title}</h2>
+                      <p className={styles.scheduleMeta}>
+                        {service.time} | {service.venue}
+                      </p>
+                      <p className={styles.scheduleDesc}>{service.description}</p>
+                      {join.showLiveStreamNote && (
+                        <p className={styles.liveNote}>Live Stream Available</p>
+                      )}
+                      {join.external ? (
+                        <a
+                          href={join.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.joinBtn}
+                        >
+                          {service.joinLabel} →
+                        </a>
+                      ) : (
+                        <Link to={join.href} className={styles.joinBtn}>
+                          {service.joinLabel} →
+                        </Link>
+                      )}
+                    </article>
+                  </ScrollReveal>
                 )
               })}
             </div>
-        )}
-      </div>
+          )}
+        </div>
+      </section>
+
+      {/* SECTION 4 — What to Expect */}
+      <section className={styles.expect}>
+        <div className={styles.container}>
+          <h2 className={styles.sectionTitle}>First Time Joining Us?</h2>
+          <div className={styles.expectGrid}>
+            <div className={styles.expectCard}>
+              <h3>What to Wear</h3>
+              <p>Come as you are — casual or formal, you belong here.</p>
+            </div>
+            <div className={styles.expectCard}>
+              <h3>What to Expect</h3>
+              <p>Worship, the Word, and a warm welcome. Services run about 90 minutes.</p>
+            </div>
+            <div className={styles.expectCard}>
+              <h3>For Your Kids</h3>
+              <p>
+                Children&apos;s ministry is available during Sunday Worship. Friendly ushers
+                will guide your family when you arrive.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Online links */}
+      <section className={styles.onlineLinks} id="online-links">
+        <div className={styles.container}>
+          <h2 className={styles.sectionTitle}>Online Service Links</h2>
+          {onlineLinks.length > 0 ? (
+            <ul className={styles.linksList}>
+              {onlineLinks.map((link) => (
+                <li key={link.id ?? link.url}>
+                  <a href={link.url} target="_blank" rel="noopener noreferrer">
+                    {link.title || link.description || link.url}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className={styles.loading}>
+              Online links are updated from the admin panel. Check back soon or visit{' '}
+              <Link to={ROUTES.joinUs}>Join Us</Link> for service times.
+            </p>
+          )}
+        </div>
+      </section>
+
+      {/* SECTION 5 — CTA */}
+      <section className={styles.cta}>
+        <div className={styles.container}>
+          <h2 className={styles.ctaTitle}>
+            Can&apos;t make it in person? Join us online — every service, every week.
+          </h2>
+          <a href="#online-links" className={styles.ctaBtn}>
+            View All Online Links →
+          </a>
+        </div>
+      </section>
+
       <Footer />
-    </div>
+
+      {showPlayer && live?.youtubeLiveUrl && (
+        <LivePlayer url={live.youtubeLiveUrl} onClose={() => setShowPlayer(false)} />
+      )}
+    </main>
   )
 }

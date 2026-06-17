@@ -1,172 +1,351 @@
+.page {
+  min-height: 100vh;
+  background: var(--surface, #FAF8F3);
+}
+
 .container {
-  max-width: 1200px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 2rem 20px;
-}
-
-.hero {
-  text-align: center;
-  padding: 3rem 0;
-  background: linear-gradient(135deg, #050505 0%, #111111 100%);
-  color: white;
-  margin-bottom: 3rem;
-  border-radius: var(--radius);
-  border: 1px solid rgba(59, 130, 246, 0.2);
-}
-
-.title {
-  font-size: 3rem;
-  font-weight: 900;
-  margin-bottom: 1rem;
-  color: var(--foreground);
-  text-transform: uppercase;
-}
-
-.subtitle {
-  font-size: 1.2rem;
-  font-weight: 400;
-  opacity: 0.9;
-}
-
-.carouselSection {
-  margin-bottom: 3rem;
-  padding: 1rem;
-  background: var(--primary-light);
-  border-radius: var(--radius);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.leadersGrid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 2rem;
-  margin-top: 2rem;
-  max-width: 900px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.leaderCard {
-  background: var(--primary-light);
-  border-radius: var(--radius);
-  overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-  text-decoration: none;
-  color: inherit;
-  display: flex;
-  flex-direction: column;
-}
-
-.leaderCard:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.2);
-  border-color: var(--accent);
-}
-
-.imageContainer {
-  width: 100%;
-  aspect-ratio: 1;
-  position: relative;
-  overflow: hidden;
-  background: linear-gradient(135deg, #050505 0%, #111111 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.leaderImage {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  object-position: center;
-}
-
-.placeholderImage {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #050505 0%, #111111 100%);
-}
-
-.placeholderText {
-  font-size: 5rem;
-  font-weight: 900;
-  color: var(--accent);
-}
-
-.leaderInfo {
-  padding: 1.5rem;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.leaderName {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: var(--foreground);
-  margin-bottom: 0.5rem;
-}
-
-.leaderTitle {
-  font-size: 1rem;
-  color: var(--accent);
-  font-weight: 700;
-  margin-bottom: 1rem;
-}
-
-.leaderBio {
-  font-size: 0.95rem;
-  line-height: 1.6;
-  color: #cbd5e1;
-  margin-bottom: 1rem;
-  flex: 1;
-}
-
-.readMore {
-  color: var(--accent-light);
-  font-weight: 800;
-  font-size: 0.9rem;
-  margin-top: auto;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  transition: color 0.3s ease;
-}
-
-.leaderCard:hover .readMore {
-  color: var(--accent);
+  padding: 0 1.5rem;
 }
 
 .loading,
-.empty {
+.emptyNote {
   text-align: center;
-  padding: 3rem;
-  font-size: 1.2rem;
+  padding: 3rem 1.5rem;
   color: #666;
 }
 
-@media (max-width: 768px) {
-  .title {
-    font-size: 2rem;
-  }
+/* Hero */
+.hero {
+  position: relative;
+  min-height: 380px;
+  background-size: cover;
+  background-position: center top;
+  display: flex;
+  align-items: flex-end;
+}
 
-  .subtitle {
-    font-size: 1rem;
-  }
+.heroOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(11, 31, 58, 0.9) 0%, rgba(11, 31, 58, 0.45) 100%);
+}
 
-  .leadersGrid {
+.heroInner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 3.5rem 1.5rem 2.5rem;
+}
+
+.heroTitle {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(2.5rem, 5vw, 3.75rem);
+  color: #fff;
+  margin: 0 0 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.heroTagline {
+  max-width: 520px;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 1.15rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Senior pastor */
+.senior {
+  padding: 4rem 0;
+  background: #fff;
+}
+
+.seniorCard {
+  display: grid;
+  grid-template-columns: minmax(280px, 380px) 1fr;
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.seniorPhotoWrap {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 4px solid var(--gold, #D4A017);
+  aspect-ratio: 3 / 4;
+  background: var(--navy, #0B1F3A);
+}
+
+.seniorPhoto {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.seniorPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+  font-weight: 700;
+  color: var(--gold, #D4A017);
+}
+
+.seniorName {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  color: var(--navy, #0B1F3A);
+  margin: 0 0 0.35rem;
+}
+
+.seniorRole {
+  color: var(--gold, #D4A017);
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0 0 1.25rem;
+}
+
+.seniorBio p {
+  color: var(--text, #1C1C1C);
+  line-height: 1.8;
+  margin: 0 0 1rem;
+  font-size: 1.02rem;
+}
+
+.seniorScripture {
+  margin: 1.5rem 0;
+  padding: 0;
+  border: none;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  color: var(--navy, #0B1F3A);
+  line-height: 1.7;
+}
+
+.seniorScripture cite {
+  display: block;
+  margin-top: 0.4rem;
+  font-style: normal;
+  color: var(--gold, #D4A017);
+  font-weight: 600;
+}
+
+.profileLink {
+  display: inline-block;
+  color: var(--navy, #0B1F3A);
+  font-weight: 700;
+  text-decoration: none;
+  border-bottom: 2px solid var(--gold, #D4A017);
+  padding-bottom: 2px;
+}
+
+.profileLink:hover {
+  color: var(--gold, #D4A017);
+}
+
+/* Ministry team */
+.team {
+  padding: 4rem 0;
+  background: var(--surface, #FAF8F3);
+}
+
+.sectionTitle {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  color: var(--navy, #0B1F3A);
+  text-align: center;
+  margin: 0 0 2.5rem;
+}
+
+.teamGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.teamCard {
+  display: block;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid rgba(11, 31, 58, 0.08);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.teamCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(11, 31, 58, 0.1);
+}
+
+.teamPhotoWrap {
+  aspect-ratio: 1;
+  background: var(--navy, #0B1F3A);
+  overflow: hidden;
+}
+
+.teamPhoto {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.teamPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--gold, #D4A017);
+}
+
+.teamName {
+  font-size: 1.1rem;
+  color: var(--navy, #0B1F3A);
+  margin: 1rem 1rem 0.25rem;
+}
+
+.teamRole {
+  color: var(--gold, #D4A017);
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin: 0 1rem 0.5rem;
+}
+
+.teamBio {
+  color: #666;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  margin: 0 1rem 1.25rem;
+}
+
+/* Departments */
+.departments {
+  padding: 4rem 0;
+  background: #fff;
+}
+
+.deptGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+}
+
+.deptCard {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  background: var(--surface, #FAF8F3);
+  border-radius: 8px;
+  border-top: 3px solid var(--gold, #D4A017);
+}
+
+.deptLabel {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold, #D4A017);
+  margin: 0 0 0.75rem;
+}
+
+.deptName {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.05rem;
+  color: var(--navy, #0B1F3A);
+  margin: 0 0 0.25rem;
+  font-weight: 600;
+}
+
+.deptRole {
+  font-size: 0.82rem;
+  color: #666;
+  margin: 0;
+}
+
+/* CTA */
+.cta {
+  padding: 4rem 0;
+  background: var(--navy, #0B1F3A);
+  text-align: center;
+}
+
+.ctaTitle {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(1.35rem, 3vw, 1.85rem);
+  color: var(--gold, #D4A017);
+  max-width: 640px;
+  margin: 0 auto 1.75rem;
+  line-height: 1.45;
+}
+
+.ctaBtn {
+  display: inline-flex;
+  padding: 0.9rem 1.75rem;
+  background: var(--gold, #D4A017);
+  color: var(--navy, #0B1F3A);
+  font-weight: 800;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: 4px;
+}
+
+.ctaBtn:hover {
+  filter: brightness(1.05);
+}
+
+@media (max-width: 900px) {
+  .seniorCard {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
-    max-width: 100%;
+    max-width: 520px;
+    margin: 0 auto;
   }
 
-  .imageContainer {
-    aspect-ratio: 1;
-    max-height: 320px;
+  .teamGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .deptGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .heroInner {
+    padding: 3rem 1rem 2rem;
+  }
+
+  .senior,
+  .team,
+  .departments,
+  .cta {
+    padding: 3rem 0;
+  }
+
+  .seniorPhotoWrap {
+    max-width: 320px;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 560px) {
+  .teamGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .deptGrid {
+    grid-template-columns: 1fr;
   }
 }

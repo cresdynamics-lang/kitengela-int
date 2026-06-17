@@ -4,6 +4,7 @@ import styles from './PhotoManager.module.css'
 import { adminApi } from '@/lib/api'
 import { getAdminToken } from '@/lib/adminSession'
 import { supabase } from '@/lib/supabase'
+import { compressImageForUpload } from '@/lib/imageCompression'
 
 interface Photo {
   id: string
@@ -117,10 +118,10 @@ export default function PhotoManager() {
     }
   }
 
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file && file.type.startsWith('image/')) {
-      setSelectedFile(file)
+      setSelectedFile(await compressImageForUpload(file))
     }
   }
 
@@ -134,13 +135,13 @@ export default function PhotoManager() {
     setDragActive(false)
   }
 
-  const handleDrop = (e: React.DragEvent) => {
+  const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault()
     setDragActive(false)
     
     const file = e.dataTransfer.files?.[0]
     if (file && file.type.startsWith('image/')) {
-      setSelectedFile(file)
+      setSelectedFile(await compressImageForUpload(file))
     }
   }
 

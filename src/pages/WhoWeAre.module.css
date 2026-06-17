@@ -1,0 +1,441 @@
+.page {
+  min-height: 100vh;
+  background: var(--surface, #FAF8F3);
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* ——— Hero ——— */
+.hero {
+  position: relative;
+  min-height: 420px;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: flex-end;
+}
+
+.heroOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(11, 31, 58, 0.88) 0%, rgba(11, 31, 58, 0.45) 100%);
+}
+
+.heroInner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 4rem 1.5rem 3rem;
+}
+
+.heroTitle {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  color: #fff;
+  margin: 0 0 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+}
+
+.heroTagline {
+  max-width: 560px;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 1.2rem;
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* ——— Our Story ——— */
+.story {
+  padding: 5rem 0;
+  background: #fff;
+}
+
+.storyHeading {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+  color: var(--navy, #0B1F3A);
+  margin: 0 0 1.75rem;
+}
+
+.storyBody {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 800px;
+}
+
+.storyBody p {
+  color: var(--text, #1C1C1C);
+  font-size: 1.08rem;
+  line-height: 1.85;
+  margin: 0;
+}
+
+.scripture {
+  margin: 2rem 0 0;
+  padding: 0;
+  border: none;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  color: var(--navy, #0B1F3A);
+  font-size: 1.05rem;
+  line-height: 1.75;
+  max-width: 640px;
+}
+
+.scripture cite {
+  display: block;
+  margin-top: 0.5rem;
+  font-style: normal;
+  font-weight: 600;
+  color: var(--gold, #D4A017);
+  font-size: 0.95rem;
+}
+
+/* ——— Mission / Vision / Mandate ——— */
+.mvm {
+  padding: 4rem 0 5rem;
+  background: var(--surface, #FAF8F3);
+}
+
+.mvmGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+}
+
+.mvmCard {
+  background: #fff;
+  border-radius: 8px;
+  padding: 2rem 1.75rem;
+  border-top: 4px solid var(--gold, #D4A017);
+  box-shadow: 0 4px 20px rgba(11, 31, 58, 0.07);
+  height: 100%;
+}
+
+.mvmLabel {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold, #D4A017);
+  margin: 0 0 0.75rem;
+}
+
+.mvmRule {
+  height: 1px;
+  background: rgba(11, 31, 58, 0.12);
+  margin-bottom: 1.25rem;
+}
+
+.mvmText {
+  color: var(--text, #1C1C1C);
+  font-size: 1rem;
+  line-height: 1.75;
+  margin: 0;
+}
+
+/* ——— Statement of Faith ——— */
+.faith {
+  padding: 5rem 0;
+  background: #fff;
+}
+
+.sectionTitle {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  color: var(--navy, #0B1F3A);
+  margin: 0 0 0.35rem;
+  text-align: center;
+}
+
+.sectionSubtitle {
+  text-align: center;
+  color: #666;
+  margin: 0 0 2.5rem;
+  font-size: 1rem;
+}
+
+.accordion {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.accordionItem {
+  border: 1px solid rgba(11, 31, 58, 0.1);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--surface, #FAF8F3);
+}
+
+.accordionTrigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--navy, #0B1F3A);
+  transition: background 0.2s;
+}
+
+.accordionTrigger:hover,
+.accordionTriggerOpen {
+  background: rgba(212, 160, 23, 0.08);
+}
+
+.checkmark {
+  color: var(--gold, #D4A017);
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.accordionIcon {
+  margin-left: auto;
+  color: var(--gold, #D4A017);
+  font-size: 1.25rem;
+  font-weight: 300;
+  line-height: 1;
+}
+
+.accordionPanel {
+  padding: 0 1.25rem 1.25rem 2.75rem;
+  color: #555;
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+.accordionPanel p {
+  margin: 0;
+}
+
+.faithLink {
+  display: block;
+  margin: 2rem auto 0;
+  background: none;
+  border: none;
+  color: var(--navy, #0B1F3A);
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-color: var(--gold, #D4A017);
+}
+
+.faithLink:hover {
+  color: var(--gold, #D4A017);
+}
+
+.fullFaith {
+  max-width: 720px;
+  margin: 1.5rem auto 0;
+  padding: 1.5rem;
+  background: var(--surface, #FAF8F3);
+  border-left: 4px solid var(--gold, #D4A017);
+  border-radius: 0 6px 6px 0;
+}
+
+.fullFaith p {
+  margin: 0;
+  color: var(--text, #1C1C1C);
+  line-height: 1.8;
+  font-size: 1rem;
+}
+
+/* ——— Outreach ——— */
+.outreach {
+  background: var(--surface, #FAF8F3);
+}
+
+.outreachGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 480px;
+}
+
+.outreachImage {
+  background-size: cover;
+  background-position: center;
+  min-height: 320px;
+}
+
+.outreachCopy {
+  display: flex;
+  align-items: center;
+  padding: 3rem 2.5rem;
+  background: #fff;
+}
+
+.outreachEyebrow {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold, #D4A017);
+  margin-bottom: 0.75rem;
+}
+
+.outreachTitle {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  color: var(--navy, #0B1F3A);
+  margin: 0 0 1rem;
+}
+
+.outreachText {
+  color: var(--text, #1C1C1C);
+  line-height: 1.8;
+  margin: 0 0 1.25rem;
+  font-size: 1.05rem;
+}
+
+.outreachScripture {
+  margin: 0 0 1.5rem;
+  padding: 0;
+  border: none;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  color: var(--navy, #0B1F3A);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.outreachScripture cite {
+  display: block;
+  margin-top: 0.35rem;
+  font-style: normal;
+  color: var(--gold, #D4A017);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.outreachCta {
+  display: inline-block;
+  color: var(--navy, #0B1F3A);
+  font-weight: 700;
+  text-decoration: none;
+  border-bottom: 2px solid var(--gold, #D4A017);
+  padding-bottom: 2px;
+}
+
+.outreachCta:hover {
+  color: var(--gold, #D4A017);
+}
+
+/* ——— CTA ——— */
+.cta {
+  padding: 4.5rem 0;
+  background: var(--navy, #0B1F3A);
+  text-align: center;
+}
+
+.ctaTitle {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  color: var(--gold, #D4A017);
+  margin: 0 0 2rem;
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.ctaActions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.ctaPrimary {
+  display: inline-flex;
+  padding: 0.9rem 1.75rem;
+  background: var(--gold, #D4A017);
+  color: var(--navy, #0B1F3A);
+  font-weight: 800;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: 4px;
+}
+
+.ctaPrimary:hover {
+  filter: brightness(1.05);
+}
+
+.ctaSecondary {
+  display: inline-flex;
+  padding: 0.9rem 1.75rem;
+  border: 2px solid var(--gold, #D4A017);
+  color: var(--gold, #D4A017);
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: 4px;
+}
+
+.ctaSecondary:hover {
+  background: rgba(212, 160, 23, 0.12);
+}
+
+@media (max-width: 900px) {
+  .mvmGrid {
+    grid-template-columns: 1fr;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+
+  .outreachGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .outreachImage {
+    min-height: 280px;
+  }
+
+  .outreachCopy {
+    padding: 2.5rem 1.5rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .hero {
+    min-height: 340px;
+  }
+
+  .heroTagline {
+    font-size: 1.05rem;
+  }
+
+  .ctaActions {
+    flex-direction: column;
+    align-items: stretch;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+
+  .ctaPrimary,
+  .ctaSecondary {
+    justify-content: center;
+  }
+}

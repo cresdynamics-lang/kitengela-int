@@ -1,0 +1,378 @@
+.page {
+  min-height: 100vh;
+  background: var(--surface, #FAF8F3);
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.hero {
+  position: relative;
+  min-height: 480px;
+  background-size: cover;
+  background-position: center top;
+  display: flex;
+  align-items: flex-end;
+}
+
+.heroOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(11, 31, 58, 0.95) 0%, rgba(11, 31, 58, 0.35) 55%, rgba(11, 31, 58, 0.2) 100%);
+}
+
+.heroInner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 2.75rem;
+}
+
+.backLink {
+  display: inline-block;
+  color: rgba(255, 255, 255, 0.75);
+  text-decoration: none;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.backLink:hover {
+  color: var(--gold, #D4A017);
+}
+
+.roleLabel {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold, #D4A017);
+  margin: 0 0 0.75rem;
+}
+
+.tagline {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(2rem, 4.5vw, 3.25rem);
+  color: #fff;
+  margin: 0 0 1rem;
+  line-height: 1.12;
+  max-width: 720px;
+}
+
+.signatureQuote {
+  margin: 0 0 0.75rem;
+  padding: 0;
+  border: none;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-size: clamp(1.1rem, 2.5vw, 1.45rem);
+  color: var(--gold, #D4A017);
+  max-width: 640px;
+  line-height: 1.55;
+}
+
+.name {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.vision {
+  padding: 4.5rem 0;
+  background: #fff;
+  text-align: center;
+}
+
+.sectionLabel {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold, #D4A017);
+  margin: 0 0 1rem;
+}
+
+.visionText {
+  max-width: 680px;
+  margin: 0 auto 1.5rem;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(1.25rem, 2.5vw, 1.65rem);
+  color: var(--navy, #0B1F3A);
+  line-height: 1.6;
+}
+
+.visionScripture {
+  max-width: 560px;
+  margin: 0 auto;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  color: #555;
+  line-height: 1.65;
+  border: none;
+}
+
+.visionScripture cite {
+  display: block;
+  margin-top: 0.4rem;
+  font-style: normal;
+  color: var(--gold, #D4A017);
+  font-weight: 600;
+}
+
+.profile {
+  padding: 4.5rem 0;
+  background: var(--surface, #FAF8F3);
+}
+
+.profileSplit {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.profilePhotoWrap {
+  border-radius: 8px;
+  overflow: hidden;
+  border-top: 4px solid var(--gold, #D4A017);
+}
+
+.profilePhoto {
+  width: 100%;
+  display: block;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+}
+
+.sectionTitle {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(1.35rem, 2.5vw, 1.75rem);
+  color: var(--navy, #0B1F3A);
+  margin: 0 0 1.25rem;
+}
+
+.bio {
+  color: #444;
+  line-height: 1.75;
+  margin: 0 0 1rem;
+  font-size: 1.02rem;
+}
+
+.qualifications {
+  padding: 4rem 0;
+  background: #fff;
+}
+
+.qualSplit {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.credentialList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.credentialList li {
+  padding: 0.85rem 1rem;
+  background: var(--surface, #FAF8F3);
+  border-left: 4px solid var(--gold, #D4A017);
+  border-radius: 0 6px 6px 0;
+  font-weight: 600;
+  color: var(--navy, #0B1F3A);
+  font-size: 0.95rem;
+}
+
+.ministry {
+  padding: 4.5rem 0;
+  background: var(--surface, #FAF8F3);
+}
+
+.ministryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+}
+
+.ministryCard {
+  background: #fff;
+  border-radius: 8px;
+  padding: 1.5rem;
+  border-top: 4px solid var(--gold, #D4A017);
+  height: 100%;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.ministryCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(11, 31, 58, 0.1);
+}
+
+.ministryIcon {
+  font-size: 1.75rem;
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.ministryCard h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  color: var(--navy, #0B1F3A);
+  line-height: 1.35;
+}
+
+.ministryCard p {
+  margin: 0;
+  color: #555;
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.skills {
+  padding: 4rem 0;
+  background: var(--navy, #0B1F3A);
+}
+
+.skills .sectionTitle {
+  color: var(--gold, #D4A017);
+  text-align: center;
+}
+
+.skillPills {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.65rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.skillPill {
+  padding: 0.55rem 1rem;
+  border: 1px solid rgba(212, 160, 23, 0.45);
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.gallery {
+  padding: 4.5rem 0;
+  background: #fff;
+}
+
+.galleryQuote {
+  margin: 2.5rem auto 0;
+  max-width: 560px;
+  text-align: center;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  color: var(--navy, #0B1F3A);
+  line-height: 1.65;
+  border: none;
+  padding-top: 2rem;
+  border-top: 2px solid var(--gold, #D4A017);
+}
+
+.galleryQuote cite {
+  display: block;
+  margin-top: 0.5rem;
+  font-style: normal;
+  color: var(--gold, #D4A017);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.cta {
+  padding: 4rem 0;
+  background: var(--navy, #0B1F3A);
+  text-align: center;
+}
+
+.cta h2 {
+  font-family: 'Playfair Display', Georgia, serif;
+  color: var(--gold, #D4A017);
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.35rem, 3vw, 1.85rem);
+}
+
+.cta p {
+  color: rgba(255, 255, 255, 0.85);
+  max-width: 520px;
+  margin: 0 auto 1.5rem;
+  line-height: 1.65;
+}
+
+.ctaBtn {
+  display: inline-flex;
+  padding: 0.9rem 1.75rem;
+  background: var(--gold, #D4A017);
+  color: var(--navy, #0B1F3A);
+  font-weight: 800;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: 4px;
+}
+
+@media (max-width: 900px) {
+  .profileSplit,
+  .qualSplit {
+    grid-template-columns: 1fr;
+  }
+
+  .profilePhotoWrap {
+    max-width: 360px;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero {
+    min-height: 420px;
+  }
+
+  .heroInner {
+    padding: 2.5rem 1rem 2rem;
+  }
+
+  .tagline {
+    font-size: clamp(1.65rem, 6vw, 2.25rem);
+  }
+
+  .signatureQuote {
+    font-size: 1rem;
+  }
+
+  .vision,
+  .profile,
+  .qualifications,
+  .ministry,
+  .skills,
+  .gallery,
+  .cta {
+    padding: 3rem 0;
+  }
+
+  .ministryGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .ctaBtn {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+}

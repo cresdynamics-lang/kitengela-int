@@ -1,40 +1,54 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
+    './index.html',
+    './src/**/*.{js,ts,jsx,tsx}',
   ],
   theme: {
     extend: {
       fontFamily: {
         inter: ['Inter', 'sans-serif'],
-        poppins: ['Poppins', 'sans-serif'],
+        display: ['Playfair Display', 'Georgia', 'serif'],
+        scripture: ['Playfair Display', 'Georgia', 'serif'],
       },
       colors: {
+        navy: {
+          DEFAULT: '#0B1F3A',
+          light: '#132d52',
+          dark: '#071528',
+        },
+        gold: {
+          DEFAULT: '#D4A017',
+          light: '#e8b82a',
+          dark: '#b88912',
+        },
+        surface: '#FAF8F3',
+        charcoal: '#1C1C1C',
+        live: '#E63946',
         primary: {
-          50: '#fafafa',
-          100: '#f5f5f5',
-          200: '#e5e5e5',
-          300: '#d4d4d4',
-          400: '#a3a3a3',
-          500: '#737373',
-          600: '#525252',
-          700: '#404040',
-          800: '#262626',
-          900: '#171717', // Dark Charcoal
-          950: '#050505', // Pitch Black
+          50: '#f4f2ed',
+          100: '#e8e4db',
+          200: '#d4cbb8',
+          300: '#b8a98a',
+          400: '#9a8868',
+          500: '#7d6d4f',
+          600: '#5c5240',
+          700: '#3d3a32',
+          800: '#1f2a3d',
+          900: '#0B1F3A',
+          950: '#071528',
         },
         accent: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          200: '#bfdbfe',
-          300: '#93c5fd',
-          400: '#60a5fa',
-          500: '#3b82f6', // Electric Blue
-          600: '#2563eb',
-          700: '#1d4ed8',
-          800: '#1e40af',
-          900: '#1e3a8a',
+          50: '#fdf8e8',
+          100: '#f9edc4',
+          200: '#f2d98a',
+          300: '#e8b82a',
+          400: '#D4A017',
+          500: '#b88912',
+          600: '#946d0e',
+          700: '#6f520a',
+          800: '#4a3707',
+          900: '#251b03',
         },
       },
       animation: {
@@ -42,6 +56,7 @@ export default {
         'slide-up': 'slideUp 0.6s ease-out',
         'scale-in': 'scaleIn 0.5s ease-out',
         'pulse-soft': 'pulseSoft 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'live-pulse': 'livePulse 1.5s ease-in-out infinite',
       },
       keyframes: {
         fadeIn: {
@@ -60,10 +75,14 @@ export default {
           '0%, 100%': { opacity: '1' },
           '50%': { opacity: '0.8' },
         },
+        livePulse: {
+          '0%, 100%': { opacity: '1', transform: 'scale(1)' },
+          '50%': { opacity: '0.5', transform: 'scale(1.2)' },
+        },
       },
       backgroundImage: {
-        'gradient-to-br-dark': 'linear-gradient(to bottom right, rgba(0,0,0,0.5), rgba(0,0,0,0.5))',
-        'gradient-overlay-dark': 'linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.5) 100%)',
+        'gradient-navy': 'linear-gradient(180deg, rgba(11,31,58,0.85) 0%, rgba(11,31,58,0.95) 100%)',
+        'gradient-overlay-dark': 'linear-gradient(180deg, rgba(11,31,58,0.4) 0%, rgba(11,31,58,0.75) 100%)',
       },
     },
   },

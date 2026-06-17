@@ -1,369 +1,396 @@
 import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import Carousel from '@/components/Carousel'
 import Header from '@/components/Header'
-import Services from '@/components/Services'
 import CoreValues from '@/components/CoreValues'
 import Footer from '@/components/Footer'
+import ScrollReveal from '@/components/ScrollReveal'
+import LivePlayer from '@/components/LivePlayer'
+import HeroCarousel from '@/components/HeroCarousel'
+import ScripturePulse from '@/components/ScripturePulse'
+import GenerationsCarousel from '@/components/GenerationsCarousel'
+import TestimonyCarousel from '@/components/TestimonyCarousel'
+import type { TestimonyItem } from '@/components/TestimonyCarousel'
+import SermonCarousel from '@/components/SermonCarousel'
+import type { SermonItem } from '@/components/SermonCarousel'
 import { publicApi } from '@/lib/api'
+import { ROUTES, serviceDetailPath } from '@/lib/routes'
+import { getLiveJoinUrl, getNextSundayCalendarUrl } from '@/lib/live'
+import { useLiveStatus } from '@/hooks/useLiveStatus'
+import {
+  HOME_SERVICE_CARDS,
+  resolveServiceJoinUrl,
+  type HomeServiceCard,
+} from '@/lib/homeServices'
+import {
+  DEFAULT_HOME_HERO_SLIDES,
+  DEFAULT_GENERATION_GROUPS,
+  normalizeHeroSlide,
+  normalizeGenerationGroup,
+  type HeroSlide,
+} from '@/lib/carousels'
+import { getPulseVerses, normalizeScriptureRow } from '@/lib/scripture'
 import styles from './Home.module.css'
 
-const heroImages = [
+const PILLARS = [
   {
-    id: 0,
-    title: 'Welcome to Kitengela',
-    image: '/Carousel1.jpg',
-    description: '#House_Of_Solutions',
-    scripture: {
-      text: "I was glad when they said to me, 'Let us go to the house of the LORD!'",
-      reference: 'Psalm 122:1',
-    },
+    tag: 'ROOTED IN THE WORD',
+    title: 'Rising in Spirit',
+    body: 'Sound teaching matched with the move of the Holy Spirit.',
+    scripture: '"Built on the foundation of the apostles and prophets." — Ephesians 2:20',
+    cta: 'Discover Our Roots',
+    link: ROUTES.whoWeAre,
+    image: '/mission-vision.jpeg',
+    photoCategory: 'foundation',
   },
   {
-    id: 1,
-    title: 'Manifesting Christ in Our Community',
-    image: '/Carousel2.jpg',
-    description: 'We are a House of Solutions, reaching out with love and power in Kitengela.',
-    scripture: {
-      text: 'Let your light shine before others, that they may see your good deeds and glorify your Father in heaven.',
-      reference: 'Matthew 5:16',
-    },
+    tag: 'LOVE BEYOND OUR WALLS',
+    title: 'Our Mission in Action',
+    body: 'Outreach that brings hope, healing, and the tangible love of Christ to Kitengela and beyond.',
+    scripture: '"Go and make disciples of all nations." — Matthew 28:19',
+    cta: 'See Our Outreach',
+    link: ROUTES.outreach,
+    image: '/outreach-1.jpeg',
+    photoCategory: 'reach',
   },
   {
-    id: 2,
-    title: 'Experience Supernatural Worship',
-    image: '/carousel3.jpeg',
-    description: 'Join us this Sunday along Baraka Road for a time of refreshment and miracles.',
-    scripture: {
-      text: 'Worship the LORD with gladness; come before him with joyful songs.',
-      reference: 'Psalm 100:2',
-    },
-  },
-]
-
-const heroScriptures = heroImages.map((slide) => slide.scripture!)
-
-const foundationImages = [
-  "/whatsapp-12.jpeg",
-  "/whatsapp-13.jpeg",
-  "/whatsapp-14.jpeg"
-]
-
-const reachImages = [
-  "/whatsapp-15.jpeg",
-  "/whatsapp-16.jpeg",
-  "/whatsapp-17.jpeg",
-  "/whatsapp-18.jpeg"
-]
-
-const prayerImages = [
-  "/whatsapp-1.jpeg",
-  "/whatsapp-2.jpeg",
-  "/whatsapp-4.jpeg"
-]
-
-const givingImages = [
-  "/whatsapp-7.jpeg",
-  "/whatsapp-11.jpeg",
-  "/whatsapp-12.jpeg"
-]
-
-// Universal Exclusion List: Images used across the entire site that should NOT be in the gallery
-const SYSTEM_IMAGES: string[] = [
-  ...heroImages.map(img => img.image),
-  ...foundationImages,
-  ...reachImages,
-  ...prayerImages,
-  ...givingImages,
-  "/logo/church-logo.jpeg",
-  "/logo/vosh-logo.png",
-  "/logo/logo.png",
-  "/Past.Nancy.Sai.jpeg",
-  "/PastorNancySai.jpeg",
-  "/Rev.Evans1.jpeg",
-  "/Rev.Evans2.jpeg",
-  "/Rev.Evans3.jpeg",
-  "/mission-vision.jpeg",
-  "/core-values.jpeg",
-  "/bible-study.jpeg"
-]
-
-// Use SYSTEM_IMAGES to filter gallery
-void SYSTEM_IMAGES
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: 'easeOut' } }
-}
-
-const carouselSectionCopy = [
-  {
-    badge: 'Our Foundation',
-    title: 'Rooted in the Word, Rising in Spirit',
-    description:
-      'VOSH Church International Kitengela is built on the apostolic mandate to disseminate the pure Gospel of Jesus Christ. We are a house of spiritual solutions where miracles are matched with sound teaching.',
-    scripture:
-      'Built on the foundation of the apostles and prophets, with Christ Jesus himself as the chief cornerstone. - Ephesians 2:20',
-    ctaText: 'Discover Our Roots',
-    ctaLink: '/about',
+    tag: 'EXPERIENCE THE SUPERNATURAL',
+    title: 'House of Prayer',
+    body: 'Worship, prayer, and divine encounters in the presence of God.',
+    scripture: '"For my house will be called a house of prayer for all nations." — Isaiah 56:7',
+    cta: 'View Service Times',
+    link: ROUTES.services,
+    image: '/praise-worship.jpg',
+    photoCategory: 'prayer',
   },
   {
-    badge: 'Community Reach',
-    title: 'Love Beyond Our Walls',
-    description:
-      'Our mission extends to the streets of Kitengela and beyond. Through outreach programs, we bring hope, healing, and the tangible love of Christ to those who need it most.',
-    scripture:
-      'Therefore go and make disciples of all nations. - Matthew 28:19',
-    ctaText: 'Our Mission In Action',
-    ctaLink: '/outreach',
-  },
-  {
-    badge: 'House of Prayer',
-    title: 'Experience the Supernatural',
-    description:
-      'Join our vibrant community of believers as we lift our voices in prayer and worship. Experience refreshment, healing, and divine encounters in the presence of God.',
-    scripture:
-      'For my house will be called a house of prayer for all nations. - Isaiah 56:7',
-    ctaText: 'View Service Times',
-    ctaLink: '/services',
-  },
-  {
-    badge: 'Generous Living',
-    title: 'Partnering for Transformation',
-    description:
-      'Your support enables us to reach more lives with the Gospel and impact our community through tangible acts of love. Partner with us to build the kingdom of God together.',
-    scripture:
-      'God loves a cheerful giver. - 2 Corinthians 9:7',
-    ctaText: 'Ways to Give',
-    ctaLink: '/give',
+    tag: 'IMPACTING GENERATIONS',
+    title: 'Next Generation',
+    body: 'Equipping youth, teens, and young adults to carry the fire forward.',
+    scripture: '"Train up a child in the way he should go." — Proverbs 22:6',
+    cta: 'Explore Next Generation',
+    link: ROUTES.nextGeneration,
+    image: '/whatsapp-12.jpeg',
+    photoCategory: 'youth',
   },
 ]
 
-function toCarouselImages(images: string[], title: string, description: string) {
-  return images.map((image, index) => ({
-    id: index,
-    title,
-    image,
-    description,
-  }))
+const FALLBACK_TESTIMONIES: TestimonyItem[] = [
+  {
+    id: '1',
+    name: 'Church Member',
+    quote: 'I came to VOSH broken and searching. Today I\'m walking in healing and purpose.',
+    memberSince: 'Member since 2023',
+  },
+]
+
+const YOUTUBE_CHANNEL = 'https://www.youtube.com/@PstEvansKochoo'
+
+function ServiceScheduleCard({
+  card,
+  joinUrl,
+}: {
+  card: HomeServiceCard
+  joinUrl: string | null
+}) {
+  return (
+    <div className={styles.scheduleCard}>
+      <h3 className={styles.scheduleCardTitle}>{card.title}</h3>
+      <p className={styles.scheduleCardTime}>{card.time}</p>
+      <p className={styles.scheduleCardVenue}>
+        {card.venue}
+        {card.platform ? ` · Platform: ${card.platform}` : ''}
+      </p>
+      {joinUrl ? (
+        <a href={joinUrl} target="_blank" rel="noopener noreferrer" className={styles.scheduleCardBtn}>
+          {card.joinLabel} →
+        </a>
+      ) : (
+        <Link to={serviceDetailPath(card.slug)} className={styles.scheduleCardBtn}>
+          {card.joinLabel} →
+        </Link>
+      )}
+    </div>
+  )
 }
 
 export default function Home() {
-  const [services, setServices] = useState<any[]>([])
-  const [galleryImages, setGalleryImages] = useState<string[]>([
-    "/whatsapp-1.jpeg",
-    "/whatsapp-2.jpeg",
-    "/whatsapp-4.jpeg",
-    "/whatsapp-7.jpeg",
-    "/whatsapp-11.jpeg",
-    "/whatsapp-12.jpeg",
-    "/whatsapp-13.jpeg",
-    "/whatsapp-14.jpeg",
-    "/whatsapp-15.jpeg",
-    "/whatsapp-16.jpeg",
-    "/whatsapp-17.jpeg",
-    "/whatsapp-18.jpeg",
-    "/whatsapp-19.jpeg"
-  ])
-  const [heroImagesState, setHeroImagesState] = useState<any[]>(heroImages)
-  const [foundationImagesState, setFoundationImagesState] = useState<string[]>(foundationImages)
-  const [reachImagesState, setReachImagesState] = useState<string[]>(reachImages)
-  const [prayerImagesState, setPrayerImagesState] = useState<string[]>(prayerImages)
-  const [givingImagesState, setGivingImagesState] = useState<string[]>(givingImages)
-  const [loading, setLoading] = useState(true)
+  const { live } = useLiveStatus()
+  const [showPlayer, setShowPlayer] = useState(false)
+  const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(DEFAULT_HOME_HERO_SLIDES)
+  const [pillarImages, setPillarImages] = useState(PILLARS.map((p) => p.image))
+  const [generationGroups, setGenerationGroups] = useState(DEFAULT_GENERATION_GROUPS)
+  const [adminLinks, setAdminLinks] = useState<any[]>([])
+  const [programs, setPrograms] = useState<any[]>([])
+  const [sermons, setSermons] = useState<SermonItem[]>([])
+  const [testimonials, setTestimonials] = useState<TestimonyItem[]>(FALLBACK_TESTIMONIES)
+  const [youtubeChannel, setYoutubeChannel] = useState(YOUTUBE_CHANNEL)
+  const [scheduleLoading, setScheduleLoading] = useState(true)
+
+  const liveJoinUrl = getLiveJoinUrl(live)
+  const calendarUrl = getNextSundayCalendarUrl()
 
   useEffect(() => {
-    const fetchGallery = async () => {
-      try {
-        const response = await publicApi.getPhotos()
-        if (response.success && Array.isArray(response.data)) {
-          const allPhotos = response.data as any[]
-          
-          // 1. Update Gallery (All photos) - exclude non-gallery categories if needed
-          const galleryPhotos = allPhotos.filter(p => !['hero', 'foundation', 'reach', 'prayer', 'giving', 'discipleship', 'ministries', 'contact'].includes(p.category)).map(p => p.url)
-          
-          if (galleryPhotos.length > 0) {
-            setGalleryImages(galleryPhotos)
-          }
-
-          // 2. Helper to get top 3 by category (used for fallback)
-          const getByCategory = (cat: string): string[] => allPhotos.filter(p => p.category === cat).slice(0, 3).map(p => p.url)
-          
-          // Use getByCategory for fallback images
-          void getByCategory
-
-          // 3. Update Hero
-          const heroPhotos = allPhotos.filter(p => p.category === 'hero').slice(0, 3)
-          if (heroPhotos.length > 0) {
-            const dynamicHero = heroPhotos.map((p, i) => ({
-              id: p.id,
-              title: i === 0 ? 'Welcome to Kitengela' : i === 1 ? 'Manifesting Christ in Our Community' : 'Experience Supernatural Worship',
-              image: p.url,
-              description:
-                i === 0
-                  ? '#House_Of_Solutions — Transforming lives through the pure Word and building strong faith for our community.'
-                  : i === 1
-                    ? 'We are a House of Solutions, reaching out with love and power in Kitengela.'
-                    : 'Join us this Sunday along Baraka Road for a time of refreshment and miracles.',
-              scripture: heroScriptures[i] ?? heroScriptures[0],
-            }))
-            // Do not merge with fallbacks. Only use admin-selected images.
-            setHeroImagesState(dynamicHero)
-          } else {
-            setHeroImagesState(heroImages)
-          }
-
-          // 4. Update Sections with guaranteed 3 images
-          const usedImagesSet = new Set<string>()
-          
-          const updateSection = (cat: string, fallbackArr: string[], setState: Function) => {
-            const catPhotos = allPhotos.filter(p => p.category === cat).map(p => p.url)
-            const finalImages = catPhotos.length >= 3 
-              ? catPhotos.slice(0, 3) 
-              : [...catPhotos, ...fallbackArr.slice(0, 3 - catPhotos.length)]
-            
-            setState(finalImages)
-            // Track these as used
-            finalImages.forEach(img => usedImagesSet.add(img))
-          }
-
-          updateSection('foundation', foundationImages, setFoundationImagesState)
-          updateSection('reach', reachImages, setReachImagesState)
-          updateSection('prayer', prayerImages, setPrayerImagesState)
-          updateSection('giving', givingImages, setGivingImagesState)
-
-          // Track hero images as used too
-          heroImagesState.forEach(item => usedImagesSet.add(item.image))
-
-        }
-      } catch (error) {
-        console.error('Error fetching gallery:', error)
-      }
-    }
-
     Promise.allSettled([
-      publicApi.getWeeklyPrograms().then((r) => {
-        if (r?.success && Array.isArray(r.data)) {
-          setServices((r.data as any[]).map((p) => ({
-            id: p.id,
-            name: p.title || p.name || '',
-            time: (p.startTime || p.start_time) && (p.endTime || p.end_time)
-              ? `${p.startTime || p.start_time} - ${p.endTime || p.end_time}`
-              : p.startTime || p.start_time || p.time || '',
-            day: p.day || '',
-            description: p.description || '',
-            venue: p.venue || '',
-            url: p.url || p.linkUrl || p.link_url || '',
-          })))
+      publicApi.getCarouselSlides('home').then((res) => {
+        if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+          const parsed = (res.data as Record<string, unknown>[])
+            .map(normalizeHeroSlide)
+            .filter(Boolean) as HeroSlide[]
+          if (parsed.length) setHeroSlides(parsed.slice(0, 4))
         }
       }),
-      fetchGallery(),
-    ]).then((results) => {
-      const [programsResult, galleryResult] = results
-      if (programsResult.status === 'rejected') {
-        console.warn('Programs fetch failed:', programsResult.reason)
-      }
-      if (galleryResult.status === 'rejected') {
-        console.warn('Gallery fetch failed:', galleryResult.reason)
-      }
-    }).finally(() => setLoading(false))
+      publicApi.getGenerationGroups().then((res) => {
+        if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+          const parsed = (res.data as Record<string, unknown>[])
+            .map(normalizeGenerationGroup)
+            .filter(Boolean)
+          if (parsed.length) setGenerationGroups(parsed as typeof DEFAULT_GENERATION_GROUPS)
+        }
+      }),
+      publicApi.getPhotos().then((res) => {
+        if (res.success && Array.isArray(res.data)) {
+          const photos = res.data as { category?: string; url?: string }[]
+          setPillarImages(
+            PILLARS.map((pillar) => {
+              const catPhoto = photos.find((p) => p.category === pillar.photoCategory)
+              return catPhoto?.url ?? pillar.image
+            }),
+          )
+        }
+      }),
+      publicApi.getLinks().then((res) => {
+        if (res.success && Array.isArray(res.data)) setAdminLinks(res.data)
+      }),
+      publicApi.getWeeklyPrograms().then((res) => {
+        if (res.success && Array.isArray(res.data)) setPrograms(res.data)
+      }),
+      publicApi.getSermons().then((res) => {
+        if (res.success && Array.isArray(res.data)) {
+          setSermons(
+            (res.data as Record<string, unknown>[])
+              .filter((s) => s.video_url || s.videoUrl)
+              .slice(0, 8)
+              .map((s) => ({
+                id: String(s.id),
+                title: String(s.title || 'Sermon'),
+                thumbnailUrl: (s.thumbnail_url ?? s.thumbnailUrl) as string | null,
+                videoUrl: (s.video_url ?? s.videoUrl) as string | null,
+              })),
+          )
+        }
+      }),
+      publicApi.getTestimonials().then((res) => {
+        if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+          setTestimonials(
+            (res.data as Record<string, unknown>[]).map((t) => ({
+              id: String(t.id),
+              name: String(t.name ?? 'Member'),
+              quote: String(t.quote ?? t.content ?? ''),
+              photoUrl: (t.photo_url ?? t.photoUrl) as string | null,
+              memberSince: String(t.member_since ?? t.memberSince ?? ''),
+            })).filter((t) => t.quote),
+          )
+        }
+      }),
+      publicApi.getSermonSource().then((res) => {
+        if (res.success && res.data) {
+          const url = (res.data as Record<string, unknown>).youtube_playlist_url ?? (res.data as Record<string, unknown>).youtubePlaylistUrl
+          if (url) setYoutubeChannel(String(url))
+        }
+      }),
+    ]).finally(() => setScheduleLoading(false))
   }, [])
+
+  const handleLiveAction = () => {
+    if (live?.isLive && liveJoinUrl) {
+      if (live.youtubeLiveUrl) {
+        setShowPlayer(true)
+      } else {
+        window.open(liveJoinUrl, '_blank', 'noopener,noreferrer')
+      }
+    } else {
+      window.open(calendarUrl, '_blank', 'noopener,noreferrer')
+    }
+  }
+
+  const liveActions = (
+    <div className={styles.heroActions}>
+      <Link to={`${ROUTES.joinUs}#plan-visit`} className={styles.goldBtn}>
+        Plan Your Visit
+      </Link>
+      <button
+        type="button"
+        onClick={handleLiveAction}
+        className={`${styles.liveBtn} ${live?.isLive ? styles.liveBtnActive : ''}`}
+      >
+        {live?.isLive ? (
+          <>
+            <span className={styles.liveDot} aria-hidden />
+            LIVE NOW — Tap to Join
+          </>
+        ) : (
+          'Next Service: Sunday 9:30 AM — Set Reminder'
+        )}
+      </button>
+    </div>
+  )
 
   return (
     <main className={styles.main}>
       <Header />
-      <section className={styles.hero}>
-        <div className={styles.container}>
-          <div className={styles.heroGrid}>
-            <motion.div variants={fadeUp} initial="hidden" animate="visible" className={styles.heroCopy}>
-              <h1 className={styles.heroTitle}>Welcome to the House of Solutions</h1>
-              <p className={styles.heroText}>
-                VOSH Church International Kitengela is a Christ-centered family built on the Word,
-                prayer, worship, and community transformation.
-              </p>
-              <div className={styles.heroActions}>
-                <Link to="/contact" className={styles.primaryButton}>Plan Your Visit</Link>
-                <Link to="/services" className={styles.secondaryButton}>Service Times</Link>
-              </div>
-              <div className={styles.heroStats}>
-                <div><strong>Sunday</strong><span>9:30 AM</span></div>
-                <div><strong>Kitengela</strong><span>Baraka Road</span></div>
-                <div><strong>Mission</strong><span>Manifesting Christ</span></div>
-              </div>
-            </motion.div>
-            <motion.div variants={fadeUp} initial="hidden" animate="visible" className={styles.heroMedia}>
-              <Carousel images={heroImagesState} variant="split" hideDivider />
-            </motion.div>
+
+      <HeroCarousel slides={heroSlides} liveSlot={liveActions} />
+
+      <section className={styles.liveBar} aria-live="polite">
+        {live?.isLive ? (
+          <div className={styles.liveBarInner}>
+            <span className={styles.liveBarStatus}>
+              <span className={styles.liveDot} aria-hidden />
+              LIVE NOW: {live.title}
+            </span>
+            <button type="button" onClick={handleLiveAction} className={styles.liveBarAction}>
+              Join Now →
+            </button>
           </div>
-        </div>
-      </section>
-
-      <section className={styles.carouselStorySection}>
-        <div className={styles.container}>
-          {[
-            { copy: carouselSectionCopy[0], images: foundationImagesState },
-            { copy: carouselSectionCopy[1], images: reachImagesState },
-            { copy: carouselSectionCopy[2], images: prayerImagesState },
-            { copy: carouselSectionCopy[3], images: givingImagesState },
-          ].map(({ copy, images }) => (
-            <div className={styles.carouselStory} key={copy.badge}>
-              <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className={styles.carouselStoryCopy}>
-                <h2 className={styles.title}>{copy.title}</h2>
-                <p>{copy.description}</p>
-                <blockquote>{copy.scripture}</blockquote>
-                <Link to={copy.ctaLink} className={styles.primaryButton}>{copy.ctaText}</Link>
-              </motion.div>
-              <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className={styles.carouselStoryMedia}>
-                <Carousel
-                  images={toCarouselImages(images, copy.title, copy.description)}
-                  variant="split"
-                  hideDivider
-                />
-              </motion.div>
+        ) : (
+          <div className={styles.liveBarInner}>
+            <div className={styles.liveBarNext}>
+              <span>🕐 NEXT SERVICE: Sunday Worship — 9:30 AM</span>
+              <span className={styles.liveBarMeta}>
+                Kitengela, Baraka Road | Online: Join via website
+              </span>
             </div>
-          ))}
+            <a href={calendarUrl} target="_blank" rel="noopener noreferrer" className={styles.liveBarAction}>
+              Add to Calendar
+            </a>
+          </div>
+        )}
+      </section>
+
+      <section className={styles.welcome}>
+        <div className={styles.container}>
+          <ScrollReveal>
+            <h2 className={styles.welcomeTitle}>Welcome to the House of Solutions</h2>
+            <p className={styles.welcomeText}>
+              VOSH Church International Kitengela is a Christ-centered family built on the Word,
+              prayer, worship, and community transformation. Whether you&apos;re seeking healing,
+              answers, or simply a place to belong — you have found a home here.
+            </p>
+          </ScrollReveal>
         </div>
       </section>
 
-      <div id="services">
-        {loading ? <div className={styles.container} style={{ padding: '80px 20px', textAlign: 'center' }}>Loading services...</div> : <Services services={services} />}
-      </div>
+      <ScripturePulse verses={getPulseVerses(['boldness', 'prayer', 'identity'])} backgroundImage="/praise-worship.jpg" />
 
-      {/* 6. Media In Pictures Section (Marquee) */}
-      <section className={`${styles.section} ${styles.mediaSection}`}>
+      <section className={styles.pillars}>
         <div className={styles.container}>
-          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} style={{ textAlign: 'center', marginBottom: '4rem' }}>
-            <h2 className={styles.title}>Life at VOSH Kitengela</h2>
-          </motion.div>
-        </div>
-        
-        {/* Infinite Marquee Container */}
-        <div className={styles.marqueeContainer}>
-          <div className={styles.marqueeTrack}>
-            {/* Render images twice for seamless infinite scroll */}
-            {[...galleryImages, ...galleryImages].map((img, i) => (
-              <div key={i} className={styles.marqueeItem}>
-                <img 
-                  src={img} 
-                  alt="Church gallery" 
-                  className={styles.marqueeImg} 
-                  loading="lazy" 
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none';
-                    // Optionally hide the parent div to remove the empty box
-                    const parent = (e.target as HTMLImageElement).parentElement;
-                    if (parent) parent.style.display = 'none';
-                  }}
-                />
-              </div>
+          <div className={styles.pillarsGrid}>
+            {PILLARS.map((pillar, index) => (
+              <ScrollReveal key={pillar.tag} direction={index % 2 === 0 ? 'left' : 'right'}>
+                <article
+                  className={styles.pillarCard}
+                  style={{ backgroundImage: `url(${pillarImages[index]})` }}
+                >
+                  <div className={styles.pillarOverlay} />
+                  <div className={styles.pillarContent}>
+                    <span className={styles.pillarTag}>{pillar.tag}</span>
+                    <h3 className={styles.pillarTitle}>{pillar.title}</h3>
+                    <p className={styles.pillarBody}>{pillar.body}</p>
+                    <p className={styles.pillarScripture}>{pillar.scripture}</p>
+                    <Link to={pillar.link} className={styles.pillarCta}>
+                      {pillar.cta} →
+                    </Link>
+                  </div>
+                </article>
+              </ScrollReveal>
             ))}
           </div>
         </div>
       </section>
 
+      <section className={styles.generations}>
+        <div className={styles.container}>
+          <h2 className={styles.sectionTitle}>Impacting Every Generation</h2>
+          <GenerationsCarousel groups={generationGroups} />
+        </div>
+      </section>
+
+      <section className={styles.schedule} id="services">
+        <div className={styles.container}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>Join Us This Week</h2>
+            <p className={styles.sectionSubtitle}>
+              Worship, prayer, and fellowship — in person and online.
+            </p>
+          </div>
+          {scheduleLoading ? (
+            <p className={styles.loadingText}>Loading schedule…</p>
+          ) : (
+            <div className={styles.scheduleGrid}>
+              {HOME_SERVICE_CARDS.map((card) => (
+                <ServiceScheduleCard
+                  key={card.id}
+                  card={card}
+                  joinUrl={resolveServiceJoinUrl(card, adminLinks, programs)}
+                />
+              ))}
+            </div>
+          )}
+          <div className={styles.scheduleFooter}>
+            <Link to={ROUTES.services} className={styles.outlineBtn}>
+              View Full Service Schedule →
+            </Link>
+          </div>
+        </div>
+      </section>
+
       <CoreValues />
+
+      <section className={styles.testimonies}>
+        <div className={styles.container}>
+          <h2 className={styles.sectionTitle}>Stories of Transformation</h2>
+          <TestimonyCarousel testimonials={testimonials} />
+          <p className={styles.testimonyLink}>
+            <Link to={ROUTES.testimonies}>Read more testimonies →</Link>
+          </p>
+        </div>
+      </section>
+
+      <section className={styles.media}>
+        <div className={styles.container}>
+          <h2 className={styles.sectionTitle}>Catch Up on the Word</h2>
+          <SermonCarousel sermons={sermons} />
+          <p className={styles.mediaFooter}>
+            <Link to={ROUTES.sermons} className={styles.outlineBtn}>
+              Browse All Sermons →
+            </Link>
+            <a href={youtubeChannel} target="_blank" rel="noopener noreferrer" className={styles.youtubeLink}>
+              YouTube Channel →
+            </a>
+          </p>
+        </div>
+      </section>
+
+      <section className={styles.giving}>
+        <div className={styles.container}>
+          <h2 className={styles.givingTitle}>Partnering for Transformation</h2>
+          <blockquote className={styles.givingScripture}>
+            &ldquo;God loves a cheerful giver.&rdquo; — 2 Corinthians 9:7
+          </blockquote>
+          <p className={styles.givingText}>
+            Your support enables us to reach more lives with the Gospel.
+          </p>
+          <Link to={ROUTES.give} className={styles.givingBtn}>
+            Give Now →
+          </Link>
+        </div>
+      </section>
+
       <Footer />
+
+      {showPlayer && live?.youtubeLiveUrl && (
+        <LivePlayer url={live.youtubeLiveUrl} onClose={() => setShowPlayer(false)} />
+      )}
     </main>
   )
 }

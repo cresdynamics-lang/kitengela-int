@@ -2,9 +2,8 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styles from './AdminLogin.module.css'
 import { adminApi } from '@/lib/api'
-import { prefetchAdminTabChunk } from '@/lib/adminPrefetch'
-import { getAdminActiveTab, setAdminSession } from '@/lib/adminSession'
-import type { TabKey } from './adminTabs'
+import { ROUTES } from '@/lib/routes'
+import { setAdminSession } from '@/lib/adminSession'
 
 export default function AdminLogin() {
   const navigate = useNavigate()
@@ -21,11 +20,7 @@ export default function AdminLogin() {
       if (response.success && response.data) {
         const token = response.data.token
         setAdminSession(token, response.data.admin)
-
-        const nextTab = getAdminActiveTab<TabKey>('live')
-        await prefetchAdminTabChunk(nextTab)
-
-        navigate('/admin/dashboard')
+        navigate(ROUTES.admin.liveSessions)
       } else {
         setError((response as { error?: string }).error || 'Login failed')
       }

@@ -195,8 +195,65 @@ export const publicApi = {
     return fetchApi('/api/public/photos')
   },
 
+  async getLeadershipHeroPhoto() {
+    return fetchApi<{ id: string; url?: string; category?: string } | null>('/api/public/photos/leadership-hero')
+  },
+
   async getTestimonials() {
     return fetchApi('/api/public/testimonials')
+  },
+
+  async submitPlanVisit(payload: {
+    fullName: string
+    phone: string
+    email?: string
+    service: string
+    howDidYouHear?: string
+    prayerRequest?: string
+  }) {
+    return fetchApi('/api/public/plan-visit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+  },
+
+  async submitContact(payload: {
+    name: string
+    email: string
+    phone?: string
+    subject: string
+    message: string
+  }) {
+    return fetchApi('/api/public/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+  },
+
+  async getGiveSettings() {
+    return fetchApi('/api/public/give-settings')
+  },
+
+  async getCarouselSlides(page = 'home') {
+    return fetchApi(`/api/public/carousel-slides?page=${encodeURIComponent(page)}`)
+  },
+
+  async getScriptureLibrary() {
+    return fetchApi('/api/public/scripture-library')
+  },
+
+  async getGenerationGroups() {
+    return fetchApi('/api/public/generation-groups')
+  },
+
+  async submitPrayerRequest(payload: { name: string; request: string }) {
+    return fetchApi('/api/public/prayer-request', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
   },
 }
 
@@ -448,6 +505,17 @@ export const adminApi = {
   async deleteTestimonial(token: string, id: string) {
     return fetchApiWithAuth(`/api/admin/testimonials/${id}`, token, {
       method: 'DELETE',
+    })
+  },
+
+  async getGiveSettingsAdmin(token: string) {
+    return fetchApiWithAuth('/api/admin/give-settings', token)
+  },
+
+  async updateGiveSettings(token: string, data: Record<string, unknown>) {
+    return fetchApiWithAuth('/api/admin/give-settings', token, {
+      method: 'PUT',
+      body: JSON.stringify(data),
     })
   },
 }

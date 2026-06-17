@@ -2,53 +2,48 @@
   position: sticky;
   top: 0;
   width: 100%;
-  padding: 1rem 0;
+  padding: 0.85rem 0;
   z-index: 1000;
-  background: var(--background); /* Pitch Black */
-  border-bottom: 1px solid rgba(59, 130, 246, 0.2);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  background: rgba(250, 248, 243, 0.97);
+  border-bottom: 1px solid rgba(11, 31, 58, 0.08);
+  backdrop-filter: blur(10px);
   transition: all 0.3s ease;
 }
 
 .headerScrolled {
-  padding: 0.75rem 0;
-  background: rgba(5, 5, 5, 0.95);
-  border-bottom: 1px solid rgba(59, 130, 246, 0.4);
-  box-shadow: 0 10px 30px rgba(59, 130, 246, 0.1);
+  padding: 0.65rem 0;
+  box-shadow: 0 4px 20px rgba(11, 31, 58, 0.08);
 }
 
 .container {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 1.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
 }
 
 .logoContainer {
   display: flex;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .logoLink {
   display: flex;
   align-items: center;
-  gap: 1.25rem;
+  gap: 0.85rem;
   text-decoration: none;
 }
 
 .logo {
-  width: 60px;
-  height: 60px;
-  border-radius: 0; /* Sharp corner */
+  width: 52px;
+  height: 52px;
   object-fit: cover;
-  border: 2px solid var(--accent);
-  transition: transform 0.3s ease;
-}
-
-.logoLink:hover .logo {
-  transform: scale(1.05);
+  border: 2px solid var(--gold, #D4A017);
+  border-radius: 4px;
 }
 
 .logoText {
@@ -57,131 +52,128 @@
 }
 
 .churchName {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: var(--foreground);
-  letter-spacing: -0.02em;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--navy, #0B1F3A);
   margin: 0;
+  line-height: 1.15;
 }
 
 .locationTag {
-  font-size: 0.8125rem;
+  font-size: 0.65rem;
   font-weight: 700;
-  color: var(--accent);
-  letter-spacing: 0.15em;
-  margin-top: -2px;
+  color: var(--gold, #D4A017);
+  letter-spacing: 0.18em;
+  margin: 0;
 }
 
 .nav {
   display: flex;
   align-items: center;
-  gap: 2.5rem;
+  gap: 1.5rem;
 }
 
 .navLink {
-  font-size: 0.9375rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text, #1C1C1C);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  transition: color 0.2s;
+}
+
+.navLink:hover,
+.activeLink {
+  color: var(--navy, #0B1F3A);
+}
+
+.activeLink {
   font-weight: 700;
-  color: #a3a3a3; /* Light Gray */
-  transition: all 0.2s ease;
-  position: relative;
-  text-decoration: none;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
 }
 
-.navLink:hover, .activeLink {
-  color: #ffffff;
-  text-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
-}
-
-.activeLink::after {
-  content: '';
-  position: absolute;
-  bottom: -0.5rem;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: var(--accent);
-  box-shadow: 0 0 10px var(--accent);
-}
-
-.planVisitBtn {
-  background: var(--accent);
-  color: white;
-  padding: 0.875rem 1.75rem;
-  border-radius: var(--radius);
-  font-weight: 800;
-  font-size: 0.875rem;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
-  text-decoration: none;
-  text-transform: uppercase;
-}
-
-.planVisitBtn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 0 25px rgba(59, 130, 246, 0.8);
-  background: var(--accent-light);
-}
-
-.liveButton {
-  background: #ef4444;
-  color: white;
-  padding: 0.625rem 1.25rem;
-  border-radius: 0;
-  font-weight: 800;
-  font-size: 0.75rem;
+.navActions {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  text-decoration: none;
-  animation: pulse-red 2s infinite;
-  text-transform: uppercase;
+  gap: 0.75rem;
+  margin-left: 0.5rem;
 }
 
-@keyframes pulse-red {
-  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
-  70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
-  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+.watchLiveBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1rem;
+  background: transparent;
+  border: 1px solid rgba(11, 31, 58, 0.2);
+  color: var(--navy, #0B1F3A);
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 4px;
+  opacity: 0.55;
+}
+
+.watchLiveBtn:disabled {
+  cursor: default;
+}
+
+.watchLiveBtnActive {
+  opacity: 1;
+  border-color: var(--live, #E63946);
+  color: var(--live, #E63946);
+  animation: watchLivePulse 2s ease-in-out infinite;
 }
 
 .liveDot {
-  width: 6px;
-  height: 6px;
-  background: white;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
+  background: var(--live, #E63946);
+  animation: dotPulse 1.5s ease-in-out infinite;
 }
 
-.prayerButton {
-  background: transparent;
-  color: var(--primary);
-  padding: 0.625rem 1.25rem;
-  border-radius: 0;
+@keyframes dotPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+@keyframes watchLivePulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(230, 57, 70, 0.35); }
+  50% { box-shadow: 0 0 0 6px rgba(230, 57, 70, 0); }
+}
+
+.planVisitBtn {
+  background: var(--gold, #D4A017);
+  color: var(--navy, #0B1F3A);
+  padding: 0.6rem 1.1rem;
+  border-radius: 4px;
   font-weight: 800;
-  font-size: 0.75rem;
-  text-decoration: none;
-  border: 2px solid var(--primary);
-  transition: all 0.3s ease;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: filter 0.2s;
 }
 
-.prayerButton:hover {
-  background: var(--primary);
-  color: white;
-  transform: translateY(-2px);
+.planVisitBtn:hover {
+  filter: brightness(1.05);
 }
 
 .mobileActions {
   display: none;
   align-items: center;
   flex-shrink: 0;
-  z-index: 1001;
 }
 
 .hamburger {
   display: none;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
   background: none;
   border: none;
   cursor: pointer;
@@ -189,19 +181,31 @@
 }
 
 .hamburgerLine {
-  width: 24px;
+  width: 22px;
   height: 2px;
-  background: #ffffff;
+  background: var(--navy, #0B1F3A);
   border-radius: 2px;
   transition: all 0.3s ease;
 }
 
-@media (max-width: 1024px) {
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(11, 31, 58, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 999;
+}
+
+@media (max-width: 1100px) {
   .nav {
     display: none;
   }
 
   .mobileActions {
+    display: flex;
+  }
+
+  .hamburger {
     display: flex;
   }
 
@@ -211,90 +215,47 @@
     top: 0;
     right: 0;
     bottom: 0;
-    width: min(320px, 85vw);
-    background: rgba(10, 10, 10, 0.98);
-    backdrop-filter: blur(15px);
+    width: min(320px, 88vw);
+    background: var(--surface, #FAF8F3);
     flex-direction: column;
-    padding: 6rem 2rem 2rem;
-    gap: 1.5rem;
-    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.5);
+    align-items: stretch;
+    padding: 5rem 1.5rem 2rem;
+    gap: 0;
+    box-shadow: -8px 0 32px rgba(11, 31, 58, 0.15);
     z-index: 1000;
     overflow-y: auto;
   }
 
   .navOpen .navLink {
-    font-size: 1.35rem;
-    width: 100%;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 1.1rem;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid rgba(11, 31, 58, 0.08);
   }
 
-  .navOpen .planVisitBtn,
-  .navOpen .liveButton,
-  .navOpen .prayerButton {
-    width: 100%;
-    text-align: center;
-    justify-content: center;
-    margin-top: 0.5rem;
-  }
-
-  .hamburger {
-    display: flex;
-  }
-
-  .overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(15, 23, 42, 0.6);
-    backdrop-filter: blur(4px);
-    z-index: 999;
-  }
-
-  .navLink {
-    font-size: 1.25rem;
-  }
-
-  .hamburgerOpen .hamburgerLine:nth-child(1) { transform: translateY(8px) rotate(45deg); }
-  .hamburgerOpen .hamburgerLine:nth-child(2) { opacity: 0; }
-  .hamburgerOpen .hamburgerLine:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
-}
-
-@media (max-width: 768px) {
-  .header {
-    padding: 1rem 0;
-  }
-
-  .container {
-    padding: 0 1rem;
-    gap: 0.5rem;
-  }
-  
-  .logo {
-    width: 45px;
-    height: 45px;
-  }
-
-  .logoLink {
+  .navOpen .navActions {
+    flex-direction: column;
+    margin-left: 0;
+    margin-top: 1.5rem;
     gap: 0.75rem;
   }
 
-  .churchName {
-    font-size: 1.125rem;
-    line-height: 1.15;
+  .navOpen .watchLiveBtn,
+  .navOpen .planVisitBtn {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+    padding: 0.85rem;
+    font-size: 0.8rem;
   }
 
-  .locationTag {
-    font-size: 0.65rem;
-    letter-spacing: 0.08em;
-  }
+  .hamburgerOpen .hamburgerLine:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .hamburgerOpen .hamburgerLine:nth-child(2) { opacity: 0; }
+  .hamburgerOpen .hamburgerLine:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 }
 
 @media (max-width: 480px) {
   .churchName {
-    font-size: 0.95rem;
+    font-size: 1rem;
   }
 
   .locationTag {
@@ -302,7 +263,7 @@
   }
 
   .logo {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
   }
 }

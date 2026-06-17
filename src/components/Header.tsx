@@ -1,16 +1,28 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import styles from './Header.module.css'
-import { publicApi } from '@/lib/api'
+import { ROUTES } from '@/lib/routes'
+import { getLiveJoinUrl } from '@/lib/live'
+import { useLiveStatus } from '@/hooks/useLiveStatus'
 import LivePlayer from './LivePlayer'
 
+const NAV_ITEMS = [
+  { name: 'Who We Are', path: ROUTES.whoWeAre },
+  { name: 'Leadership', path: ROUTES.leadership },
+  { name: 'Services', path: ROUTES.services },
+  { name: 'Discipleship', path: ROUTES.discipleship },
+  { name: 'Join Us', path: ROUTES.joinUs },
+  { name: 'Give', path: ROUTES.give },
+]
+
 export default function Header() {
-  const [isLive, setIsLive] = useState(false)
-  const [liveData, setLiveData] = useState<any>(null)
+  const { live } = useLiveStatus()
   const [showPlayer, setShowPlayer] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const location = useLocation()
+
+  const liveJoinUrl = getLiveJoinUrl(live)
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20)
@@ -19,36 +31,23 @@ export default function Header() {
   }, [])
 
   useEffect(() => {
-    const fetchLiveData = async () => {
-      try {
-        const response = await publicApi.getLive()
-        if (response.success && response.data) {
-          setLiveData(response.data)
-          setIsLive(response.data.isLive || false)
-        }
-      } catch (error) {
-        console.error('Error fetching live stream:', error)
-      }
-    }
-
-    fetchLiveData()
-    const interval = setInterval(fetchLiveData, 30000)
-    return () => clearInterval(interval)
-  }, [])
-
-  useEffect(() => {
     setIsMenuOpen(false)
     setShowPlayer(false)
   }, [location.pathname])
 
-  // Ensure overlays are closed on mount
-  useEffect(() => {
-    setIsMenuOpen(false)
-    setShowPlayer(false)
-  }, [])
-
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
   const closeMenu = () => setIsMenuOpen(false)
+
+  const handleWatchLive = () => {
+    if (live?.isLive && liveJoinUrl) {
+      if (live.youtubeLiveUrl) {
+        setShowPlayer(true)
+      } else {
+        window.open(liveJoinUrl, '_blank', 'noopener,noreferrer')
+      }
+    }
+    closeMenu()
+  }
 
   return (
     <>
@@ -56,7 +55,7 @@ export default function Header() {
       <header className={`${styles.header} ${scrolled ? styles.headerScrolled : ''}`}>
         <div className={styles.container}>
           <div className={styles.logoContainer}>
-            <Link to="/" className={styles.logoLink} onClick={closeMenu}>
+            <Link to={ROUTES.home} className={styles.logoLink} onClick={closeMenu}>
               <img
                 src="/logo/church-logo.jpeg"
                 alt="VOSH Church Logo"
@@ -70,14 +69,7 @@ export default function Header() {
           </div>
 
           <nav className={`${styles.nav} ${isMenuOpen ? styles.navOpen : ''}`}>
-            {[
-              { name: 'Home', path: '/' },
-              { name: 'Who We Are', path: '/about' },
-              { name: 'Join Us', path: '/services' },
-              { name: 'Discipleship', path: '/discipleship' },
-              { name: 'Leadership', path: '/leadership' },
-              { name: 'Give', path: '/give' },
-            ].map((item) => (
+            {NAV_ITEMS.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
@@ -87,44 +79,22 @@ export default function Header() {
                 {item.name}
               </Link>
             ))}
-            
-            <Link to="/contact" className={styles.planVisitBtn} onClick={closeMenu}>
-              Plan Your Visit
-            </Link>
 
-            {liveData?.youtubeLiveUrl && (
-              <button 
-                onClick={() => { setShowPlayer(true); closeMenu(); }} 
-                className={styles.liveButton}
+            <div className={styles.navActions}>
+              <button
+                type="button"
+                onClick={handleWatchLive}
+                className={`${styles.watchLiveBtn} ${live?.isLive ? styles.watchLiveBtnActive : ''}`}
+                disabled={!live?.isLive}
               >
-                <span className={styles.liveDot}></span>
-                WATCH LIVE
+                {live?.isLive && <span className={styles.liveDot} aria-hidden />}
+                Watch Live
               </button>
-            )}
 
-            {liveData?.googleMeetUrl && (
-              <a 
-                href={liveData.googleMeetUrl} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className={styles.prayerButton}
-                onClick={closeMenu}
-              >
-                JOIN PRAYERS
-              </a>
-            )}
-
-            {!liveData?.youtubeLiveUrl && liveData?.facebookLiveUrl && (
-              <a 
-                href={liveData.facebookLiveUrl} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className={styles.liveButton}
-                onClick={closeMenu}
-              >
-                JOIN LIVE
-              </a>
-            )}
+              <Link to={`${ROUTES.joinUs}#plan-visit`} className={styles.planVisitBtn} onClick={closeMenu}>
+                Plan Your Visit →
+              </Link>
+            </div>
           </nav>
 
           <div className={styles.mobileActions}>
@@ -133,19 +103,16 @@ export default function Header() {
               onClick={toggleMenu}
               aria-label="Toggle menu"
             >
-              <span className={styles.hamburgerLine}></span>
-              <span className={styles.hamburgerLine}></span>
-              <span className={styles.hamburgerLine}></span>
+              <span className={styles.hamburgerLine} />
+              <span className={styles.hamburgerLine} />
+              <span className={styles.hamburgerLine} />
             </button>
           </div>
         </div>
       </header>
-      
-      {showPlayer && liveData?.youtubeLiveUrl && (
-        <LivePlayer 
-          url={liveData.youtubeLiveUrl} 
-          onClose={() => setShowPlayer(false)} 
-        />
+
+      {showPlayer && live?.youtubeLiveUrl && (
+        <LivePlayer url={live.youtubeLiveUrl} onClose={() => setShowPlayer(false)} />
       )}
     </>
   )

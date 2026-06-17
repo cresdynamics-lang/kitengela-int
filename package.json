@@ -11,7 +11,8 @@
     "start": "vite preview",
     "start:server": "tsx server/index.ts",
     "lint": "eslint src --ext ts,tsx",
-    "db:seed": "node prisma/seed.js"
+    "db:seed": "node prisma/seed.js",
+    "compress:images": "node scripts/compress-existing-images.mjs"
   },
   "dependencies": {
     "@prisma/client": "^5.9.1",
@@ -32,6 +33,7 @@
     "react-icons": "^5.0.1",
     "react-router-dom": "^6.22.0",
     "resend": "^6.9.2",
+    "sharp": "^0.35.1",
     "tailwind-merge": "^2.2.0",
     "zod": "^3.22.4"
   },

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { adminApi, invalidatePublicEndpoints } from '@/lib/api'
 import { getAdminToken } from '@/lib/adminSession'
+import { compressImageForUpload } from '@/lib/imageCompression'
 import { Plus, Edit2, Trash2, Upload, X, ExternalLink } from 'lucide-react'
 import styles from './LeadersManager.module.css'
 
@@ -65,8 +66,9 @@ export default function LeadersManager() {
     }
   }
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] ?? null
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const incoming = e.target.files?.[0] ?? null
+    const file = incoming ? await compressImageForUpload(incoming) : null
     setPhotoFile(file)
     if (file) {
       const url = URL.createObjectURL(file)

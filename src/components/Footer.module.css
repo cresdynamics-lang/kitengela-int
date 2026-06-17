@@ -1,10 +1,8 @@
 .footer {
-  background: var(--primary); /* Obsidian/Charcoal */
-  color: white;
+  background: var(--navy, #0B1F3A);
+  color: rgba(255, 255, 255, 0.85);
   padding: 3rem 0 1.5rem;
-  font-size: 0.95rem;
-  border-top: 1px solid rgba(59, 130, 246, 0.4);
-  box-shadow: 0 -10px 30px rgba(59, 130, 246, 0.1);
+  font-size: 0.92rem;
 }
 
 .container {
@@ -13,417 +11,192 @@
   padding: 0 1.5rem;
 }
 
-.footerGrid {
+.topRow {
+  margin-bottom: 2.5rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.brandBlock {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.footerLogo {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border: 2px solid var(--gold, #D4A017);
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.brandName {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.15rem;
+  color: #fff;
+  margin: 0 0 0.35rem;
+  line-height: 1.35;
+}
+
+.hashtags {
+  color: var(--gold, #D4A017);
+  font-weight: 600;
+  font-size: 0.88rem;
+  margin: 0;
+}
+
+.columns {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  grid-template-areas:
-    "brand links contact location"
-    "brand links contact support"
-    "brand links contact social";
   gap: 2rem;
-  width: 100%;
-  align-items: start;
+  margin-bottom: 2.5rem;
 }
 
-.brandSection { grid-area: brand; }
-.linksSection { grid-area: links; }
-.contactSection { grid-area: contact; }
-.locationSection { grid-area: location; }
-.supportSection { grid-area: support; }
-.socialSection { grid-area: social; margin-top: -0.5rem; }
-
-.footerSection {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  width: 100%;
-  text-align: left;
+.columnHeading {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold, #D4A017);
+  margin: 0 0 1rem;
 }
 
-.footerTitle {
-  font-family: var(--font-heading);
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--accent);
-  margin-bottom: 0.25rem;
-  overflow-wrap: anywhere;
-  word-break: break-word;
-}
-
-.footerDescription {
-  color: rgba(255, 255, 255, 0.8);
-  margin-bottom: 0.25rem;
-  line-height: 1.4;
-}
-
-.slogan {
-  color: var(--accent);
-  font-size: 0.92rem;
-  margin-top: 0.25rem;
-}
-
-.footerHeading {
-  font-family: var(--font-heading);
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--accent);
-  margin-bottom: 0.5rem;
-  margin-top: 0;
-}
-
-.footerSubHeading {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--accent-light);
+.giveHeading {
   margin-top: 1.5rem;
-  margin-bottom: 0.5rem;
 }
 
-.footerLinks {
+.linkList,
+.phoneList {
   list-style: none;
   padding: 0;
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.45rem;
 }
 
-.footerLinks li {
-  margin: 0;
-}
-
-.footerLinks a {
-  color: rgba(255, 255, 255, 0.7);
+.linkList a,
+.phoneList a {
+  color: rgba(255, 255, 255, 0.75);
   text-decoration: none;
-  transition: all 0.3s ease;
+  transition: color 0.2s;
 }
 
-.footerLinks a:hover {
-  color: #ffffff;
-  transform: translateX(4px);
+.linkList a:hover,
+.phoneList a:hover {
+  color: #fff;
+}
+
+.whatsappBtn {
   display: inline-block;
-  text-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
-}
-
-.footerValues {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.footerValues li {
-  color: rgba(255, 255, 255, 0.8);
-  margin-bottom: 0.5rem;
-  padding-left: 1rem;
-  position: relative;
-}
-
-.footerValues li::before {
-  content: '›';
-  position: absolute;
-  left: 0;
-  color: var(--accent);
-  font-weight: bold;
-}
-
-.footerText {
-  color: rgba(255, 255, 255, 0.8);
-  line-height: 1.3;
-  margin: 0 0 0.18rem 0;
-  font-size: 0.92rem;
-}
-
-.phoneNumbers {
-  display: flex;
-  flex-direction: column;
-  gap: 0.08rem;
-  margin: 0.08rem 0;
-}
-
-.phoneLink {
-  color: var(--accent);
-  text-decoration: none;
-  transition: color 0.3s ease;
-  font-size: 0.95rem;
-}
-
-.phoneLink:hover {
-  color: #ffffff;
-  text-decoration: none;
-  text-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
-}
-
-.whatsappLink {
+  margin-top: 0.75rem;
   color: #25D366;
-  text-decoration: none;
-  transition: color 0.3s ease;
   font-weight: 600;
+  text-decoration: none;
 }
 
-.whatsappLink:hover {
-  color: #128C7E;
+.whatsappBtn:hover {
   text-decoration: underline;
 }
 
-.giveLink {
-  display: inline-block;
-  color: var(--accent);
-  text-decoration: none;
-  font-weight: 600;
-  margin-top: 0.18rem;
-  transition: color 0.3s ease;
+.locationText,
+.giveText {
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.6;
+  margin: 0;
+  font-size: 0.9rem;
 }
 
-.locationSupportGrid {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  width: 100%;
-}
-
-.locationBlock, .supportBlock {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
-
-.giveLink:hover {
-  color: var(--accent-light);
-  text-decoration: underline;
-}
-
-.socialLinks {
-  margin-top: 0.5rem;
-}
-
-.socialTitle {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--accent);
-  margin-bottom: 0.75rem;
-}
-
-.socialIcons {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.socialIcon {
-  font-size: 1.15rem;
-  text-decoration: none;
-  transition: all 0.3s ease;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  color: var(--accent);
-  border-radius: 50%;
-  background: rgba(212, 175, 55, 0.08);
-}
-
-.socialIcon:hover {
-  transform: scale(1.15);
-  background: rgba(212, 175, 55, 0.2);
-  color: var(--accent-light);
-}
-
-.socialIcon i {
-  font-size: 1.2rem;
+.giveText strong {
+  color: #fff;
 }
 
 .footerBottom {
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 1.25rem;
   text-align: center;
+}
+
+.copyright {
+  color: rgba(255, 255, 255, 0.55);
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
 }
 
 .adminIconButton {
   width: 28px;
   height: 28px;
-  margin: 0.12rem auto 0.18rem;
+  margin: 0.25rem auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  color: var(--accent);
-  background: rgba(212, 175, 55, 0.10);
-  border: 1px solid rgba(212, 175, 55, 0.35);
+  color: var(--gold, #D4A017);
+  background: rgba(212, 160, 23, 0.1);
+  border: 1px solid rgba(212, 160, 23, 0.3);
   text-decoration: none;
-  transition: transform 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
-  box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.22);
-  animation: adminIconPulse 2.8s ease-in-out infinite;
 }
 
 .adminIconButton svg {
-  width: 22px;
-  height: 22px;
+  width: 16px;
+  height: 16px;
   fill: currentColor;
 }
 
-.adminIconButton:hover {
-  transform: translateY(-1px) scale(1.06);
-  background: rgba(212, 175, 55, 0.2);
-  box-shadow: 0 0 0 8px rgba(212, 175, 55, 0);
-}
-
-@keyframes adminIconPulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.32); }
-  60% { box-shadow: 0 0 0 8px rgba(212, 175, 55, 0); }
-}
-
-.copyright {
-  color: rgba(255, 255, 255, 0.6);
-  margin-bottom: 0.5rem;
-  font-size: clamp(0.75rem, 1.5vw + 0.4rem, 0.95rem);
-}
-
-.hashtags {
-  color: var(--accent);
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  font-size: clamp(0.75rem, 1.5vw + 0.4rem, 0.95rem);
-}
-
 .poweredBy {
-  color: rgba(255, 255, 255, 0.5);
-  font-size: clamp(0.7rem, 1.2vw + 0.4rem, 0.9rem);
-  margin-top: 1rem;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.8rem;
+  margin: 0.5rem 0 0;
 }
 
-.poweredByLink {
-  color: rgba(255, 255, 255, 0.8);
+.poweredBy a {
+  color: rgba(255, 255, 255, 0.7);
   text-decoration: none;
-  transition: color 0.3s ease;
   font-weight: 600;
 }
 
-.poweredByLink:hover {
-  color: var(--accent);
-  text-decoration: underline;
+.poweredBy a:hover {
+  color: var(--gold, #D4A017);
 }
 
 @media (max-width: 1024px) {
-  .footerGrid {
+  .columns {
     grid-template-columns: repeat(2, 1fr);
-    grid-template-areas:
-      "brand links"
-      "brand contact"
-      "brand location"
-      "brand support"
-      "brand social";
-    gap: 2.5rem;
+    gap: 1.75rem;
+  }
+
+  .brandName {
+    font-size: 1.05rem;
   }
 }
 
 @media (max-width: 768px) {
   .footer {
-    padding: 30px 0 20px;
+    padding: 2.5rem 0 1.25rem;
   }
 
-  .footerTitle {
-    font-size: 1.25rem;
-  }
-
-  .footerHeading {
-    font-size: 1.1rem;
+  .topRow {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
   }
 }
 
-@media (max-width: 640px) {
-  .footer {
-    padding: 1.5rem 0 1rem;
-  }
-  
-  .footerGrid {
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-areas:
-      "brand brand"
-      "links contact"
-      "location support"
-      "social social";
-    gap: 1.5rem 1rem;
-    text-align: left;
-  }
-  
-  .brandSection, .socialSection {
+@media (max-width: 560px) {
+  .brandBlock {
+    flex-direction: column;
     text-align: center;
-    align-items: center;
   }
 
-  .linksSection, .locationSection {
-    text-align: left;
-    align-items: flex-start;
-  }
-
-  .contactSection, .supportSection {
-    text-align: right;
-    align-items: flex-end;
-  }
-}
-
-@media (max-width: 480px) {
-  .footer {
-    padding: 1.5rem 0 1rem;
-  }
-
-  .footerGrid {
+  .columns {
     grid-template-columns: 1fr 1fr;
-    grid-template-areas:
-      "brand brand"
-      "links contact"
-      "location support"
-      "social social";
-    gap: 1.75rem 1rem;
+    gap: 1.5rem;
   }
+}
 
-  .brandSection, .socialSection {
-    text-align: center;
-    align-items: center;
-  }
-
-  .linksSection, .locationSection {
-    text-align: left;
-    align-items: flex-start;
-  }
-
-  .contactSection, .supportSection {
-    text-align: right;
-    align-items: flex-end;
-  }
-
-  .footerTitle {
-    font-size: 1.15rem;
-  }
-
-  .footerDescription,
-  .footerText {
-    font-size: 0.9rem;
-  }
-
-  .footerHeading {
-    font-size: 1rem;
-  }
-
-  .slogan {
-    font-size: 0.85rem;
-  }
-
-  .copyright,
-  .hashtags {
-    font-size: 0.8rem;
-  }
-
-  .poweredBy {
-    font-size: 0.75rem;
-    margin-top: 0.75rem;
-  }
-
-  .phoneLink {
-    font-size: 0.9rem;
-  }
-
-  .socialIcons {
-    justify-content: center;
+@media (max-width: 400px) {
+  .columns {
+    grid-template-columns: 1fr;
   }
 }

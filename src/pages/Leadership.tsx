@@ -2,132 +2,297 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import PageHeader from '@/components/PageHeader'
 import ScrollReveal from '@/components/ScrollReveal'
-import Carousel from '@/components/Carousel'
 import { publicApi } from '@/lib/api'
-import { defaultLeaders, normalizeLeaders, resolvePublicLeaders, type PublicLeader } from '@/lib/leaders'
+import { ROUTES } from '@/lib/routes'
+import {
+  defaultLeaders,
+  normalizeLeaders,
+  resolvePublicLeaders,
+  getSeniorLeader,
+  getMinistryTeam,
+  getDepartmentalLeaders,
+  isBishopLeader,
+  splitBioParagraphs,
+  parseGuidingScripture,
+  DEFAULT_SENIOR_SCRIPTURE,
+  type PublicLeader,
+} from '@/lib/leaders'
+import { leaderProfilePath } from '@/lib/leaderProfiles'
 import styles from './Leadership.module.css'
 
-const leadershipShowcaseCarouselImages = [
-  { id: 1, title: 'Rev. Evans O. Kochoo - Senior Pastor', image: '/Rev.Evans1.jpeg', description: 'Senior Pastor and founder, leading with apostolic vision and passion' },
-  { id: 2, title: 'Teaching Ministry', image: '/Rev.Evans2.jpeg', description: "Dynamic teaching of God's Word with clarity and anointing" },
-  { id: 3, title: 'Pastoral Leadership', image: '/Rev.Evans3.jpeg', description: 'Shepherding the flock with wisdom and spiritual insight' },
-  { id: 4, title: 'Pastor Nancy Sai - Ministry', image: '/Past.Nancy.Sai.jpeg', description: 'Dedicated service in various church ministries' },
-  { id: 5, title: "Women's Leadership", image: '/PastorNancySai.jpeg', description: 'Empowering women in faith and ministry' },
-]
-
-function leadersToCarousel(leaders: PublicLeader[]) {
-  const withPhotos = leaders.filter((l) => l.imageUrl)
-  if (withPhotos.length === 0) return null
-  return withPhotos.slice(0, 6).map((leader, i) => ({
-    id: i + 1,
-    title: `${leader.name} — ${leader.title}`,
-    image: leader.imageUrl!,
-    description: leader.bio ? leader.bio.slice(0, 120) + (leader.bio.length > 120 ? '…' : '') : 'Leadership at VOSH Church',
-  }))
-}
-
 export default function Leadership() {
-  const [leaders, setLeaders] = useState<PublicLeader[]>([])
-  const [loading, setLoading] = useState(true)
-  const [leadershipCarousel, setLeadershipCarousel] = useState(leadershipShowcaseCarouselImages)
+  const [leaders, setLeaders] = useState<PublicLeader[]>(defaultLeaders)
+  const [heroImage, setHeroImage] = useState('/Rev.Evans1.jpeg')
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
+    let active = true
+    setLoading(true)
     publicApi
       .getLeaders()
       .then((response) => {
+        if (!active) return
         if (!response.success) {
           setLeaders(defaultLeaders)
           return
         }
-        const fromApi = normalizeLeaders(response.data)
-        const list = resolvePublicLeaders(fromApi)
-        setLeaders(list)
-
-        const leaderCarousel = leadersToCarousel(list)
-        if (leaderCarousel && leaderCarousel.length > 0) {
-          setLeadershipCarousel(leaderCarousel)
-        }
+        setLeaders(resolvePublicLeaders(normalizeLeaders(response.data)))
       })
       .catch(() => {
-        setLeaders(defaultLeaders)
+        if (active) setLeaders(defaultLeaders)
       })
-      .finally(() => setLoading(false))
+      .finally(() => {
+        if (active) setLoading(false)
+      })
 
     publicApi
-      .getPhotos()
+      .getLeadershipHeroPhoto()
       .then((res) => {
-        if (res.success && Array.isArray(res.data)) {
-          const photos = res.data as { category?: string; url?: string }[]
-          const leadershipPhotos = photos.filter((p) => p.category === 'leadership' && p.url)
-          if (leadershipPhotos.length > 0) {
-            const carouselImages = leadershipPhotos.slice(0, 5).map((p, i) => ({
-              id: i + 1,
-              title: leadershipPhotos.length === 1 ? 'Our Leadership' : `Leadership ${i + 1}`,
-              image: p.url!,
-              description: 'Leadership in action at VOSH Church',
-            }))
-            setLeadershipCarousel(carouselImages)
-          }
+        if (active && res.success && res.data?.url) {
+          setHeroImage(res.data.url)
         }
       })
       .catch(() => {})
+
+    return () => {
+      active = false
+    }
   }, [])
 
+  const senior = getSeniorLeader(leaders)
+  const ministryTeam = getMinistryTeam(leaders, senior)
+  const departments = getDepartmentalLeaders(leaders, senior)
+  const bishop = leaders.find((l) => l.id !== senior?.id && isBishopLeader(l))
+  const assistantPastor = leaders.find(
+    (l) =>
+      l.id !== senior?.id &&
+      l.id !== bishop?.id &&
+      (/assistant pastor/i.test(l.title) || /nancy/i.test(l.name)),
+  )
+
+  const seniorParagraphs = senior
+    ? splitBioParagraphs(senior.bio).filter((p) => !/^scripture:/i.test(p))
+    : []
+  const seniorScripture = senior
+    ? parseGuidingScripture(senior.bio) ?? DEFAULT_SENIOR_SCRIPTURE
+    : DEFAULT_SENIOR_SCRIPTURE
+
   return (
-    <main>
+    <main className={styles.page}>
       <Header />
-      <PageHeader
-        title="Our Leadership"
-        subtitle="Meet Our Dedicated Service Team"
-        backgroundImage={leaders[0]?.imageUrl || '/Rev.Evans1.jpeg'}
-        hideDivider={true}
-      />
-      <div className={styles.container}>
-        <ScrollReveal direction="right">
-          <section className={styles.carouselSection}>
-            <Carousel images={leadershipCarousel} hideDivider={true} />
-          </section>
-        </ScrollReveal>
-        {loading ? (
-          <div className={styles.loading}>Loading...</div>
-        ) : (
-          <ScrollReveal direction="right">
-            <div className={styles.leadersGrid}>
-              {leaders.length > 0 ? (
-                leaders.map((leader) => (
-                  <Link key={leader.id} to={`/leadership/${leader.id}`} className={styles.leaderCard}>
-                    <div className={styles.imageContainer}>
-                      {leader.imageUrl ? (
-                        <img src={leader.imageUrl} alt={leader.name} className={styles.leaderImage} />
+
+      {/* SECTION 1 — Hero */}
+      <section className={styles.hero} style={{ backgroundImage: `url(${heroImage})` }}>
+        <div className={styles.heroOverlay} />
+        <div className={styles.heroInner}>
+          <h1 className={styles.heroTitle}>Leadership</h1>
+          <p className={styles.heroTagline}>
+            Shepherds called to lead, serve, and equip the House of Solutions.
+          </p>
+        </div>
+      </section>
+
+      {loading && leaders.length === 0 ? (
+        <p className={styles.loading}>Loading leadership…</p>
+      ) : (
+        <>
+          {/* Bishop — featured leadership */}
+          {bishop && (
+            <section className={styles.senior}>
+              <div className={styles.container}>
+                <ScrollReveal>
+                  <div className={styles.seniorCard}>
+                    <div className={styles.seniorPhotoWrap}>
+                      {bishop.imageUrl ? (
+                        <img
+                          src={bishop.imageUrl}
+                          alt={bishop.name}
+                          className={styles.seniorPhoto}
+                          loading="eager"
+                          fetchPriority="high"
+                          decoding="async"
+                        />
                       ) : (
-                        <div className={styles.placeholderImage}>
-                          <span className={styles.placeholderText}>{leader.name?.charAt(0)}</span>
+                        <div className={styles.seniorPlaceholder}>{bishop.name.charAt(0)}</div>
+                      )}
+                    </div>
+                    <div className={styles.seniorCopy}>
+                      <h2 className={styles.seniorName}>{bishop.name}</h2>
+                      <p className={styles.seniorRole}>{bishop.title}</p>
+                      <div className={styles.seniorBio}>
+                        {splitBioParagraphs(bishop.bio)
+                          .filter((p) => !/^scripture:/i.test(p))
+                          .slice(0, 2)
+                          .map((para) => (
+                            <p key={para.slice(0, 40)}>{para}</p>
+                          ))}
+                      </div>
+                      {parseGuidingScripture(bishop.bio) && (
+                        <blockquote className={styles.seniorScripture}>
+                          &ldquo;{parseGuidingScripture(bishop.bio)!.text}&rdquo;
+                          <cite>— {parseGuidingScripture(bishop.bio)!.ref}</cite>
+                        </blockquote>
+                      )}
+                      <Link to={leaderProfilePath(bishop)} className={styles.profileLink}>
+                        Full Profile →
+                      </Link>
+                    </div>
+                  </div>
+                </ScrollReveal>
+              </div>
+            </section>
+          )}
+
+          {/* Senior Pastor */}
+          {senior && (
+            <section className={styles.senior}>
+              <div className={styles.container}>
+                <ScrollReveal>
+                  <div className={styles.seniorCard}>
+                    <div className={styles.seniorPhotoWrap}>
+                      {senior.imageUrl ? (
+                        <img
+                          src={senior.imageUrl}
+                          alt={senior.name}
+                          className={styles.seniorPhoto}
+                          loading="eager"
+                          fetchPriority="high"
+                          decoding="async"
+                        />
+                      ) : (
+                        <div className={styles.seniorPlaceholder}>{senior.name.charAt(0)}</div>
+                      )}
+                    </div>
+                    <div className={styles.seniorCopy}>
+                      <h2 className={styles.seniorName}>{senior.name}</h2>
+                      <p className={styles.seniorRole}>{senior.title}</p>
+                      <div className={styles.seniorBio}>
+                        {seniorParagraphs.map((para) => (
+                          <p key={para.slice(0, 40)}>{para}</p>
+                        ))}
+                      </div>
+                      <blockquote className={styles.seniorScripture}>
+                        &ldquo;{seniorScripture.text}&rdquo;
+                        <cite>— {seniorScripture.ref}</cite>
+                      </blockquote>
+                      <Link to={leaderProfilePath(senior)} className={styles.profileLink}>
+                        Full Profile →
+                      </Link>
+                    </div>
+                  </div>
+                </ScrollReveal>
+              </div>
+            </section>
+          )}
+
+          {assistantPastor && (
+            <section className={styles.senior}>
+              <div className={styles.container}>
+                <ScrollReveal>
+                  <div className={styles.seniorCard}>
+                    <div className={styles.seniorPhotoWrap}>
+                      {assistantPastor.imageUrl ? (
+                        <img
+                          src={assistantPastor.imageUrl}
+                          alt={assistantPastor.name}
+                          className={styles.seniorPhoto}
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      ) : (
+                        <div className={styles.seniorPlaceholder}>{assistantPastor.name.charAt(0)}</div>
+                      )}
+                    </div>
+                    <div className={styles.seniorCopy}>
+                      <h2 className={styles.seniorName}>{assistantPastor.name}</h2>
+                      <p className={styles.seniorRole}>{assistantPastor.title}</p>
+                      <div className={styles.seniorBio}>
+                        {splitBioParagraphs(assistantPastor.bio).slice(0, 2).map((para) => (
+                          <p key={para.slice(0, 40)}>{para}</p>
+                        ))}
+                      </div>
+                      <Link to={leaderProfilePath(assistantPastor)} className={styles.profileLink}>
+                        Full Profile →
+                      </Link>
+                    </div>
+                  </div>
+                </ScrollReveal>
+              </div>
+            </section>
+          )}
+
+          {/* SECTION 3 — Ministry Leadership Team */}
+          <section className={styles.team}>
+            <div className={styles.container}>
+              <h2 className={styles.sectionTitle}>Ministry Leadership Team</h2>
+              {ministryTeam.length > 0 ? (
+                <div className={styles.teamGrid}>
+                  {ministryTeam.map((leader) => (
+                    <ScrollReveal key={leader.id}>
+                      <Link to={leaderProfilePath(leader)} className={styles.teamCard}>
+                        <div className={styles.teamPhotoWrap}>
+                          {leader.imageUrl ? (
+                            <img
+                              src={leader.imageUrl}
+                              alt={leader.name}
+                              className={styles.teamPhoto}
+                              loading="lazy"
+                              decoding="async"
+                            />
+                          ) : (
+                            <div className={styles.teamPlaceholder}>{leader.name.charAt(0)}</div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                    <div className={styles.leaderInfo}>
-                      <h3 className={styles.leaderName}>{leader.name}</h3>
-                      <p className={styles.leaderTitle}>{leader.title}</p>
-                      {leader.bio && (
-                        <p className={styles.leaderBio}>
-                          {leader.bio.length > 150 ? `${leader.bio.substring(0, 150)}...` : leader.bio}
-                        </p>
-                      )}
-                      <span className={styles.readMore}>Read More →</span>
-                    </div>
-                  </Link>
-                ))
-              ) : (
-                <div className={styles.empty}>
-                  <p>Leadership information coming soon.</p>
+                        <h3 className={styles.teamName}>{leader.name}</h3>
+                        <p className={styles.teamRole}>{leader.title}</p>
+                        {leader.bio && (
+                          <p className={styles.teamBio}>
+                            {leader.bio.length > 100 ? `${leader.bio.slice(0, 100)}…` : leader.bio}
+                          </p>
+                        )}
+                      </Link>
+                    </ScrollReveal>
+                  ))}
                 </div>
+              ) : (
+                <p className={styles.emptyNote}>More ministry leaders will be listed here soon.</p>
               )}
             </div>
-          </ScrollReveal>
-        )}
-      </div>
+          </section>
+
+          {/* SECTION 4 — Departmental Heads */}
+          <section className={styles.departments}>
+            <div className={styles.container}>
+              <h2 className={styles.sectionTitle}>Departmental Heads</h2>
+              <div className={styles.deptGrid}>
+                {departments.map((dept) => (
+                  <div key={dept.id} className={styles.deptCard}>
+                    <h3 className={styles.deptLabel}>{dept.label}</h3>
+                    <p className={styles.deptName}>{dept.lead?.name ?? 'To be announced'}</p>
+                    {dept.lead?.title && dept.lead.name && (
+                      <p className={styles.deptRole}>{dept.lead.title}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        </>
+      )}
+
+      {/* SECTION 5 — CTA */}
+      <section className={styles.cta}>
+        <div className={styles.container}>
+          <h2 className={styles.ctaTitle}>
+            Called to serve? We&apos;re always looking for hearts ready to grow in ministry.
+          </h2>
+          <Link to={ROUTES.discipleship} className={styles.ctaBtn}>
+            Explore Discipleship →
+          </Link>
+        </div>
+      </section>
+
       <Footer />
     </main>
   )

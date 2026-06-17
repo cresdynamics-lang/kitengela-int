@@ -1,92 +1,182 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import PageHeader from '@/components/PageHeader'
 import ScrollReveal from '@/components/ScrollReveal'
 import { publicApi } from '@/lib/api'
+import {
+  DEFAULT_GIVE_SETTINGS,
+  GIVING_CATEGORIES,
+  formatMpesaAccount,
+  normalizeGiveSettings,
+  type GiveSettings,
+} from '@/lib/give'
+import { FINANCE_CONTACT_HREF } from '@/lib/contact'
+import { ROUTES } from '@/lib/routes'
 import styles from './Give.module.css'
 
 export default function Give() {
-  const [giveImage, setGiveImage] = useState('/unity.jpg')
+  const [heroImage, setHeroImage] = useState('/unity.jpg')
+  const [settings, setSettings] = useState<GiveSettings>(DEFAULT_GIVE_SETTINGS)
 
   useEffect(() => {
     publicApi.getPhotos().then((res) => {
       if (res.success && Array.isArray(res.data)) {
-        const photos = res.data as any[]
-        const givePhotos = photos.filter(p => p.category === 'give')
-        if (givePhotos.length > 0) {
-          setGiveImage(givePhotos[0].url)
-        }
+        const photo = (res.data as { category?: string; url?: string }[]).find(
+          (p) => p.category === 'give' && p.url,
+        )
+        if (photo?.url) setHeroImage(photo.url)
+      }
+    }).catch(() => {})
+
+    publicApi.getGiveSettings().then((res) => {
+      if (res.success && res.data) {
+        setSettings(normalizeGiveSettings(res.data as Record<string, unknown>))
       }
     }).catch(() => {})
   }, [])
 
+  const defaultAccount = formatMpesaAccount(settings)
+
   return (
-    <main>
+    <main className={styles.page}>
       <Header />
-      <PageHeader 
-        title="Give & Support" 
-        subtitle="Partnering for Transformation"
-        backgroundImage={giveImage}
-        hideDivider={true}
-      />
-      <div className={styles.container}>
-        <ScrollReveal direction="left">
-          <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>For Tithes & Offerings</h2>
-            <p className={styles.sectionIntro}>Use the details below for your regular tithes and offerings. <strong>Always specify the type of giving</strong> (e.g. Tithe, Offering, Building fund, Sanctuary, Ministry equipment, Evangelism).</p>
-            <div className={styles.givingCard}>
-              <div className={styles.givingMethod}>
-                <div className={styles.methodHeader}><span className={styles.icon}>📱</span><h3>M-Pesa Paybill (Tithes & Offerings)</h3></div>
-                <div className={styles.methodDetails}>
-                  <div className={styles.detailRow}><span className={styles.label}>Paybill Number</span><span className={styles.value}>400222</span></div>
-                  <div className={styles.detailRow}><span className={styles.label}>Account Number</span><span className={styles.value}>33985#</span></div>
-                  <p className={styles.specifyNote}>(Specify type of giving in the reference, e.g. Tithe, Offering, Building, Sanctuary, Ministry, Evangelism)</p>
-                  <div className={styles.instructions}>
-                    <p><strong>How to give via M-Pesa:</strong></p>
-                    <ol>
-                      <li>Go to M-Pesa → Lipa na M-Pesa → Paybill</li>
-                      <li>Enter Paybill: <strong>400222</strong></li>
-                      <li>Enter Account: <strong>33985#</strong></li>
-                      <li>In the reference, specify type: Tithe, Offering, Building, Sanctuary, Ministry, or Evangelism</li>
-                      <li>Enter amount and your M-Pesa PIN, then confirm</li>
-                    </ol>
-                  </div>
+
+      {/* SECTION 1 — Hero */}
+      <section className={styles.hero} style={{ backgroundImage: `url(${heroImage})` }}>
+        <div className={styles.heroOverlay} />
+        <div className={styles.heroInner}>
+          <h1 className={styles.heroTitle}>Partnering for Transformation</h1>
+          <blockquote className={styles.heroScripture}>
+            &ldquo;God loves a cheerful giver.&rdquo;
+            <cite>— 2 Corinthians 9:7</cite>
+          </blockquote>
+          <p className={styles.heroTagline}>
+            Your support enables us to reach more lives with the Gospel and impact our community
+            through tangible acts of love.
+          </p>
+        </div>
+      </section>
+
+      {/* SECTION 2 — Giving Categories */}
+      <section className={styles.categories}>
+        <div className={styles.container}>
+          <h2 className={styles.sectionTitle}>Giving Categories</h2>
+          <div className={styles.categoriesGrid}>
+            {GIVING_CATEGORIES.map((category) => (
+              <ScrollReveal key={category.id}>
+                <article className={styles.categoryCard}>
+                  <h3 className={styles.categoryTitle}>{category.title}</h3>
+                  <p className={styles.categorySubtitle}>{category.subtitle}</p>
+                  <p className={styles.categoryDesc}>{category.description}</p>
+                </article>
+              </ScrollReveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 3 — How to Give */}
+      <section className={styles.howToGive}>
+        <div className={styles.container}>
+          <h2 className={styles.sectionTitle}>How to Give</h2>
+
+          <ScrollReveal>
+            <article className={styles.methodCard}>
+              <h3 className={styles.methodTitle}>M-Pesa (Easiest &amp; Fastest)</h3>
+              <div className={styles.methodRule} aria-hidden />
+              <div className={styles.detailGrid}>
+                <div className={styles.detailRow}>
+                  <span className={styles.detailLabel}>Paybill Number</span>
+                  <span className={styles.detailValue}>{settings.paybillNumber}</span>
+                </div>
+                <div className={styles.detailRow}>
+                  <span className={styles.detailLabel}>Account Number</span>
+                  <span className={styles.detailValue}>{defaultAccount}</span>
                 </div>
               </div>
-            </div>
-            <div className={styles.bankCard}>
-              <h3 className={styles.bankTitle}>Bank (Tithes & Offerings)</h3>
-              <p className={styles.bankInfo}><strong>Bank:</strong> Co-operative Bank<br /><strong>Account Name:</strong> Athi River VOSH Church</p>
-            </div>
-          </section>
-        </ScrollReveal>
-        <ScrollReveal direction="right">
-          <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>Partner With Us — Let&apos;s Build God&apos;s House</h2>
-            <div className={styles.givingCard}>
-              <div className={styles.givingMethod}>
-                <div className={styles.methodHeader}><span className={styles.icon}>📱</span><h3>M-Pesa (Building & Ministry)</h3></div>
-                <div className={styles.methodDetails}>
-                  <div className={styles.detailRow}><span className={styles.label}>Paybill</span><span className={styles.value}>100400</span></div>
-                  <div className={styles.detailRow}><span className={styles.label}>Account</span><span className={styles.value}>9783810989</span></div>
-                </div>
+              <div className={styles.steps}>
+                <p className={styles.stepsHeading}>Step-by-step:</p>
+                <ol>
+                  <li>Go to M-Pesa → Lipa na M-Pesa → Pay Bill</li>
+                  <li>
+                    Business Number: <strong>{settings.paybillNumber}</strong>
+                  </li>
+                  <li>
+                    Account Number: <strong>{defaultAccount}</strong> (or{' '}
+                    {settings.accountSuffixes.map((suffix, i) => (
+                      <span key={suffix}>
+                        {i > 0 && (i === settings.accountSuffixes.length - 1 ? ', or ' : ', ')}
+                        <strong>{formatMpesaAccount(settings, suffix)}</strong>
+                      </span>
+                    ))}{' '}
+                    depending on your gift)
+                  </li>
+                  <li>Enter amount → Confirm</li>
+                </ol>
               </div>
-            </div>
-            <div className={styles.paypalCard}>
-              <p className={styles.bankInfo}>PayPal: <a href="mailto:voshkitengelahouseofsolutions@gmail.com" className={styles.paypalEmail}>voshkitengelahouseofsolutions@gmail.com</a></p>
-            </div>
-          </section>
-        </ScrollReveal>
-        <ScrollReveal direction="left">
-          <section className={styles.section}>
-            <div className={styles.scripture}>
-              <p className={styles.scriptureText}>&quot;Each of you should give what you have decided in your heart to give, not reluctantly or under compulsion, for God loves a cheerful giver.&quot;</p>
-              <p className={styles.scriptureReference}>— 2 Corinthians 9:7</p>
-            </div>
-          </section>
-        </ScrollReveal>
-      </div>
+            </article>
+          </ScrollReveal>
+
+          <ScrollReveal>
+            <article className={styles.methodCard}>
+              <h3 className={styles.methodTitle}>Bank Transfer</h3>
+              <div className={styles.methodRule} aria-hidden />
+              <div className={styles.bankDetails}>
+                <p><strong>Bank Name:</strong> {settings.bankName}</p>
+                <p><strong>Account Name:</strong> {settings.bankAccountName}</p>
+                <p><strong>Account Number:</strong> {settings.bankAccountNumber}</p>
+                {settings.bankBranch && (
+                  <p><strong>Branch:</strong> {settings.bankBranch}</p>
+                )}
+              </div>
+            </article>
+          </ScrollReveal>
+
+          <ScrollReveal>
+            <article className={styles.methodCard}>
+              <h3 className={styles.methodTitle}>Give In Person</h3>
+              <div className={styles.methodRule} aria-hidden />
+              <p className={styles.inPersonText}>
+                Join any of our services and give during the offering.
+              </p>
+              <Link to={ROUTES.joinUs} className={styles.inPersonLink}>
+                Plan Your Visit →
+              </Link>
+            </article>
+          </ScrollReveal>
+        </div>
+      </section>
+
+      {/* SECTION 4 — Why We Give */}
+      <section className={styles.encouragement}>
+        <div className={styles.container}>
+          <blockquote className={styles.encouragementScripture}>
+            &ldquo;Each of you should give what you have decided in your heart to give, not
+            reluctantly or under compulsion, for God loves a cheerful giver.&rdquo;
+            <cite>— 2 Corinthians 9:7</cite>
+          </blockquote>
+          <p className={styles.encouragementText}>
+            Your giving is more than a transaction — it&apos;s an act of worship that fuels the
+            mission of VOSH Kitengela: reaching the lost, discipling believers, and transforming
+            our community.
+          </p>
+        </div>
+      </section>
+
+      {/* SECTION 5 — Transparency */}
+      <section className={styles.transparency}>
+        <div className={styles.container}>
+          <p className={styles.transparencyText}>
+            We are committed to stewarding every gift with integrity. For questions about giving
+            or to request a giving statement, contact our finance team.
+          </p>
+          <a href={FINANCE_CONTACT_HREF} className={styles.transparencyCta}>
+            Contact Finance Team →
+          </a>
+        </div>
+      </section>
+
       <Footer />
     </main>
   )
