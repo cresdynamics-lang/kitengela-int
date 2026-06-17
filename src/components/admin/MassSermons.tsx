@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import styles from './admin.module.css'
 import { adminApi } from '@/lib/api'
-import { uploadFile } from '@/lib/supabase'
+import ImageUploadField from './ImageUploadField'
 
 interface MassSermon {
   id: string
@@ -28,8 +28,6 @@ export default function MassSermons() {
     date: '',
     thumbnail_url: '',
   })
-  const [imagePreview, setImagePreview] = useState<string | null>(null)
-  const [useFileUpload, setUseFileUpload] = useState(true)
 
   useEffect(() => {
     fetchSermons()
@@ -81,39 +79,6 @@ export default function MassSermons() {
     }
   }
 
-  const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    if (!file.type.startsWith('image/')) {
-      alert('Please select an image file')
-      return
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      alert('Image size should be less than 5MB')
-      return
-    }
-
-    try {
-      // Upload to Supabase Storage
-      const fileName = `sermon-thumbnails/${Date.now()}-${file.name}`
-      const publicUrl = await uploadFile('images', file, fileName)
-
-      setFormData({ ...formData, thumbnail_url: publicUrl })
-      setImagePreview(publicUrl)
-    } catch (error) {
-      console.error('Upload failed:', error)
-      const message = error instanceof Error ? error.message : 'Failed to upload image. Please try again.'
-      alert(message)
-    }
-  }
-
-  const handleImageUrlChange = (url: string) => {
-    setFormData({ ...formData, thumbnail_url: url })
-    setImagePreview(url || null)
-  }
-
   const handleEdit = (sermon: MassSermon) => {
     const sermonDate = new Date(sermon.date)
     const formattedDate = Number.isNaN(sermonDate.getTime())
@@ -128,8 +93,6 @@ export default function MassSermons() {
       date: formattedDate,
       thumbnail_url: thumbnailUrl,
     })
-    setImagePreview(thumbnailUrl || null)
-    setUseFileUpload(thumbnailUrl.startsWith('data:') ? true : false)
     setEditingId(sermon.id)
     setShowForm(true)
   }
@@ -156,8 +119,6 @@ export default function MassSermons() {
       date: '',
       thumbnail_url: '',
     })
-    setImagePreview(null)
-    setUseFileUpload(true)
     setEditingId(null)
     setShowForm(false)
   }
@@ -229,68 +190,12 @@ export default function MassSermons() {
                   <p className={styles.helpText}>Latest by date appears in the Sunday Sermon section on the home page.</p>
                 </div>
               </div>
-              <div className={styles.formGroup}>
-                <label>Poster / Image</label>
-                <div style={{ marginBottom: '0.5rem' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
-                    <input
-                      type="radio"
-                      checked={useFileUpload}
-                      onChange={() => setUseFileUpload(true)}
-                    />
-                    <span>Upload from device</span>
-                  </label>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <input
-                      type="radio"
-                      checked={!useFileUpload}
-                      onChange={() => setUseFileUpload(false)}
-                    />
-                    <span>Use URL</span>
-                  </label>
-                </div>
-                {useFileUpload ? (
-                  <>
-                    <input
-                      key="poster-file"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageFileChange}
-                      style={{ width: '100%', padding: '10px', border: '2px solid #e0e0e0', borderRadius: '6px' }}
-                    />
-                    <p className={styles.helpText}>Select an image from your device (max 5MB). Supported: JPG, PNG, WebP.</p>
-                  </>
-                ) : (
-                  <>
-                    <input
-                      key="poster-url"
-                      type="url"
-                      value={formData.thumbnail_url ?? ''}
-                      onChange={(e) => handleImageUrlChange(e.target.value)}
-                      placeholder="https://..."
-                    />
-                    <p className={styles.helpText}>Paste an image URL from the web.</p>
-                  </>
-                )}
-                {imagePreview && (
-                  <div style={{ marginTop: '1rem' }}>
-                    <img
-                      src={imagePreview}
-                      alt="Preview"
-                      style={{
-                        maxWidth: '100%',
-                        maxHeight: '200px',
-                        borderRadius: '6px',
-                        border: '2px solid #e0e0e0',
-                        objectFit: 'contain',
-                      }}
-                    />
-                  </div>
-                )}
-                <p className={styles.helpText} style={{ marginTop: '0.5rem' }}>
-                  Image shown in the Sunday Sermon section and on sermon cards on the Sermons page.
-                </p>
-              </div>
+              <ImageUploadField
+                label="Poster / Image"
+                value={formData.thumbnail_url ?? ''}
+                onChange={(url) => setFormData({ ...formData, thumbnail_url: url })}
+                helpText="Shown in the Sunday Sermon section on the home page and on the Sermons page."
+              />
               <div className={styles.formActions}>
                 <button type="submit" className={styles.saveButton}>Save</button>
                 <button type="button" onClick={resetForm} className={styles.cancelButton}>Cancel</button>

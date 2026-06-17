@@ -3,6 +3,7 @@ import { adminApi } from '@/lib/api'
 import { getAdminToken } from '@/lib/adminSession'
 import styles from './TestimonialManager.module.css'
 import { Plus, Edit2, Trash2, CheckCircle, XCircle } from 'lucide-react'
+import ImageUploadField from './ImageUploadField'
 
 interface Testimonial {
   id: string
@@ -213,10 +214,12 @@ export default function TestimonialManager() {
                 <textarea required rows={4} name="message" value={formData.message} onChange={handleInputChange} />
               </div>
 
-              <div className={styles.formGroup}>
-                <label>Author Image URL (optional)</label>
-                <input type="text" name="imageUrl" value={formData.imageUrl} onChange={handleInputChange} placeholder="/whatsapp-1.jpeg or https://..." />
-              </div>
+              <ImageUploadField
+                label="Author Image"
+                value={formData.imageUrl}
+                onChange={(url) => setFormData((prev) => ({ ...prev, imageUrl: url }))}
+                helpText="Click to upload a photo from your device."
+              />
 
               <div className={styles.formRow}>
                 <div className={styles.formGroup}>

@@ -262,7 +262,7 @@ export default function LeadersManager() {
                     className={styles.uploadBtn}
                     onClick={() => fileInputRef.current?.click()}
                   >
-                    <Upload size={15} /> Choose Photo
+                    <Upload size={15} /> Click to upload from device
                   </button>
                   <input
                     ref={fileInputRef}
@@ -271,17 +271,6 @@ export default function LeadersManager() {
                     className={styles.hiddenInput}
                     onChange={handlePhotoChange}
                   />
-                  {!photoFile && (
-                    <div className={styles.formGroup}>
-                      <label>Or paste image URL</label>
-                      <input
-                        type="text"
-                        value={formData.photoUrl}
-                        placeholder="https://… or /filename.jpg"
-                        onChange={(e) => setFormData({ ...formData, photoUrl: e.target.value })}
-                      />
-                    </div>
-                  )}
                 </div>
               </div>
 

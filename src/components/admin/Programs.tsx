@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import styles from './admin.module.css'
 import { adminApi } from '@/lib/api'
 import { getAdminToken } from '@/lib/adminSession'
+import ImageUploadField from './ImageUploadField'
 
 interface Program {
   id: string
@@ -224,14 +225,12 @@ export default function Programs() {
                   placeholder="+254 722 566 399, +254 720 276 162"
                 />
               </div>
-              <div className={styles.formGroup}>
-                <label>Poster Image URL (Optional)</label>
-                <input
-                  type="url"
-                  value={formData.posterImageUrl}
-                  onChange={(e) => setFormData({ ...formData, posterImageUrl: e.target.value })}
-                />
-              </div>
+              <ImageUploadField
+                label="Poster Image"
+                value={formData.posterImageUrl}
+                onChange={(url) => setFormData({ ...formData, posterImageUrl: url })}
+                helpText="Click to choose a poster image from your device. JPG, PNG, or WebP."
+              />
               <div className={styles.formGroup}>
                 <label>Service Link URL (Optional)</label>
                 <input
