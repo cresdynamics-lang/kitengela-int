@@ -29,6 +29,20 @@ function normalizeRequestError(error: unknown, endpoint: string): Error {
     )
   }
 
+  if (
+    message.includes('load failed') ||
+    message.includes('failed to fetch') ||
+    message.includes('networkerror')
+  ) {
+    const isLocal =
+      typeof window !== 'undefined' && isLocalHostname(window.location.hostname)
+    return new Error(
+      isLocal
+        ? 'Cannot reach the API. Run `npm run dev` (Vite + API together), not `npm run dev:client` or `npm run start` alone.'
+        : 'Cannot reach the API. Check Vercel env vars (SUPABASE_*, ADMIN_*) are set and redeploy, then test /api/debug.',
+    )
+  }
+
   return error instanceof Error ? error : new Error(rawMessage)
 }
 
