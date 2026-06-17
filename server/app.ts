@@ -64,7 +64,7 @@ const upload = multer({
   },
 })
 
-const ENV_ADMIN_TOKEN = 'env-admin-token'
+const ENV_ADMIN_TOKEN_PREFIX = 'env-admin-token'
 const PHOTO_BUCKET = 'church-gallery'
 
 const IMAGE_MAX_DIMENSION = 1920
@@ -106,19 +106,46 @@ async function ensurePhotoBucket(supabase: ReturnType<typeof getSupabaseAdmin>) 
 
 const normalizeIdentifier = (value: string | undefined) => (value || '').trim().toLowerCase()
 
-const getEnvAdmin = () => {
-  const username = normalizeIdentifier(process.env.ADMIN_USERNAME)
-  const email = normalizeIdentifier(process.env.ADMIN_EMAIL)
+type EnvAdminAccount = {
+  id: string
+  token: string
+  username: string
+  email: string
+  role: 'admin'
+  isSuperAdmin: boolean
+  password: string
+}
+
+const splitCsv = (value: string | undefined) =>
+  (value || '')
+    .split(',')
+    .map((item) => normalizeIdentifier(item))
+    .filter(Boolean)
+
+const getEnvAdmins = (): EnvAdminAccount[] => {
   const password = (process.env.ADMIN_PASSWORD || '').trim()
-  if (!username || !password) return null
-  return {
-    id: ENV_ADMIN_TOKEN,
-    username,
-    email: email || `${username}@local.admin`,
-    role: 'admin',
-    isSuperAdmin: true,
-    password,
-  }
+  if (!password) return []
+
+  const usernames = splitCsv(process.env.ADMIN_USERNAMES || process.env.ADMIN_USERNAME)
+  const emails = splitCsv(process.env.ADMIN_EMAILS || process.env.ADMIN_EMAIL)
+  const count = Math.max(usernames.length, emails.length)
+
+  if (count === 0) return []
+
+  return Array.from({ length: count }, (_, index) => {
+    const username = usernames[index] || emails[index]?.split('@')[0] || `admin${index + 1}`
+    const email = emails[index] || `${username}@local.admin`
+    const id = `env-admin-${index + 1}`
+    return {
+      id,
+      token: `${ENV_ADMIN_TOKEN_PREFIX}:${id}`,
+      username,
+      email,
+      role: 'admin' as const,
+      isSuperAdmin: true,
+      password,
+    }
+  })
 }
 
 async function dbQuery<T>(table: string, options: {
@@ -195,8 +222,8 @@ async function dbDelete(table: string, id: string): Promise<void> {
 const getAdminFromToken = async (authHeader: string | undefined) => {
   if (!authHeader?.startsWith('Bearer ')) return null
   const token = authHeader.slice(7)
-  const envAdmin = getEnvAdmin()
-  if (token === ENV_ADMIN_TOKEN && envAdmin) {
+  const envAdmin = getEnvAdmins().find((admin) => admin.token === token)
+  if (envAdmin) {
     return {
       id: envAdmin.id,
       username: envAdmin.username,
@@ -236,8 +263,10 @@ app.get('/api/debug', async (_req, res) => {
     SUPABASE_SERVICE_ROLE_KEY: hasServiceRoleKey,
     SUPABASE_ANON_KEY: !!(process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY),
     ADMIN_USERNAME: !!process.env.ADMIN_USERNAME,
+    ADMIN_EMAILS: !!process.env.ADMIN_EMAILS,
     ADMIN_PASSWORD: !!process.env.ADMIN_PASSWORD,
-    envAdminConfigured: !!getEnvAdmin(),
+    envAdminConfigured: getEnvAdmins().length > 0,
+    envAdminCount: getEnvAdmins().length,
     DATABASE_URL: !!process.env.DATABASE_URL,
     isSupabaseConfigured,
     nodeEnv: process.env.NODE_ENV,
@@ -689,19 +718,20 @@ app.post('/api/admin/login', async (req, res) => {
     const body = loginSchema.parse(req.body || {})
     const normalizedLogin = normalizeIdentifier(body.username)
 
-    const envAdmin = getEnvAdmin()
-    console.log('Env admin configured:', !!envAdmin)
+    const envAdmins = getEnvAdmins()
+    console.log('Env admins configured:', envAdmins.length)
+    const envAdmin = envAdmins.find(
+      (admin) =>
+        body.password.trim() === admin.password &&
+        (normalizedLogin === admin.username || normalizedLogin === admin.email),
+    )
 
-    if (
-      envAdmin &&
-      body.password.trim() === envAdmin.password &&
-      (normalizedLogin === envAdmin.username || normalizedLogin === envAdmin.email)
-    ) {
+    if (envAdmin) {
       console.log('Login successful with env admin')
       return res.json({
         success: true,
         data: {
-          token: ENV_ADMIN_TOKEN,
+          token: envAdmin.token,
           admin: {
             id: envAdmin.id,
             username: envAdmin.username,
@@ -778,14 +808,14 @@ app.post('/api/admin/login', async (req, res) => {
       return res.status(503).json({
         success: false,
         error:
-          'Server auth is misconfigured. Add SUPABASE_SERVICE_ROLE_KEY or ADMIN_USERNAME and ADMIN_PASSWORD in Vercel.',
+          'Server auth is misconfigured. Add SUPABASE_SERVICE_ROLE_KEY or ADMIN_EMAILS/ADMIN_USERNAME and ADMIN_PASSWORD in Vercel.',
       })
     }
 
     return res.status(401).json({
       success: false,
       error:
-        'Invalid credentials. On Vercel, set ADMIN_USERNAME and ADMIN_PASSWORD, or add an admin row in Supabase.',
+        'Invalid credentials. On Vercel, set ADMIN_EMAILS/ADMIN_USERNAME and ADMIN_PASSWORD, or add an admin row in Supabase.',
     })
   } catch (err: any) {
     if (err?.name === 'ZodError') {

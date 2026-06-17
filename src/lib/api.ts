@@ -323,7 +323,17 @@ export const adminApi = {
       data = await response.json()
     } catch {
       const apiHost = API_URL || 'this site (/api)'
-      data = { success: false, error: response.ok ? 'Invalid response' : `Server error. Is the API running on ${apiHost}?` }
+      const isLocal =
+        typeof window !== 'undefined' && isLocalHostname(window.location.hostname)
+      const localHint = isLocal
+        ? ' Start the API with `npm run dev` (runs Vite + API together), not `npm run dev:client` alone.'
+        : ' On Vercel, add SUPABASE_* and ADMIN_* env vars and redeploy.'
+      data = {
+        success: false,
+        error: response.ok
+          ? 'Invalid response'
+          : `Server error. Is the API running on ${apiHost}?${localHint}`,
+      }
     }
     if (!response.ok) {
       if (response.status === 503) {

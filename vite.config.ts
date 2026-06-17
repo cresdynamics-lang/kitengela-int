@@ -29,9 +29,8 @@ export default defineConfig(({ mode }) => {
     env.SUPABASE_ANON_KEY ||
     ''
 
-  const apiUrl =
-    env.VITE_API_URL ||
-    (mode === 'development' ? `http://localhost:${devApiPort}` : '/api')
+  // Empty = same-origin `/api` (Vite proxy in dev, Vercel rewrite in production).
+  const apiUrl = env.VITE_API_URL || envFile.VITE_API_URL || ''
 
   return {
     plugins: [react()],
