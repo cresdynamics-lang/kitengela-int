@@ -16,7 +16,7 @@ import { ROUTES } from '@/lib/routes'
 import styles from './Give.module.css'
 
 export default function Give() {
-  const [heroImage, setHeroImage] = useState('/unity.jpg')
+  const [heroImage, setHeroImage] = useState('/building-collection.jpeg')
   const [settings, setSettings] = useState<GiveSettings>(DEFAULT_GIVE_SETTINGS)
 
   useEffect(() => {
@@ -120,6 +120,39 @@ export default function Give() {
 
           <ScrollReveal>
             <article className={styles.methodCard}>
+              <h3 className={styles.methodTitle}>Building Fund (M-Pesa)</h3>
+              <div className={styles.methodRule} aria-hidden />
+              <p className={styles.inPersonText}>
+                Support the church building project. Use this separate Paybill and account.
+              </p>
+              <div className={styles.detailGrid}>
+                <div className={styles.detailRow}>
+                  <span className={styles.detailLabel}>Paybill Number</span>
+                  <span className={styles.detailValue}>{settings.buildingPaybillNumber}</span>
+                </div>
+                <div className={styles.detailRow}>
+                  <span className={styles.detailLabel}>Account Number</span>
+                  <span className={styles.detailValue}>{settings.buildingAccountNumber}</span>
+                </div>
+              </div>
+              <div className={styles.steps}>
+                <p className={styles.stepsHeading}>Step-by-step:</p>
+                <ol>
+                  <li>Go to M-Pesa → Lipa na M-Pesa → Pay Bill</li>
+                  <li>
+                    Business Number: <strong>{settings.buildingPaybillNumber}</strong>
+                  </li>
+                  <li>
+                    Account Number: <strong>{settings.buildingAccountNumber}</strong>
+                  </li>
+                  <li>Enter amount → Confirm</li>
+                </ol>
+              </div>
+            </article>
+          </ScrollReveal>
+
+          <ScrollReveal>
+            <article className={styles.methodCard}>
               <h3 className={styles.methodTitle}>Bank Transfer</h3>
               <div className={styles.methodRule} aria-hidden />
               <div className={styles.bankDetails}>
@@ -145,6 +178,23 @@ export default function Give() {
               </Link>
             </article>
           </ScrollReveal>
+        </div>
+      </section>
+
+      {/* SECTION 3b — Building Project */}
+      <section className={styles.categories}>
+        <div className={styles.container}>
+          <h2 className={styles.sectionTitle}>Building Project</h2>
+          <p className={styles.heroTagline} style={{ color: 'var(--muted-foreground)', marginBottom: '1.5rem', maxWidth: '40rem' }}>
+            Partner with us as we raise the house of worship. Give via Paybill{' '}
+            <strong>{settings.buildingPaybillNumber}</strong>, Account{' '}
+            <strong>{settings.buildingAccountNumber}</strong>.
+          </p>
+          <div className={styles.buildingGrid}>
+            {['/building-collection.jpeg', '/building-construction.jpeg', '/activities-1.jpg', '/outreach-1.jpeg'].map((src) => (
+              <img key={src} src={src} alt="VOSH Kitengela building and ministry" className={styles.buildingImg} loading="lazy" />
+            ))}
+          </div>
         </div>
       </section>
 

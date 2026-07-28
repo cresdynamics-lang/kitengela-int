@@ -20,7 +20,7 @@ export default function NextGeneration() {
   return (
     <main className={styles.page}>
       <Header />
-      <section className={styles.hero} style={{ backgroundImage: 'url(/whatsapp-12.jpeg)' }}>
+      <section className={styles.hero} style={{ backgroundImage: 'url(/pst-erastus-oyoo-youth.jpeg)' }}>
         <div className={styles.heroOverlay} />
         <div className={styles.heroInner}>
           <h1 className={styles.heroTitle}>Next Generation</h1>

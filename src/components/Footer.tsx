@@ -1,27 +1,24 @@
 import { Link } from 'react-router-dom'
 import styles from './Footer.module.css'
 import { ROUTES, SERVICE_SLUGS, serviceDetailPath } from '@/lib/routes'
+import { CONTACT_INFO, phoneHref, whatsappHref } from '@/lib/contact'
+import { DEFAULT_GIVE_SETTINGS, formatMpesaAccount } from '@/lib/give'
+import { MOTTO_HASHTAG, SOCIAL_LINKS } from '@/lib/brand'
 
 export default function Footer() {
-  const phoneNumbers = [
-    '+254 722 566 399',
-    '+254 720 276 162',
-    '+254 720 977 189',
-    '+254 775 036 515',
-    '+254 703 182 203',
-  ]
+  const phones = CONTACT_INFO.phoneNumbers.map((p) => p.number)
 
   return (
     <footer className={styles.footer}>
       <div className={styles.container}>
         <div className={styles.topRow}>
           <div className={styles.brandBlock}>
-            <img src="/logo/church-logo.jpeg" alt="VOSH Church International Kitengela" className={styles.footerLogo} />
+            <img src="/vosh-logo-70th.jpeg" alt="VOSH Church International Kitengela" className={styles.footerLogo} />
             <div>
               <h3 className={styles.brandName}>
                 Voice Of Salvation And Healing Church International — Kitengela
               </h3>
-              <p className={styles.hashtags}>#House_of_Solutions · #MANIFESTING_CHRIST</p>
+              <p className={styles.hashtags}>{MOTTO_HASHTAG} · One Way, One Job</p>
             </div>
           </div>
         </div>
@@ -50,23 +47,31 @@ export default function Footer() {
             <ul className={styles.linkList}>
               <li><Link to={serviceDetailPath(SERVICE_SLUGS.sundayWorship)}>Sunday Worship</Link></li>
               <li><Link to={serviceDetailPath(SERVICE_SLUGS.sundayBibleStudy)}>Bible Study</Link></li>
-              <li><Link to={serviceDetailPath(SERVICE_SLUGS.wednesdayPrayers)}>Wednesday Prayers</Link></li>
-              <li><Link to={serviceDetailPath(SERVICE_SLUGS.fridayNight)}>Friday Night</Link></li>
-              <li><Link to={serviceDetailPath(SERVICE_SLUGS.thursdayConnect)}>Thursday Connect</Link></li>
+              <li><Link to={serviceDetailPath(SERVICE_SLUGS.wednesdayPrayers)}>Midweek Prayers</Link></li>
+              <li><Link to={serviceDetailPath(SERVICE_SLUGS.youthOnlineConnect)}>Youth Online Connect</Link></li>
+              <li><Link to={serviceDetailPath(SERVICE_SLUGS.fridayNight)}>Tefila Night</Link></li>
             </ul>
           </div>
 
           <div className={styles.column}>
             <h4 className={styles.columnHeading}>Connect</h4>
             <ul className={styles.phoneList}>
-              {phoneNumbers.map((phone) => (
+              {phones.map((phone) => (
                 <li key={phone}>
-                  <a href={`tel:${phone.replace(/\s/g, '')}`}>{phone}</a>
+                  <a href={phoneHref(phone)}>{phone}</a>
                 </li>
               ))}
             </ul>
+            <p className={styles.locationText} style={{ marginTop: '0.75rem' }}>
+              <a href={`mailto:${CONTACT_INFO.email}`}>{CONTACT_INFO.email}</a>
+            </p>
+            <div className={styles.socialRow}>
+              <a href={SOCIAL_LINKS.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram">Instagram</a>
+              <a href={SOCIAL_LINKS.tiktok} target="_blank" rel="noopener noreferrer" aria-label="TikTok">TikTok</a>
+              <a href={SOCIAL_LINKS.whatsappGroup} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp Group">WhatsApp Group</a>
+            </div>
             <a
-              href="https://wa.me/254722566399"
+              href={whatsappHref(CONTACT_INFO.whatsapp)}
               target="_blank"
               rel="noopener noreferrer"
               className={styles.whatsappBtn}
@@ -84,9 +89,18 @@ export default function Footer() {
             </p>
             <h4 className={`${styles.columnHeading} ${styles.giveHeading}`}>Give &amp; Support</h4>
             <p className={styles.giveText}>
-              M-Pesa Paybill: <strong>400222</strong>
+              Tithe / Offering / Development
               <br />
-              Account: <strong>1756443#offering/tithe</strong>
+              Paybill: <strong>{DEFAULT_GIVE_SETTINGS.paybillNumber}</strong>
+              <br />
+              Account: <strong>{formatMpesaAccount(DEFAULT_GIVE_SETTINGS, '#offering')}</strong>
+            </p>
+            <p className={styles.giveText} style={{ marginTop: '0.5rem' }}>
+              Building Fund
+              <br />
+              Paybill: <strong>{DEFAULT_GIVE_SETTINGS.buildingPaybillNumber}</strong>
+              <br />
+              Account: <strong>{DEFAULT_GIVE_SETTINGS.buildingAccountNumber}</strong>
             </p>
           </div>
         </div>

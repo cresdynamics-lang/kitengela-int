@@ -59,7 +59,7 @@ const PILLARS = [
     scripture: '"For my house will be called a house of prayer for all nations." — Isaiah 56:7',
     cta: 'View Service Times',
     link: ROUTES.services,
-    image: '/praise-worship.jpg',
+    image: '/midweek-prayers.jpeg',
     photoCategory: 'prayer',
   },
   {
@@ -69,7 +69,7 @@ const PILLARS = [
     scripture: '"Train up a child in the way he should go." — Proverbs 22:6',
     cta: 'Explore Next Generation',
     link: ROUTES.nextGeneration,
-    image: '/whatsapp-12.jpeg',
+    image: '/pst-erastus-oyoo-youth.jpeg',
     photoCategory: 'youth',
   },
 ]
@@ -229,7 +229,7 @@ export default function Home() {
             LIVE NOW — Tap to Join
           </>
         ) : (
-          'Next Service: Sunday 9:30 AM — Set Reminder'
+          'Next Service: Sunday 7:00 AM — Set Reminder'
         )}
       </button>
     </div>
@@ -255,7 +255,7 @@ export default function Home() {
         ) : (
           <div className={styles.liveBarInner}>
             <div className={styles.liveBarNext}>
-              <span>🕐 NEXT SERVICE: Sunday Worship — 9:30 AM</span>
+              <span>🕐 NEXT SERVICE: Sunday Worship — 7:00 AM – 1:00 PM</span>
               <span className={styles.liveBarMeta}>
                 Kitengela, Baraka Road | Online: Join via website
               </span>
@@ -280,7 +280,7 @@ export default function Home() {
         </div>
       </section>
 
-      <ScripturePulse verses={getPulseVerses(['boldness', 'prayer', 'identity'])} backgroundImage="/praise-worship.jpg" />
+      <ScripturePulse verses={getPulseVerses(['boldness', 'prayer', 'identity'])} backgroundImage="/midweek-prayers.jpeg" />
 
       <section className={styles.pillars}>
         <div className={styles.container}>

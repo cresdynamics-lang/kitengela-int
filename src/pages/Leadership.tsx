@@ -23,7 +23,7 @@ import styles from './Leadership.module.css'
 
 export default function Leadership() {
   const [leaders, setLeaders] = useState<PublicLeader[]>(defaultLeaders)
-  const [heroImage, setHeroImage] = useState('/Rev.Evans1.jpeg')
+  const [heroImage, setHeroImage] = useState('/rev-evans-kochoo-preaching.jpeg')
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
@@ -88,7 +88,7 @@ export default function Leadership() {
         <div className={styles.heroInner}>
           <h1 className={styles.heroTitle}>Leadership</h1>
           <p className={styles.heroTagline}>
-            Shepherds called to lead, serve, and equip the House of Solutions.
+            Shepherds called to lead, serve, and equip the body of Christ — One Way, One Job.
           </p>
         </div>
       </section>

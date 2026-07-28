@@ -30,12 +30,21 @@ export const SERVICE_SLUGS = {
   sundayBibleStudy: 'sunday-bible-study',
   wednesdayPrayers: 'wednesday-prayers',
   fridayNight: 'friday-night',
-  thursdayConnect: 'thursday-connect',
+  /** Youth Online Connect (Tuesday) */
+  youthOnlineConnect: 'youth-online-connect',
+  /** @deprecated use youthOnlineConnect */
+  thursdayConnect: 'youth-online-connect',
 } as const
 
 export type ServiceSlug = (typeof SERVICE_SLUGS)[keyof typeof SERVICE_SLUGS]
 
-export const SERVICE_SLUG_LIST: ServiceSlug[] = Object.values(SERVICE_SLUGS)
+export const SERVICE_SLUG_LIST: ServiceSlug[] = [
+  SERVICE_SLUGS.sundayBibleStudy,
+  SERVICE_SLUGS.sundayWorship,
+  SERVICE_SLUGS.wednesdayPrayers,
+  SERVICE_SLUGS.youthOnlineConnect,
+  SERVICE_SLUGS.fridayNight,
+]
 
 /** @deprecated legacy slugs — redirect to new paths */
 export const LEGACY_SERVICE_SLUGS: Record<string, ServiceSlug> = {
@@ -43,7 +52,8 @@ export const LEGACY_SERVICE_SLUGS: Record<string, ServiceSlug> = {
   biblestudy: SERVICE_SLUGS.sundayBibleStudy,
   wednesday: SERVICE_SLUGS.wednesdayPrayers,
   friday: SERVICE_SLUGS.fridayNight,
-  thursday: SERVICE_SLUGS.thursdayConnect,
+  thursday: SERVICE_SLUGS.youthOnlineConnect,
+  'thursday-connect': SERVICE_SLUGS.youthOnlineConnect,
 }
 
 export function serviceDetailPath(slug: string) {

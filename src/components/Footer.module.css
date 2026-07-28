@@ -33,7 +33,7 @@
 }
 
 .brandName {
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: var(--font-display, 'Maiandra GD', 'Nunito', sans-serif);
   font-size: 1.15rem;
   color: #fff;
   margin: 0 0 0.35rem;
@@ -98,6 +98,25 @@
 }
 
 .whatsappBtn:hover {
+  text-decoration: underline;
+}
+
+.socialRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 0.75rem 0 0.25rem;
+}
+
+.socialRow a {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.socialRow a:hover {
+  color: #fff;
   text-decoration: underline;
 }
 

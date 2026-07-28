@@ -222,7 +222,7 @@ export default function Programs() {
                   type="text"
                   value={formData.contacts}
                   onChange={(e) => setFormData({ ...formData, contacts: e.target.value })}
-                  placeholder="+254 722 566 399, +254 720 276 162"
+                  placeholder="+254 727 057 995, +254 704 601 178"
                 />
               </div>
               <ImageUploadField

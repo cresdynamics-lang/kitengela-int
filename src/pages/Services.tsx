@@ -11,6 +11,7 @@ import { getLiveJoinUrl } from '@/lib/live'
 import { useLiveStatus } from '@/hooks/useLiveStatus'
 import {
   WEEKLY_SERVICES,
+  MONTHLY_GATHERINGS,
   mergeProgramIntoService,
   resolveWeeklyServiceJoin,
   type WeeklyService,
@@ -142,6 +143,22 @@ export default function Services() {
         </div>
       </section>
 
+      {/* Monthly & special gatherings */}
+      <section className={styles.expect}>
+        <div className={styles.container}>
+          <h2 className={styles.sectionTitle}>Monthly &amp; Special Gatherings</h2>
+          <div className={styles.expectGrid}>
+            {MONTHLY_GATHERINGS.map((item) => (
+              <div key={item.id} className={styles.expectCard}>
+                <h3>{item.title}</h3>
+                <p><strong>{item.time}</strong></p>
+                <p>{item.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* SECTION 4 — What to Expect */}
       <section className={styles.expect}>
         <div className={styles.container}>
@@ -153,12 +170,12 @@ export default function Services() {
             </div>
             <div className={styles.expectCard}>
               <h3>What to Expect</h3>
-              <p>Worship, the Word, and a warm welcome. Services run about 90 minutes.</p>
+              <p>Worship, the Word, and a warm welcome. Sunday runs from 7:00 AM to 1:00 PM.</p>
             </div>
             <div className={styles.expectCard}>
               <h3>For Your Kids</h3>
               <p>
-                Children&apos;s ministry is available during Sunday Worship. Friendly ushers
+                Children&apos;s ministry runs every Sunday from 9:00 – 11:00 AM. Friendly ushers
                 will guide your family when you arrive.
               </p>
             </div>

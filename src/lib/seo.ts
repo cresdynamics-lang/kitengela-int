@@ -3,8 +3,8 @@ import { ROUTES, SERVICE_SLUGS } from './routes'
 
 export const SITE_URL = 'https://voshchurchintkitengela.co.ke'
 export const SITE_NAME = 'VOSH Church International Kitengela'
-export const SITE_TAGLINE = 'A House of Solutions, Manifesting Christ'
-export const SITE_IMAGE = `${SITE_URL}/logo/church-logo.jpeg`
+export const SITE_TAGLINE = 'One Way, One Job'
+export const SITE_IMAGE = `${SITE_URL}/vosh-logo-70th.jpeg`
 
 export const SITE_KEYWORDS = [
   'VOSH church',
@@ -66,7 +66,7 @@ const STATIC_PAGES: Record<string, SeoConfig> = {
   [ROUTES.services]: {
     title: pageTitle('Church Services & Programs in Kitengela'),
     description:
-      'Service times at VOSH Church Kitengela — Sunday worship, Bible study, Wednesday prayers, Friday night service, and Thursday online connect. Find times and how to join.',
+      'Service times at VOSH Church Kitengela — Sunday worship 7AM–1PM, Bible study, Wednesday midweek prayers, Youth Online Connect, and Friday Tefila Night.',
     path: ROUTES.services,
     keywords: `Sunday service Kitengela, church service times Kitengela, worship service Kitengela, ${SITE_KEYWORDS}`,
     breadcrumbs: [
@@ -178,46 +178,46 @@ const STATIC_PAGES: Record<string, SeoConfig> = {
 const SERVICE_NAMES: Record<string, string> = {
   [SERVICE_SLUGS.sundayWorship]: 'Sunday Worship',
   [SERVICE_SLUGS.sundayBibleStudy]: 'Sunday Bible Study',
-  [SERVICE_SLUGS.wednesdayPrayers]: 'Wednesday Prayers',
-  [SERVICE_SLUGS.fridayNight]: 'Friday Night Service',
-  [SERVICE_SLUGS.thursdayConnect]: 'Thursday Connect',
+  [SERVICE_SLUGS.wednesdayPrayers]: 'Wednesday Midweek Prayers',
+  [SERVICE_SLUGS.fridayNight]: 'Tefila Night',
+  [SERVICE_SLUGS.youthOnlineConnect]: 'Youth Online Connect',
 }
 
 const SERVICE_SEO: Record<string, Omit<SeoConfig, 'path'> & { pathSuffix: string }> = {
   [SERVICE_SLUGS.sundayWorship]: {
     title: pageTitle('Sunday Worship Service in Kitengela'),
     description:
-      'Join Sunday worship at VOSH Church International Kitengela — 9:30 AM at our sanctuary on Baraka Road. Dynamic praise, prophetic ministry, and life-changing Word.',
+      'Join Sunday worship at VOSH Church International Kitengela — 7:00 AM to 1:00 PM at our sanctuary on Baraka Road.',
     pathSuffix: SERVICE_SLUGS.sundayWorship,
     keywords: `Sunday worship Kitengela, Sunday church service Kitengela, ${SITE_KEYWORDS}`,
   },
   [SERVICE_SLUGS.sundayBibleStudy]: {
     title: pageTitle('Sunday Bible Study in Kitengela'),
     description:
-      'Sunday morning Bible study at VOSH Church Kitengela — deepen your understanding of Scripture with our church family in Kitengela.',
+      'Sunday Bible study at VOSH Church Kitengela — 7:30 AM to 8:30 AM. Grow deeper in Scripture with our church family.',
     pathSuffix: SERVICE_SLUGS.sundayBibleStudy,
     keywords: `Bible study Kitengela Sunday, ${SITE_KEYWORDS}`,
   },
   [SERVICE_SLUGS.wednesdayPrayers]: {
-    title: pageTitle('Wednesday Prayer Service'),
+    title: pageTitle('Wednesday Midweek Prayers in Kitengela'),
     description:
-      'Join Wednesday online prayers with VOSH Church International Kitengela — corporate intercession and testimonies every week.',
+      'Wednesday midweek prayers at VOSH Kitengela — physical gathering 5:00 PM to 7:30 PM at the church.',
     pathSuffix: SERVICE_SLUGS.wednesdayPrayers,
-    keywords: `Wednesday prayer Kitengela church, online prayer VOSH, ${SITE_KEYWORDS}`,
+    keywords: `Wednesday prayer Kitengela church, midweek prayers VOSH, ${SITE_KEYWORDS}`,
   },
   [SERVICE_SLUGS.fridayNight]: {
-    title: pageTitle('Friday Night Service in Kitengela'),
+    title: pageTitle('Tefila Night — Friday All-Night Prayer'),
     description:
-      'Friday night worship and Word at VOSH Church Kitengela — an evening of praise, prayer, and powerful ministry in Kitengela.',
+      'Tefila Night every Friday at VOSH Church Kitengela — from 8:00 PM until dawn. All-night prayer and worship.',
     pathSuffix: SERVICE_SLUGS.fridayNight,
-    keywords: `Friday church service Kitengela, ${SITE_KEYWORDS}`,
+    keywords: `Tefila Night Kitengela, Friday prayer church Kitengela, ${SITE_KEYWORDS}`,
   },
-  [SERVICE_SLUGS.thursdayConnect]: {
-    title: pageTitle('Thursday Online Connect'),
+  [SERVICE_SLUGS.youthOnlineConnect]: {
+    title: pageTitle('Youth Online Connect'),
     description:
-      'Thursday Online Connect at VOSH Church Kitengela — midweek fellowship, Word, and community for believers in Kitengela and online.',
-    pathSuffix: SERVICE_SLUGS.thursdayConnect,
-    keywords: `Thursday fellowship Kitengela church, ${SITE_KEYWORDS}`,
+      'Youth Online Connect every Tuesday 8:30–9:30 PM — online fellowship for young people at VOSH Church Kitengela.',
+    pathSuffix: SERVICE_SLUGS.youthOnlineConnect,
+    keywords: `youth church Kitengela, Youth Online Connect VOSH, ${SITE_KEYWORDS}`,
   },
 }
 
@@ -225,6 +225,9 @@ const LEADER_SEO: Record<string, { name: string; title: string }> = {
   'erastus-kwaka': { name: 'Bishop Erastus Kwaka', title: 'Bishop' },
   'evans-kochoo': { name: 'Rev. Evans Kochoo', title: 'Senior Pastor' },
   'pastor-nancy-sai': { name: 'Pastor Nancy Sai', title: 'Assistant Pastor' },
+  'erastus-oyoo': { name: 'Pst. Erastus K. Oyoo', title: 'Youth Pastor' },
+  'ponciano-odongo': { name: 'Pst. Ponciano Odongo', title: "Children's Pastor" },
+  'evangelist-lenny': { name: 'Evangelist Lenny', title: 'Evangelist' },
 }
 
 export function canonicalUrl(path: string) {
@@ -296,7 +299,7 @@ export function organizationJsonLd() {
       'VOSH Kitengela',
     ],
     description:
-      'VOSH Church International Kitengela is a Spirit-filled Pentecostal church in Kitengela, Kenya — a House of Solutions, Manifesting Christ through worship, Word, prayer, and community outreach.',
+      'VOSH Church International Kitengela is a Spirit-filled Pentecostal church in Kitengela, Kenya — One Way, One Job. Worship, Word, prayer, and community outreach.',
     url: SITE_URL,
     logo: SITE_IMAGE,
     image: SITE_IMAGE,
@@ -321,28 +324,38 @@ export function organizationJsonLd() {
     },
     sameAs: [
       'https://www.facebook.com/VoshChurchKitengela',
+      'https://www.instagram.com/voshchurchintkitengela',
+      'https://www.tiktok.com/@vosh.church.kiten',
+      'https://chat.whatsapp.com/33qLByUjVxw5NiqteMIOzu',
     ],
     openingHoursSpecification: [
       {
         '@type': 'OpeningHoursSpecification',
         dayOfWeek: 'Sunday',
-        opens: '08:00',
+        opens: '07:00',
         closes: '13:00',
         description: 'Sunday Bible Study and Worship',
       },
       {
         '@type': 'OpeningHoursSpecification',
-        dayOfWeek: 'Wednesday',
-        opens: '20:00',
+        dayOfWeek: 'Tuesday',
+        opens: '20:30',
         closes: '21:30',
-        description: 'Wednesday Online Prayers',
+        description: 'Youth Online Connect',
+      },
+      {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: 'Wednesday',
+        opens: '17:00',
+        closes: '19:30',
+        description: 'Wednesday Midweek Prayers (Physical)',
       },
       {
         '@type': 'OpeningHoursSpecification',
         dayOfWeek: 'Friday',
-        opens: '19:00',
-        closes: '21:00',
-        description: 'Friday Night Service',
+        opens: '20:00',
+        closes: '06:00',
+        description: 'Tefila Night — 8 PM until dawn',
       },
     ],
     hasMap: 'https://maps.google.com/maps?q=VOSH+Church+International+Kitengela+Baraka+Road+Balozi+Junior+Academy',

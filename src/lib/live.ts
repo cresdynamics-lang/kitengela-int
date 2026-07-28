@@ -31,14 +31,14 @@ export function getLiveJoinUrl(live: NormalizedLive | null): string | null {
   return live.youtubeLiveUrl || live.facebookLiveUrl || live.googleMeetUrl || null
 }
 
-/** Google Calendar link for next Sunday worship at 9:30 AM EAT (UTC+3) */
+/** Google Calendar link for next Sunday worship at 7:00 AM EAT (UTC+3) */
 export function getNextSundayCalendarUrl() {
   const now = new Date()
   const day = now.getDay()
   const daysUntilSunday = day === 0 ? 7 : 7 - day
   const nextSunday = new Date(now)
   nextSunday.setDate(now.getDate() + daysUntilSunday)
-  nextSunday.setHours(9, 30, 0, 0)
+  nextSunday.setHours(7, 0, 0, 0)
 
   const end = new Date(nextSunday)
   end.setHours(13, 0, 0, 0)
@@ -49,7 +49,7 @@ export function getNextSundayCalendarUrl() {
     action: 'TEMPLATE',
     text: 'Sunday Worship Service — VOSH Kitengela',
     dates: `${fmt(nextSunday)}/${fmt(end)}`,
-    details: 'Join us at VOSH Church International Kitengela. House of Solutions — Manifesting Christ.',
+    details: 'Join us at VOSH Church International Kitengela. Motto: One Way, One Job.',
     location: 'Kitengela, Kenya — Along Baraka Road / Treewa Road, Next to Balozi Junior Academy',
   })
 

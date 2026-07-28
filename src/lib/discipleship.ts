@@ -64,7 +64,7 @@ export const FALLBACK_SMALL_GROUPS: SmallGroup[] = [
   {
     id: 'online-connect',
     name: 'Online Connect Group',
-    schedule: 'Thursday · 8:30 PM',
+    schedule: 'Tuesday · 8:30 PM',
     location: 'Online (Google Meet)',
   },
 ]

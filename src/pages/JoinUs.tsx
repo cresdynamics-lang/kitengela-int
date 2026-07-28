@@ -18,13 +18,14 @@ import {
   whatsappHref,
   type ContactSubject,
 } from '@/lib/contact'
+import { SOCIAL_LINKS } from '@/lib/brand'
 import styles from './JoinUs.module.css'
 
 const SERVICE_OPTIONS = [
   'Sunday Worship',
   'Bible Study',
   'Wednesday Prayers',
-  'Thursday Connect',
+  'Youth Online Connect',
   'Friday Night',
   'Other',
 ]
@@ -165,7 +166,7 @@ export default function JoinUs() {
               <article className={styles.wayCard}>
                 <h2>Visit In Person</h2>
                 <p>Kitengela, Baraka Road</p>
-                <p className={styles.wayHighlight}>Sunday 9:30 AM</p>
+                <p className={styles.wayHighlight}>Sunday 7:00 AM – 1:00 PM</p>
                 <a href={MAPS_URL} target="_blank" rel="noopener noreferrer" className={styles.wayBtn}>
                   Get Directions →
                 </a>
@@ -311,7 +312,29 @@ export default function JoinUs() {
                       WhatsApp: {CONTACT_INFO.whatsapp}
                     </a>
                   </li>
-                  <li><span aria-hidden>🕐</span><span>Office Hours: {CONTACT_INFO.officeHours}</span></li>
+                  <li>
+                    <span aria-hidden>👥</span>
+                    <a href={SOCIAL_LINKS.whatsappGroup} target="_blank" rel="noopener noreferrer" className={styles.infoLink}>
+                      Join the Church WhatsApp Group
+                    </a>
+                  </li>
+                  <li>
+                    <span aria-hidden>✉️</span>
+                    <a href={`mailto:${CONTACT_INFO.email}`} className={styles.infoLink}>
+                      {CONTACT_INFO.email}
+                    </a>
+                  </li>
+                  <li>
+                    <span aria-hidden>📷</span>
+                    <a href={SOCIAL_LINKS.instagram} target="_blank" rel="noopener noreferrer" className={styles.infoLink}>
+                      Instagram
+                    </a>
+                    {' · '}
+                    <a href={SOCIAL_LINKS.tiktok} target="_blank" rel="noopener noreferrer" className={styles.infoLink}>
+                      TikTok
+                    </a>
+                  </li>
+                  <li><span aria-hidden>🕐</span><span>{CONTACT_INFO.officeHours}</span></li>
                 </ul>
               </aside>
             </ScrollReveal>

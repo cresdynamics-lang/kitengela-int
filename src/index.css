@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,400;1,500&display=swap');
+@import url('https://fonts.cdnfonts.com/css/maiandra-gd');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
 @import './styles/responsive.css';
 
 @tailwind base;
@@ -6,23 +7,31 @@
 @tailwind utilities;
 
 :root {
-  --navy: #0B1F3A;
-  --navy-light: #132d52;
-  --gold: #D4A017;
-  --gold-light: #e8b82a;
-  --surface: #FAF8F3;
-  --text: #1C1C1C;
-  --live: #E63946;
-  --primary: #0B1F3A;
-  --primary-light: #132d52;
-  --accent: #D4A017;
-  --accent-light: #e8b82a;
-  --gold-gradient: linear-gradient(135deg, #D4A017 0%, #e8b82a 100%);
-  --background: #FAF8F3;
-  --foreground: #1C1C1C;
-  --muted: #f0ede6;
+  /* Logo emblem: blue (world), red (blood / One Way One Job), green (life), white (righteousness) */
+  --navy: #1B2F9B;
+  --navy-light: #2A45B8;
+  --navy-dark: #121F6E;
+  --gold: #C8102E;
+  --gold-light: #E63946;
+  --brand-red: #C8102E;
+  --brand-red-light: #E63946;
+  --brand-green: #1B7A3D;
+  --brand-green-light: #2E9B52;
+  --surface: #F5F7FC;
+  --text: #141414;
+  --live: #C8102E;
+  --primary: #1B2F9B;
+  --primary-light: #2A45B8;
+  --accent: #C8102E;
+  --accent-light: #E63946;
+  --gold-gradient: linear-gradient(135deg, #C8102E 0%, #E63946 100%);
+  --background: #F5F7FC;
+  --foreground: #141414;
+  --muted: #E8ECF5;
   --muted-foreground: #5a5a5a;
-  --radius: 6px;
+  --radius: 8px;
+  --font-display: 'Maiandra GD', 'Nunito', system-ui, sans-serif;
+  --font-body: 'Nunito', system-ui, -apple-system, sans-serif;
 }
 
 @layer base {
@@ -32,8 +41,8 @@
   }
 
   body {
-    @apply font-inter antialiased;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    @apply antialiased;
+    font-family: var(--font-body);
     background: var(--background);
     color: var(--foreground);
     overflow-x: clip;
@@ -42,7 +51,7 @@
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-bold tracking-tight;
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: var(--font-display);
     color: var(--navy);
   }
 
@@ -52,7 +61,7 @@
 
   blockquote,
   .scripture {
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: var(--font-display);
     font-style: italic;
     color: var(--navy);
   }
@@ -73,18 +82,18 @@
   .glass-card {
     @apply border shadow-sm rounded-[var(--radius)];
     background: #fff;
-    border-color: rgba(11, 31, 58, 0.08);
+    border-color: rgba(27, 47, 155, 0.08);
   }
 
   .btn-premium {
     @apply relative overflow-hidden px-10 py-4 font-black rounded-[var(--radius)] uppercase tracking-[0.15em]
     transition-all duration-300 active:scale-95;
-    background: var(--gold);
-    color: var(--navy);
+    background: var(--brand-red);
+    color: #fff;
   }
 
   .btn-premium:hover {
-    filter: brightness(1.05);
+    filter: brightness(1.08);
   }
 
   .btn-gold {
@@ -93,16 +102,28 @@
 
   .btn-outline-gold {
     @apply px-10 py-4 border-2 font-black rounded-[var(--radius)] uppercase tracking-[0.15em] transition-all duration-300;
-    border-color: var(--gold);
+    border-color: var(--brand-red);
     color: var(--navy);
   }
 
   .btn-outline-gold:hover {
-    background: var(--gold);
+    background: var(--brand-red);
+    color: #fff;
+  }
+
+  .btn-outline-navy {
+    @apply px-8 py-3 font-bold rounded-[var(--radius)] border-2 transition-all;
+    border-color: var(--navy);
+    color: var(--navy);
+  }
+
+  .btn-outline-navy:hover {
+    background: var(--navy);
+    color: #fff;
   }
 
   .gradient-text-gold {
-    color: var(--gold);
+    color: var(--brand-red);
   }
 
   .live-pulse {
@@ -117,6 +138,14 @@
     border-radius: 50%;
     background: var(--live);
     animation: livePulse 1.5s ease-in-out infinite;
+  }
+
+  .section-padding {
+    @apply py-16 md:py-24;
+  }
+
+  .container-custom {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
   }
 }
 
@@ -139,5 +168,5 @@
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--gold);
+  background: var(--brand-red);
 }

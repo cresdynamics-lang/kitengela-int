@@ -1,4 +1,5 @@
 import { ROUTES } from './routes'
+import { SOCIAL_LINKS } from './brand'
 
 export const CONTACT_SUBJECTS = [
   'General',
@@ -13,16 +14,15 @@ export type ContactSubject = (typeof CONTACT_SUBJECTS)[number]
 export const CONTACT_INFO = {
   locationLine: 'Kitengela, Kenya — Along Baraka Road / Treewa Road, Next to Balozi Junior Academy',
   phoneNumbers: [
-    { label: 'Main', number: '+254 722 566 399' },
-    { number: '+254 720 276 162' },
-    { number: '+254 720 977 189' },
-    { number: '+254 775 036 515' },
-    { number: '+254 703 182 203' },
+    { label: 'Main', number: '+254 727 057 995' },
+    { number: '+254 704 601 178' },
+    { number: '+254 733 566 398' },
   ],
-  whatsapp: '+254 722 566 399',
-  officeHours: 'Mon–Fri, 9AM–5PM',
-  email: 'voshchurchkitengela70@gmail.com',
-  financeEmail: 'voshchurchkitengela70@gmail.com',
+  whatsapp: '+254 727 057 995',
+  whatsappGroup: SOCIAL_LINKS.whatsappGroup,
+  officeHours: 'Counseling: 10:00 AM – 3:00 PM',
+  email: 'evansculture2019@gmail.com',
+  financeEmail: 'evansculture2019@gmail.com',
 }
 
 export const MAP_EMBED_URL =

@@ -5,59 +5,94 @@ import Footer from '@/components/Footer'
 import ScrollReveal from '@/components/ScrollReveal'
 import { publicApi } from '@/lib/api'
 import { ROUTES } from '@/lib/routes'
+import { MISSION, MOTTO, VISION } from '@/lib/brand'
 import styles from './WhoWeAre.module.css'
 
-const MISSION = {
+const MISSION_BLOCK = {
   title: 'Our Mission',
-  body: 'Manifesting Christ in every sphere — disseminating the pure Gospel and demonstrating His power.',
+  body: MISSION,
 }
 
-const VISION = {
+const VISION_BLOCK = {
   title: 'Our Vision',
-  body: "To be a house of solutions for the nations, raising disciples who carry God's presence everywhere they go.",
+  body: VISION,
 }
 
-const MANDATE = {
-  title: 'Our Mandate',
-  body: 'To disseminate the pure Gospel of Jesus Christ — apostolic, unfiltered, and transformative.',
+const MOTTO_BLOCK = {
+  title: 'Our Motto',
+  body: MOTTO,
 }
 
 const BELIEFS = [
   {
-    title: 'The infallible Word of God',
-    summary: 'We believe the Bible is the inspired, authoritative Word of God — our final rule for faith and life.',
+    title: 'The Bible',
+    summary:
+      'The Word of God — sixty-six books of the Old and New Testament, inspired by the Spirit, without error in the original manuscripts, and our final authority in faith and practice.',
   },
   {
-    title: 'Salvation through Jesus Christ alone',
-    summary: 'We believe salvation is found only through faith in Jesus Christ, His death, and resurrection.',
+    title: 'One Eternal God',
+    summary:
+      'The Creator of all things — Holy and Sovereign — existing in three eternal persons: the Father, the Son, and the Holy Spirit, in one divine perfection. His name is Jehovah.',
   },
   {
-    title: 'The baptism and gifts of the Holy Spirit',
-    summary: 'We believe the Holy Spirit empowers believers for worship, service, and the edification of the Church.',
+    title: 'Jesus Christ',
+    summary:
+      'We believe in the absolute deity of Jesus Christ — His virgin birth, sinless life, substitutionary death, bodily resurrection, ascension, mediatorial ministry, and personal return.',
   },
   {
-    title: 'Healing and deliverance as present-day realities',
-    summary: 'We believe God still heals, delivers, and transforms lives through the power of the Gospel today.',
+    title: 'The Holy Spirit',
+    summary:
+      'We believe in the deity and personality of the Holy Spirit who convicts, regenerates, sanctifies, illuminates, and comforts those who believe in Jesus Christ.',
   },
   {
-    title: 'The Church as the Body of Christ in active mission',
-    summary: 'We believe the Church exists to worship God, disciple believers, and reach the world with the Gospel.',
+    title: 'Salvation of Sinners',
+    summary:
+      'Salvation is by grace through repentance and faith in the finished work of the cross — remission of sins and new life in Christ.',
   },
   {
-    title: 'The return of Jesus Christ',
-    summary: 'We believe in the personal, visible return of Jesus Christ and the hope of eternal life for all who believe.',
+    title: 'Water Baptism & Holy Communion',
+    summary:
+      'We practice water baptism by immersion in the Name of the Father, Son, and Holy Spirit, and the Lord’s Supper for all believers as often as we meet.',
+  },
+  {
+    title: 'The Spirit-Filled Life',
+    summary:
+      'We believe in the Spirit-filled life with the evidence of speaking in tongues — empowered to be witnesses of the Lord Jesus Christ.',
+  },
+  {
+    title: 'Divine Healing',
+    summary:
+      'We believe in the healing of body, soul, and mind through faith in Jesus Christ, as practiced in the early Church.',
+  },
+  {
+    title: 'Evangelism & The Church',
+    summary:
+      'We obey the Great Commission to preach the Gospel to every creature. The local church is a body of baptized believers under the Lordship of Christ.',
+  },
+  {
+    title: 'Resurrection & Eternal Life',
+    summary:
+      'We believe in the resurrection of the dead and eternal life — and that this world will give way to a new heaven and a new earth.',
   },
 ]
 
-const FULL_STATEMENT = `VOSH Church International Kitengela affirms the historic Christian faith as revealed in Scripture. We hold to the authority of God's Word, the lordship of Jesus Christ, the work of the Holy Spirit, and the Great Commission entrusted to the Church. We believe in holy living, fervent prayer, compassionate outreach, and the supernatural power of God to save, heal, and restore.`
+const FULL_STATEMENT = `VOSH Church International receives all her instructions from the Scriptures, both Old and New Testaments, as inspired by God (2 Timothy 3:16; Joshua 1:8).
+
+We believe the Bible is the Word of God; in one Eternal God existing as Father, Son, and Holy Spirit; in the absolute deity of Jesus Christ — His virgin birth, sinless life, substitutionary death, bodily resurrection, and personal return; and in the Holy Spirit who convicts, regenerates, sanctifies, and empowers believers.
+
+We believe man was created in God’s image, fell into sin, and needs salvation by grace through repentance and faith in Christ. We uphold the sanctity of life from conception, water baptism by immersion, the Holy Communion, the Spirit-filled life with the evidence of speaking in tongues, divine healing, fervent prayer, holy matrimony between a man and a woman, biblical equality, giving and receiving as worship, respect for governing authorities, and the hope of resurrection and the world to come.
+
+We affirm the Apostles’ Creed as a concise summary of the historic Christian faith, and we commit ourselves to love others, enjoy the fellowship of believers, and actively identify with this local congregation for the glory of God.
+
+Motto: One Way, One Job.`
 
 export default function WhoWeAre() {
-  const [heroImage, setHeroImage] = useState('/church-praying.jpg')
+  const [heroImage, setHeroImage] = useState('/values.jpeg')
   const [outreachImage, setOutreachImage] = useState('/outreach-1.jpeg')
   const [openBelief, setOpenBelief] = useState<number | null>(null)
   const [showFullFaith, setShowFullFaith] = useState(false)
-  const [missionText, setMissionText] = useState(MISSION.body)
-  const [visionText, setVisionText] = useState(VISION.body)
+  const [missionText, setMissionText] = useState(MISSION_BLOCK.body)
+  const [visionText, setVisionText] = useState(VISION_BLOCK.body)
 
   useEffect(() => {
     publicApi.getSite().then((res) => {
@@ -89,78 +124,72 @@ export default function WhoWeAre() {
     <main className={styles.page}>
       <Header />
 
-      {/* SECTION 1 — Hero */}
       <section className={styles.hero} style={{ backgroundImage: `url(${heroImage})` }}>
         <div className={styles.heroOverlay} />
         <div className={styles.heroInner}>
           <h1 className={styles.heroTitle}>Who We Are</h1>
           <p className={styles.heroTagline}>
-            A house of spiritual solutions, where miracles are matched with sound teaching.
+            Voice Of Salvation And Healing Church International — Kitengela. Motto: {MOTTO}.
           </p>
         </div>
       </section>
 
-      {/* SECTION 2 — Our Story */}
       <section className={styles.story}>
         <div className={styles.container}>
           <ScrollReveal>
             <h2 className={styles.storyHeading}>Rooted in the Word, Rising in Spirit</h2>
             <div className={styles.storyBody}>
               <p>
-                VOSH Church International Kitengela is built on the apostolic mandate to disseminate the
-                pure Gospel of Jesus Christ. We are a house of spiritual solutions — a place where the
-                supernatural meets sound doctrine, and where every person who walks through our doors
-                encounters the presence of God.
+                VOSH Church International is an indigenous Bible-centered Pentecostal church,
+                founded in the fiery revival of the 1950s under Archbishop Dr. J.A. Silas Owiti.
+                We teach and preach the Word of God unadulterated — grounded in Hebrews 13:8:
+                Jesus Christ is the same yesterday, today, and forever.
               </p>
               <p>
-                What began as a calling to serve Kitengela has grown into a family of believers committed
-                to prayer, the Word, worship, and transformation — in our homes, our streets, and our
-                nation.
+                At Kitengela we are a family committed to prayer, the Word, worship, and
+                transformation — in our homes, our streets, and our nation. One Way, One Job.
               </p>
             </div>
             <blockquote className={styles.scripture}>
-              &ldquo;Built on the foundation of the apostles and prophets, with Christ Jesus Himself as
-              the chief cornerstone.&rdquo;
-              <cite>— Ephesians 2:20</cite>
+              &ldquo;Jesus Christ is the same yesterday and today and forever.&rdquo;
+              <cite>— Hebrews 13:8</cite>
             </blockquote>
           </ScrollReveal>
         </div>
       </section>
 
-      {/* SECTION 3 — Mission, Vision, Mandate */}
       <section className={styles.mvm}>
         <div className={styles.container}>
           <div className={styles.mvmGrid}>
             <ScrollReveal>
               <article className={styles.mvmCard}>
-                <h3 className={styles.mvmLabel}>{MISSION.title}</h3>
-                <div className={styles.mvmRule} aria-hidden />
-                <p className={styles.mvmText}>{missionText}</p>
-              </article>
-            </ScrollReveal>
-            <ScrollReveal>
-              <article className={styles.mvmCard}>
-                <h3 className={styles.mvmLabel}>{VISION.title}</h3>
+                <h3 className={styles.mvmLabel}>{VISION_BLOCK.title}</h3>
                 <div className={styles.mvmRule} aria-hidden />
                 <p className={styles.mvmText}>{visionText}</p>
               </article>
             </ScrollReveal>
             <ScrollReveal>
               <article className={styles.mvmCard}>
-                <h3 className={styles.mvmLabel}>{MANDATE.title}</h3>
+                <h3 className={styles.mvmLabel}>{MISSION_BLOCK.title}</h3>
                 <div className={styles.mvmRule} aria-hidden />
-                <p className={styles.mvmText}>{MANDATE.body}</p>
+                <p className={styles.mvmText}>{missionText}</p>
+              </article>
+            </ScrollReveal>
+            <ScrollReveal>
+              <article className={styles.mvmCard}>
+                <h3 className={styles.mvmLabel}>{MOTTO_BLOCK.title}</h3>
+                <div className={styles.mvmRule} aria-hidden />
+                <p className={styles.mvmText}>{MOTTO_BLOCK.body}</p>
               </article>
             </ScrollReveal>
           </div>
         </div>
       </section>
 
-      {/* SECTION 4 — Statement of Faith */}
       <section className={styles.faith} id="statement-of-faith">
         <div className={styles.container}>
           <h2 className={styles.sectionTitle}>What We Believe</h2>
-          <p className={styles.sectionSubtitle}>Statement of Faith — Summary</p>
+          <p className={styles.sectionSubtitle}>Statement of Faith — from the VOSH Constitution</p>
 
           <div className={styles.accordion}>
             {BELIEFS.map((belief, index) => {
@@ -198,13 +227,14 @@ export default function WhoWeAre() {
 
           {showFullFaith && (
             <div className={styles.fullFaith}>
-              <p>{FULL_STATEMENT}</p>
+              {FULL_STATEMENT.split('\n\n').map((para) => (
+                <p key={para.slice(0, 40)}>{para}</p>
+              ))}
             </div>
           )}
         </div>
       </section>
 
-      {/* SECTION 5 — Love Beyond Our Walls */}
       <section className={styles.outreach}>
         <div className={styles.outreachGrid}>
           <div
@@ -218,14 +248,14 @@ export default function WhoWeAre() {
               <span className={styles.outreachEyebrow}>Love Beyond Our Walls</span>
               <h2 className={styles.outreachTitle}>Our Mission in Action</h2>
               <p className={styles.outreachText}>
-                Our mission extends to the streets of Kitengela and beyond. Through outreach programs,
+                Our mission extends to the streets of Kitengela and beyond. Through outreach,
                 we bring hope, healing, and the tangible love of Christ to those who need it most.
               </p>
               <blockquote className={styles.outreachScripture}>
                 &ldquo;Therefore go and make disciples of all nations.&rdquo;
                 <cite>— Matthew 28:19</cite>
               </blockquote>
-              <Link to={ROUTES.joinUs} className={styles.outreachCta}>
+              <Link to={ROUTES.outreach} className={styles.outreachCta}>
                 See Our Outreach Work →
               </Link>
             </ScrollReveal>
@@ -233,17 +263,16 @@ export default function WhoWeAre() {
         </div>
       </section>
 
-      {/* SECTION 6 — CTA */}
       <section className={styles.cta}>
         <div className={styles.container}>
           <h2 className={styles.ctaTitle}>
-            Want to experience the House of Solutions for yourself?
+            Ready to walk the One Way with us?
           </h2>
           <div className={styles.ctaActions}>
             <Link to={`${ROUTES.joinUs}#plan-visit`} className={styles.ctaPrimary}>
               Plan Your Visit →
             </Link>
-            <Link to={ROUTES.joinUs} className={styles.ctaSecondary}>
+            <Link to={ROUTES.services} className={styles.ctaSecondary}>
               View Service Times →
             </Link>
           </div>

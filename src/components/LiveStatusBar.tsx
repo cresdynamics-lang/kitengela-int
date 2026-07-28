@@ -37,7 +37,7 @@ export default function LiveStatusBar({ live, onJoinLive, className = '' }: Live
       ) : (
         <div className={styles.inner}>
           <div className={styles.next}>
-            <span>🕐 Next Service: Sunday Worship — 9:30 AM</span>
+            <span>🕐 Next Service: Sunday Worship — 7:00 AM – 1:00 PM</span>
             <span className={styles.meta}>Kitengela, Baraka Road | Online: Join via website</span>
           </div>
           <a href={calendarUrl} target="_blank" rel="noopener noreferrer" className={styles.action}>

@@ -40,8 +40,8 @@ export const EVANS_KOCHOO_PROFILE: RichLeaderProfile = {
   signatureQuote:
     'The first organized opposition to the Gospel was financed to kill the truth; the Church must also finance a platform on which the truth is revealed.',
   quoteTagline: 'Defying Gravity, Impacting Generations',
-  heroPhoto: '/preaching.jpg',
-  profilePhoto: '/Rev.Evans2.jpeg',
+  heroPhoto: '/rev-evans-kochoo-preaching.jpeg',
+  profilePhoto: '/rev-evans-kochoo-smiling.jpeg',
   visionStatement:
     'To raise, equip, and release Kingdom-minded leaders who will impact generations by living out the uncompromised truth of the Gospel.',
   visionScripture: {
@@ -81,12 +81,16 @@ export const EVANS_KOCHOO_PROFILE: RichLeaderProfile = {
     'Media Communication & Commentary',
   ],
   galleryImages: [
-    '/Rev.Evans1.jpeg',
-    '/Rev.Evans2.jpeg',
-    '/Rev.Evans3.jpeg',
-    '/evans-activity-1.jpg',
-    '/evans-activity-2.jpg',
-    '/evans-activity-3.jpg',
+    '/rev-evans-kochoo-1.jpeg',
+    '/rev-evans-kochoo-2.jpeg',
+    '/rev-evans-kochoo-3.jpeg',
+    '/rev-evans-kochoo-4.jpeg',
+    '/rev-evans-kochoo-5.jpeg',
+    '/rev-evans-kochoo-6.jpeg',
+    '/rev-evans-kochoo-preaching.jpeg',
+    '/rev-evans-kochoo-preaching-strong.jpeg',
+    '/rev-evans-kochoo-praying.jpeg',
+    '/rev-evans-kochoo-congregation.jpeg',
   ],
   cta: {
     title: 'Invite Rev. Evans Kochoo to Speak',
@@ -163,8 +167,8 @@ export const BISHOP_ERASTUS_PROFILE: RichLeaderProfile = {
   tagline: 'A Gift to Our Generation · A Life Model · A Blessing',
   signatureQuote: 'A leader whose life speaks — a gift, a model, and a blessing to all who follow Christ.',
   quoteTagline: 'A Gift · A Model · A Blessing',
-  heroPhoto: '/bishop-erastus-kwaka.png',
-  profilePhoto: '/bishop-erastus-kwaka.png',
+  heroPhoto: '/bishop-erastus-kwaka.jpeg',
+  profilePhoto: '/bishop-erastus-kwaka.jpeg',
   visionStatement:
     'To shepherd with integrity, model Christ-like living before the nations, and be a blessing that raises generations who walk in faith, excellence, and purpose.',
   visionScripture: {
@@ -202,7 +206,7 @@ export const BISHOP_ERASTUS_PROFILE: RichLeaderProfile = {
     'Community Impact',
     'Generational Leadership',
   ],
-  galleryImages: ['/bishop-erastus-kwaka.png'],
+  galleryImages: ['/bishop-erastus-kwaka.jpeg'],
   cta: {
     title: 'Honor & Connect',
     body: 'For pastoral covering, leadership counsel, or ministry partnership with Bishop Erastus Kwaka.',

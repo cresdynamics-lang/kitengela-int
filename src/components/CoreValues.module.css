@@ -11,11 +11,20 @@
 }
 
 .sectionTitle {
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: 'Maiandra GD', 'Nunito', system-ui, sans-serif;
   font-size: clamp(1.75rem, 3.5vw, 2.5rem);
   text-align: center;
   color: #fff;
-  margin-bottom: 2.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.sectionSubtitle {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.75);
+  max-width: 36rem;
+  margin: 0 auto 2.5rem;
+  font-size: 1rem;
+  line-height: 1.5;
 }
 
 .valuesGrid {

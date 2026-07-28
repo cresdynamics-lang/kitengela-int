@@ -16,19 +16,19 @@ export const GIVING_CATEGORIES: GiveCategory[] = [
     id: 'offering',
     title: 'Offering',
     subtitle: 'Worship through generosity',
-    description: 'Worship through generosity.',
+    description: 'Worship through generosity as part of our Sunday giving.',
   },
   {
-    id: 'missions',
-    title: 'Missions & Outreach',
-    subtitle: 'Reaching Kitengela and beyond',
-    description: 'Reaching Kitengela and beyond.',
+    id: 'development',
+    title: 'Development',
+    subtitle: 'Growing the work',
+    description: 'Support church development and ongoing ministry needs.',
   },
   {
     id: 'building',
     title: 'Building Fund',
-    subtitle: 'Growing our house of worship',
-    description: 'Growing our house of worship.',
+    subtitle: 'Raising the house of worship',
+    description: 'Partner with us as we build — give toward the construction project.',
   },
 ]
 
@@ -36,18 +36,23 @@ export type GiveSettings = {
   paybillNumber: string
   accountNumber: string
   accountSuffixes: string[]
+  buildingPaybillNumber: string
+  buildingAccountNumber: string
   bankName: string
   bankAccountName: string
   bankAccountNumber: string
   bankBranch: string
 }
 
+/** Tithe / offering / development — Paybill 4004004222, Account 33985#… */
 export const DEFAULT_GIVE_SETTINGS: GiveSettings = {
-  paybillNumber: '400222',
-  accountNumber: '1756443',
-  accountSuffixes: ['#offering/tithe', '#missions', '#building'],
+  paybillNumber: '4004004222',
+  accountNumber: '33985',
+  accountSuffixes: ['#offering', '#tithe', '#development'],
+  buildingPaybillNumber: '4009307',
+  buildingAccountNumber: 'BUILDING',
   bankName: 'Co-operative Bank',
-  bankAccountName: 'Athi River VOSH Church',
+  bankAccountName: 'VOSH Church International Kitengela',
   bankAccountNumber: 'Contact finance team for details',
   bankBranch: 'Kitengela Branch',
 }
@@ -66,6 +71,16 @@ export function normalizeGiveSettings(row: Record<string, unknown> | null | unde
     paybillNumber: String(row.paybill_number ?? row.paybillNumber ?? DEFAULT_GIVE_SETTINGS.paybillNumber),
     accountNumber: String(row.account_number ?? row.accountNumber ?? DEFAULT_GIVE_SETTINGS.accountNumber),
     accountSuffixes: suffixes.length ? suffixes : DEFAULT_GIVE_SETTINGS.accountSuffixes,
+    buildingPaybillNumber: String(
+      row.building_paybill_number ??
+        row.buildingPaybillNumber ??
+        DEFAULT_GIVE_SETTINGS.buildingPaybillNumber,
+    ),
+    buildingAccountNumber: String(
+      row.building_account_number ??
+        row.buildingAccountNumber ??
+        DEFAULT_GIVE_SETTINGS.buildingAccountNumber,
+    ),
     bankName: String(row.bank_name ?? row.bankName ?? DEFAULT_GIVE_SETTINGS.bankName),
     bankAccountName: String(row.bank_account_name ?? row.bankAccountName ?? DEFAULT_GIVE_SETTINGS.bankAccountName),
     bankAccountNumber: String(
@@ -75,6 +90,6 @@ export function normalizeGiveSettings(row: Record<string, unknown> | null | unde
   }
 }
 
-export function formatMpesaAccount(settings: GiveSettings, suffix = '#offering/tithe') {
+export function formatMpesaAccount(settings: GiveSettings, suffix = '#offering') {
   return `${settings.accountNumber}${suffix}`
 }

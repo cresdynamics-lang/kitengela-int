@@ -22,7 +22,7 @@ export type GenerationCard = {
 export const DEFAULT_HOME_HERO_SLIDES: HeroSlide[] = [
   {
     id: 'house-of-solutions',
-    image: '/rev-side-picture.jpeg',
+    image: '/rev-evans-kochoo-preaching.jpeg',
     label: 'VOSH CHURCH KITENGELA',
     headline: 'Rooted in the Word, Rising in Spirit',
     scriptureText: 'Built on the foundation of the apostles and prophets, with Christ Jesus Himself as the chief cornerstone.',
@@ -32,8 +32,8 @@ export const DEFAULT_HOME_HERO_SLIDES: HeroSlide[] = [
   },
   {
     id: 'defying-gravity',
-    image: '/evans-preaching.jpeg',
-    label: 'DEFYING GRAVITY',
+    image: '/rev-evans-kochoo-smiling.jpeg',
+    label: 'ONE WAY, ONE JOB',
     headline: 'Impacting Generations',
     scriptureText: 'One generation will commend Your works to another, and they will tell of Your mighty acts.',
     scriptureRef: 'Psalm 145:4',
@@ -51,14 +51,14 @@ export const DEFAULT_HOME_HERO_SLIDES: HeroSlide[] = [
     ctaLink: ROUTES.outreach,
   },
   {
-    id: 'next-gen',
-    image: '/worship-time.jpeg',
-    label: 'NEXT GENERATION',
-    headline: 'Raising Kingdom Leaders for Tomorrow',
-    scriptureText: 'Train up a child in the way he should go; even when he is old he will not depart from it.',
-    scriptureRef: 'Proverbs 22:6',
-    ctaText: 'Explore Next Generation',
-    ctaLink: ROUTES.nextGeneration,
+    id: 'tefila',
+    image: '/tefila-night.jpeg',
+    label: 'TEFILA NIGHT',
+    headline: 'Pursue · Overtake · Recover',
+    scriptureText: 'Every Friday · 8:00 PM until Dawn at VOSH Kitengela.',
+    scriptureRef: '1 Samuel 30:2-8',
+    ctaText: 'View Services',
+    ctaLink: ROUTES.services,
   },
 ]
 
@@ -66,14 +66,14 @@ export const DEFAULT_GENERATION_GROUPS: GenerationCard[] = [
   {
     id: 'children',
     groupName: "Children's Ministry",
-    imageUrl: '/whatsapp-4.jpeg',
+    imageUrl: '/pst-ponciano-odongo-children.jpeg',
     scriptureText: 'Train up a child in the way he should go.',
     scriptureRef: 'Proverbs 22:6',
   },
   {
     id: 'youth',
     groupName: 'Youth & Teens',
-    imageUrl: '/whatsapp-12.jpeg',
+    imageUrl: '/pst-erastus-oyoo-youth.jpeg',
     scriptureText: 'Let no one despise your youth.',
     scriptureRef: '1 Timothy 4:12',
   },
@@ -87,7 +87,7 @@ export const DEFAULT_GENERATION_GROUPS: GenerationCard[] = [
   {
     id: 'elders',
     groupName: 'Elders & Legacy',
-    imageUrl: '/church-praying.jpg',
+    imageUrl: '/bishop-erastus-kwaka.jpeg',
     scriptureText: 'One generation will commend Your works to another.',
     scriptureRef: 'Psalm 145:4',
   },
@@ -104,15 +104,15 @@ export function normalizeHeroSlide(row: Record<string, unknown>): HeroSlide | nu
     headline,
     scriptureText: String(row.scripture_text ?? row.scriptureText ?? ''),
     scriptureRef: String(row.scripture_ref ?? row.scriptureRef ?? ''),
-    ctaText: String(row.cta_text ?? row.ctaText ?? 'Learn More'),
+    ctaText: String(row.cta_text ?? row.ctaText ?? ''),
     ctaLink: String(row.cta_link ?? row.ctaLink ?? ROUTES.whoWeAre),
   }
 }
 
 export function normalizeGenerationGroup(row: Record<string, unknown>): GenerationCard | null {
-  const imageUrl = String(row.image_url ?? row.imageUrl ?? '').trim()
   const groupName = String(row.group_name ?? row.groupName ?? '').trim()
-  if (!imageUrl || !groupName) return null
+  const imageUrl = String(row.image_url ?? row.imageUrl ?? '').trim()
+  if (!groupName || !imageUrl) return null
   return {
     id: String(row.id ?? groupName),
     groupName,
