@@ -63,7 +63,7 @@ export default function Header() {
               />
               <div className={styles.logoText}>
                 <h1 className={styles.churchName}>VOSH Church</h1>
-                <p className={styles.locationTag}>KITENGELA</p>
+                <p className={styles.locationTag}>Kitengela Branch</p>
               </div>
             </Link>
           </div>

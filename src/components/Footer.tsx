@@ -16,7 +16,9 @@ export default function Footer() {
             <img src="/vosh-logo-70th.jpeg" alt="VOSH Church International Kitengela" className={styles.footerLogo} />
             <div>
               <h3 className={styles.brandName}>
-                Voice Of Salvation And Healing Church International — Kitengela
+                <span className={styles.brandVosh}>VOSH Church</span>
+                {' '}
+                <span className={styles.brandBranch}>Kitengela Branch</span>
               </h3>
               <p className={styles.hashtags}>{MOTTO_HASHTAG} · One Way, One Job</p>
             </div>

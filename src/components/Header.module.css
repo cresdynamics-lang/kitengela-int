@@ -52,20 +52,21 @@
 }
 
 .churchName {
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: var(--font-display, 'Maiandra GD', 'Nunito', sans-serif);
   font-size: 1.2rem;
   font-weight: 700;
-  color: var(--navy, #0B1F3A);
+  color: var(--brand-red, #C8102E);
   margin: 0;
   line-height: 1.15;
 }
 
 .locationTag {
-  font-size: 0.65rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  color: var(--gold, #D4A017);
-  letter-spacing: 0.18em;
+  color: var(--navy, #1B2F9B);
+  letter-spacing: 0.06em;
   margin: 0;
+  text-transform: none;
 }
 
 .nav {
