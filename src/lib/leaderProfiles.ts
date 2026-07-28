@@ -41,7 +41,7 @@ export const EVANS_KOCHOO_PROFILE: RichLeaderProfile = {
     'The first organized opposition to the Gospel was financed to kill the truth; the Church must also finance a platform on which the truth is revealed.',
   quoteTagline: 'Defying Gravity, Impacting Generations',
   heroPhoto: '/rev-evans-kochoo-preaching.jpeg',
-  profilePhoto: '/rev-evans-kochoo-smiling.jpeg',
+  profilePhoto: '/rev-evans-kochoo-1.jpeg',
   visionStatement:
     'To raise, equip, and release Kingdom-minded leaders who will impact generations by living out the uncompromised truth of the Gospel.',
   visionScripture: {

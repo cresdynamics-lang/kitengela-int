@@ -90,7 +90,7 @@ export const defaultLeaders: PublicLeader[] = [
     name: 'Rev. Evans O. Kochoo',
     title: 'Senior Pastor',
     bio: 'I am Evans O. Kochoo, fondly known as The Eagle, a passionate servant of God driven by a dynamic apostolic mandate to disseminate the pure and unadulterated Gospel of Jesus Christ.\n\nFor years, the Lord has entrusted me with shepherding VOSH Church International Kitengela — raising a people who encounter God\'s presence, grow in the Word, and carry solutions to their generation.\n\nI teach that just as the first organized opposition to the Gospel was financed to suppress the truth, the Church must also finance platforms where the truth is revealed.\n\nScripture: "Shepherd the flock of God that is among you, exercising oversight." — 1 Peter 5:2',
-    imageUrl: '/rev-evans-kochoo-smiling.jpeg',
+    imageUrl: '/rev-evans-kochoo-1.jpeg',
     slug: 'evans-kochoo',
     facebookUrl: null,
     instagramUrl: null,
@@ -167,15 +167,19 @@ export function resolvePublicLeaders(fromApi: PublicLeader[]): PublicLeader[] {
     if (!exists) {
       merged.push(fallback)
     } else {
-      // Prefer clearer local portraits when API photo is missing
+      // Prefer curated portraits (face-forward) over outdated CMS / collage photos
       const idx = merged.findIndex(
         (l) =>
           l.id === fallback.id ||
           l.slug === fallback.slug ||
           (fallback.slug === 'erastus-kwaka' && /kwaka/i.test(l.name)) ||
-          (fallback.slug === 'evans-kochoo' && /evans/i.test(l.name) && /kochoo/i.test(l.name)),
+          (fallback.slug === 'evans-kochoo' && /evans/i.test(l.name) && /kochoo/i.test(l.name)) ||
+          (fallback.slug === 'erastus-oyoo' && /oyoo/i.test(l.name)) ||
+          (fallback.slug === 'ponciano-odongo' && /ponciano|odongo/i.test(l.name)) ||
+          (fallback.slug === 'evangelist-lenny' && /lenny/i.test(l.name)) ||
+          (fallback.slug === 'pastor-nancy-sai' && /nancy/i.test(l.name)),
       )
-      if (idx >= 0 && !merged[idx].imageUrl && fallback.imageUrl) {
+      if (idx >= 0 && fallback.imageUrl) {
         merged[idx] = { ...merged[idx], imageUrl: fallback.imageUrl }
       }
     }

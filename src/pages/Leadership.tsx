@@ -23,7 +23,7 @@ import styles from './Leadership.module.css'
 
 export default function Leadership() {
   const [leaders, setLeaders] = useState<PublicLeader[]>(defaultLeaders)
-  const [heroImage, setHeroImage] = useState('/rev-evans-kochoo-preaching.jpeg')
+  const [heroImage, setHeroImage] = useState('/rev-evans-kochoo-1.jpeg')
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
