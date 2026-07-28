@@ -50,16 +50,6 @@
   font-weight: 700;
 }
 
-.brandVosh {
-  color: #ff6b7a;
-  font-weight: 800;
-}
-
-.brandBranch {
-  color: #8eb4ff;
-  font-weight: 700;
-}
-
 .hashtags {
   color: var(--gold, #D4A017);
   font-weight: 600;
