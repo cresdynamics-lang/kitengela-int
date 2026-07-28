@@ -8,7 +8,7 @@ if (!resendApiKey) {
 
 const resend = resendApiKey ? new Resend(resendApiKey) : null
 
-const DEFAULT_TO = 'evansculture2019@gmail.com'
+const DEFAULT_TO = 'evanskochoo2019@gmail.com'
 const DEFAULT_FROM = 'VOSH Kitengela <onboarding@resend.dev>'
 
 export async function sendContactEmail(options: {

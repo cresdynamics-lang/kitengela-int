@@ -21,8 +21,8 @@ export const CONTACT_INFO = {
   whatsapp: '+254 727 057 995',
   whatsappGroup: SOCIAL_LINKS.whatsappGroup,
   officeHours: 'Counseling: 10:00 AM – 3:00 PM',
-  email: 'evansculture2019@gmail.com',
-  financeEmail: 'evansculture2019@gmail.com',
+  email: 'evanskochoo2019@gmail.com',
+  financeEmail: 'evanskochoo2019@gmail.com',
 }
 
 export const MAP_EMBED_URL =

@@ -12,7 +12,7 @@ interface ContactInfo {
 
 const FALLBACK: ContactInfo = {
   phoneNumbers: ['+254 727 057 995', '+254 704 601 178', '+254 733 566 398'],
-  email: 'evansculture2019@gmail.com',
+  email: 'evanskochoo2019@gmail.com',
   location: {
     city: 'Kitengela',
     address: 'Along Baraka Road / Treewa Road, Next to Balozi Junior Academy'
