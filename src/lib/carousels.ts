@@ -80,7 +80,7 @@ export const DEFAULT_GENERATION_GROUPS: GenerationCard[] = [
   {
     id: 'young-adults',
     groupName: 'Young Adults',
-    imageUrl: '/online-connect.jpeg',
+    imageUrl: '/whatsapp-12.jpeg',
     scriptureText: "Don't let anyone look down on you because you are young.",
     scriptureRef: '1 Timothy 4:12',
   },

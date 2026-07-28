@@ -143,8 +143,21 @@ export default function Home() {
         if (res.success && Array.isArray(res.data) && res.data.length > 0) {
           const parsed = (res.data as Record<string, unknown>[])
             .map(normalizeGenerationGroup)
-            .filter(Boolean)
-          if (parsed.length) setGenerationGroups(parsed as typeof DEFAULT_GENERATION_GROUPS)
+            .filter(Boolean) as typeof DEFAULT_GENERATION_GROUPS
+          if (parsed.length) {
+            // Keep curated default photos (e.g. Young Adults) while allowing API copy/order.
+            setGenerationGroups(
+              parsed.map((group) => {
+                const fallback = DEFAULT_GENERATION_GROUPS.find(
+                  (d) =>
+                    d.id === group.id ||
+                    d.groupName.toLowerCase() === group.groupName.toLowerCase(),
+                )
+                if (!fallback) return group
+                return { ...group, imageUrl: fallback.imageUrl }
+              }),
+            )
+          }
         }
       }),
       publicApi.getPhotos().then((res) => {
